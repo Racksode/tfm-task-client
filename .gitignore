@@ -1,0 +1,49 @@
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores / IDEs
+.vscode/
+.idea/
+
+# Logs
+*.log
+logs/
+
+# Variables de entorno
+.env
+.env.*
+!.env.example
+
+# Dependencias futuras
+node_modules/
+vendor/
+
+# Builds / caches futuras
+dist/
+build/
+.cache/
+.tmp/
+temp/
+coverage/
+
+# Python futuro
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Docker / local
+docker-compose.override.yml
+
+# Archivos generados
+*.zip
+*.tar
+*.tar.gz
+*.rar
+
+# Documentos temporales
+~$*
+*.bak
+*.tmp
