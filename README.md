@@ -62,6 +62,17 @@ test: añadir pruebas del registro de tiempos
 chore: crear estructura base de carpetas
 ```
 
+## Metodología de trabajo
+
+El proyecto se desarrollará por fases controladas, priorizando un MVP realista para el TFM y evitando el crecimiento descontrolado del alcance.
+
+El uso de herramientas de inteligencia artificial se plantea como apoyo al análisis, diseño, implementación, testing y documentación, pero no como excusa para añadir funcionalidades sin planificación.
+
+La planificación general, las fases de desarrollo y los criterios de control de alcance se describen en:
+
+[docs/09-plan-trabajo-y-control-alcance.md](docs/09-plan-trabajo-y-control-alcance.md)
+
 ## Estado del proyecto
 
 Proyecto en fase de definición inicial.
+
