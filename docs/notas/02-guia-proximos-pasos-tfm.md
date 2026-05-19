@@ -1,6 +1,6 @@
 # Guía de próximos pasos del TFM
 
-> Documento interno de trabajo.  
+> Documento interno de trabajo.
 > Define el orden recomendado de trabajo a partir de la estructura documental inicial ya creada.
 
 ## 1. Objetivo de esta guía
@@ -96,6 +96,16 @@ Funcionalidades candidatas del MVP:
 - área básica de cliente
 - resumen asistido por IA
 
+Prompt recomendado:
+
+```text
+Lee README.md, AGENTS.md, docs/00-vision-y-alcance.md y docs/09-plan-trabajo-y-control-alcance.md.
+
+Quiero completar docs/01-requisitos-funcionales.md con el alcance realista del MVP del TFM.
+
+Primero propón un plan de secciones y requisitos. No modifiques ficheros todavía.
+```
+
 Commit recomendado:
 
 ```text
@@ -131,6 +141,14 @@ Temas a incluir:
 - testing E2E si procede
 - cobertura en partes críticas
 - auditoría básica
+
+Prompt recomendado:
+
+```text
+Completa docs/02-requisitos-no-funcionales.md para este TFM, teniendo en cuenta seguridad desde diseño, OWASP Top Ten, mantenibilidad, testing, accesibilidad, usabilidad y control de calidad.
+
+Primero dame el plan. No edites todavía.
+```
 
 Commit recomendado:
 
@@ -172,6 +190,13 @@ Proyecto -> Tareas
 Tarea -> Registros de tiempo
 Cliente -> Usuarios cliente
 Reporte -> Tareas / tiempos
+```
+Prompt recomendado:
+
+```text
+A partir de los requisitos del MVP, propón el modelo de datos conceptual inicial para clientes, proyectos, tareas, registros de tiempo, tarifas, reportes y usuarios.
+
+No generes todavía migraciones ni código. Solo documentación en docs/03-modelo-datos.md.
 ```
 
 Commit recomendado:
