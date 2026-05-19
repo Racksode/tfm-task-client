@@ -46,6 +46,29 @@ Una de las principales ventajas del desarrollo asistido por IA es la velocidad p
 
 Por tanto, cualquier propuesta generada por IA deberá revisarse antes de incorporarse al proyecto.
 
+```md
+## 3.1. Riesgo de sobredefinición y falsa sensación de avance
+
+Durante la definición del proyecto se ha identificado un riesgo específico asociado al uso intensivo de herramientas de inteligencia artificial: la tendencia a generar rápidamente documentación, funcionalidades, integraciones y líneas futuras, creando una falsa sensación de avance.
+
+La documentación generada con IA puede ser útil, pero no debe confundirse con progreso real del producto.
+
+El proyecto aplicará las siguientes reglas:
+
+- La documentación no sustituye al avance real del MVP.
+- No se añadirán funcionalidades al MVP sin validar su necesidad.
+- Toda nueva idea deberá clasificarse como imprescindible, aplazable, futura o descartada.
+- Las integraciones complejas se tratarán como evolución futura salvo justificación explícita.
+- El chat con IA no será la fuente de verdad del proyecto.
+- Las decisiones aceptadas deberán reflejarse en la documentación del repositorio.
+- Cada funcionalidad deberá valorarse por coste, mantenimiento, riesgo y valor real.
+- No se crearán documentos nuevos si no ayudan a construir o defender el TFM.
+
+La reflexión completa sobre este riesgo se recoge en:
+
+[docs/notas/03-reflexion-sobrealcance-ia.md](docs/notas/03-reflexion-sobrealcance-ia.md)
+```
+
 ## 4. Clasificación de nuevas ideas o funcionalidades
 
 Antes de incorporar una nueva funcionalidad, deberá clasificarse en una de estas categorías:

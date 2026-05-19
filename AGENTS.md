@@ -38,6 +38,37 @@ Antes de incorporar una funcionalidad, clasificarla como:
 
 Solo las funcionalidades imprescindibles para el MVP deberán implementarse durante el TFM.
 
+```md
+## Prevención de sobrealcance por IA
+
+Los agentes IA no deben proponer ni implementar funcionalidades adicionales solo porque sean técnicamente posibles o rápidas de generar.
+
+Antes de incorporar cualquier funcionalidad nueva, deberá clasificarse según:
+
+- valor para el MVP
+- coste de implementación
+- coste de mantenimiento
+- riesgo de complejidad
+- impacto en seguridad
+- valor comercial futuro
+- categoría: TFM, SaaS futuro, experimentación o descartada
+
+El chat con IA no es fuente de verdad del proyecto. Solo se considerarán decisiones aceptadas aquellas que estén reflejadas en la documentación del repositorio.
+
+Los agentes deberán evitar:
+
+- ampliar el MVP por iniciativa propia
+- convertir líneas futuras en funcionalidades actuales
+- generar documentación extensa sin utilidad clara
+- crear nuevos documentos sin necesidad justificada
+- sobrediseñar la arquitectura
+- proponer integraciones externas como parte del MVP si están marcadas como futuras
+
+El criterio principal será:
+
+> Mejor un MVP pequeño, completo y defendible que un producto grande, incompleto y difícil de justificar.
+```
+
 ## Disciplina de desarrollo
 
 El proyecto debe desarrollarse por fases cerradas y verificables.
