@@ -6,6 +6,32 @@ Proyecto Final de Máster orientado al desarrollo de un MVP funcional de una pla
 
 Desarrollar una aplicación web que permita gestionar clientes, proyectos y tareas, registrar tiempos de trabajo y generar reportes profesionales para el cliente con ayuda de inteligencia artificial.
 
+## Estado actual del proyecto
+
+El proyecto se encuentra actualmente en fase de análisis y definición funcional del MVP.
+
+```text
+Fase actual: Fase 2 - Diseño funcional
+Punto actual: 5.1 - Requisitos funcionales
+Documento en curso: docs/01-requisitos-funcionales.md
+```
+
+Último hito completado:
+
+```text
+Fase 1 - Definición y documentación inicial
+```
+
+Próximo paso:
+
+```text
+Definir los requisitos funcionales del MVP, separando claramente qué entra en el TFM y qué queda como evolución futura del SaaS.
+```
+
+Referencia de planificación:
+
+[docs/09-plan-trabajo-y-control-alcance.md](docs/09-plan-trabajo-y-control-alcance.md)
+
 ## Alcance del TFM
 
 El proyecto se centrará en un MVP que incluirá:
@@ -41,9 +67,37 @@ La documentación del proyecto se organiza en la carpeta `/docs`.
 Documentos principales:
 
 - [Visión y alcance](docs/00-vision-y-alcance.md)
+- [Requisitos funcionales](docs/01-requisitos-funcionales.md)
+- [Requisitos no funcionales](docs/02-requisitos-no-funcionales.md)
+- [Modelo de datos](docs/03-modelo-datos.md)
+- [Arquitectura](docs/04-arquitectura.md)
 - [Uso de IA](docs/05-ia.md)
 - [Integraciones previstas y futuras](docs/06-integraciones.md)
+- [Plan de pruebas](docs/07-plan-pruebas.md)
+- [Despliegue](docs/08-despliegue.md)
+- [Plan de trabajo y control de alcance](docs/09-plan-trabajo-y-control-alcance.md)
 - [Metodología de documentación](docs/99-metodologia-documentacion.md)
+
+Documentos internos de trabajo:
+
+- [Hoja de ruta del TFM](docs/notas/00-hoja-ruta.md)
+- [Trabajo desde el IDE con agentes IA](docs/notas/01-trabajo-ide-agentes-ia.md)
+- [Guía de próximos pasos](docs/notas/02-guia-proximos-pasos-tfm.md)
+
+## Metodología de trabajo
+
+El proyecto se desarrollará por fases controladas, priorizando un MVP realista para el TFM y evitando el crecimiento descontrolado del alcance.
+
+El uso de herramientas de inteligencia artificial se plantea como apoyo al análisis, diseño, implementación, testing y documentación, pero no como excusa para añadir funcionalidades sin planificación.
+
+La planificación general, las fases de desarrollo y los criterios de control de alcance se describen en:
+
+[docs/09-plan-trabajo-y-control-alcance.md](docs/09-plan-trabajo-y-control-alcance.md)
+
+Las normas de trabajo con agentes IA se encuentran en:
+
+- [AGENTS.md](AGENTS.md)
+- [docs/notas/01-trabajo-ide-agentes-ia.md](docs/notas/01-trabajo-ide-agentes-ia.md)
 
 ## Convención de commits
 
@@ -62,17 +116,24 @@ test: añadir pruebas del registro de tiempos
 chore: crear estructura base de carpetas
 ```
 
-## Metodología de trabajo
+## Stack tecnológico previsto
 
-El proyecto se desarrollará por fases controladas, priorizando un MVP realista para el TFM y evitando el crecimiento descontrolado del alcance.
+Pendiente de decisión definitiva durante la fase de arquitectura.
 
-El uso de herramientas de inteligencia artificial se plantea como apoyo al análisis, diseño, implementación, testing y documentación, pero no como excusa para añadir funcionalidades sin planificación.
+Stack candidato:
 
-La planificación general, las fases de desarrollo y los criterios de control de alcance se describen en:
+- Next.js.
+- React.
+- TypeScript.
+- PostgreSQL.
+- Docker.
+- GitHub.
+- Integración IA mediante proveedor externo o servicio desacoplado.
 
-[docs/09-plan-trabajo-y-control-alcance.md](docs/09-plan-trabajo-y-control-alcance.md)
+## Instalación y ejecución
 
-## Estado del proyecto
+Pendiente de definir cuando comience la fase de implementación.
 
-Proyecto en fase de definición inicial.
+## Licencia
 
+Pendiente de definir.

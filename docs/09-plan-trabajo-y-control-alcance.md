@@ -1,6 +1,6 @@
 # Plan de trabajo, fases y control del alcance
 
-> Documento interno de trabajo para el TFM.  
+> Documento interno de trabajo para el TFM.
 > Define la forma de organizar el desarrollo, controlar el alcance y evitar que el proyecto crezca de forma descontrolada por el uso intensivo de herramientas de inteligencia artificial.
 
 ## 1. Objetivo del documento
@@ -373,3 +373,27 @@ Este documento actúa como mecanismo de control para mantener el proyecto dentro
 Su objetivo es evitar que el uso de IA derive en un desarrollo excesivamente ambicioso, disperso o difícil de finalizar.
 
 El TFM debe demostrar capacidad de análisis, diseño, implementación, calidad, seguridad y uso responsable de IA, no la construcción completa de un SaaS comercial desde el primer día.
+
+## Estado de avance
+
+| Fase | Estado | Documento principal |
+|---|---|---|
+| Fase 1: definición y documentación inicial | Completada | `docs/00-vision-y-alcance.md` |
+| Fase 2: diseño funcional | En curso | `docs/01-requisitos-funcionales.md` / `docs/02-requisitos-no-funcionales.md` |
+| Fase 3: diseño técnico y arquitectura | Pendiente | `docs/03-modelo-datos.md` / `docs/04-arquitectura.md` |
+| Fase 4: implementación MVP | Pendiente | `frontend/`, `backend/` |
+| Fase 5: integración IA | Pendiente | `docs/05-ia.md` |
+| Fase 6: área cliente y reportes | Pendiente | Pendiente |
+| Fase 7: testing, seguridad y calidad | Pendiente | `docs/07-plan-pruebas.md` |
+| Fase 8: despliegue y entrega | Pendiente | `docs/08-despliegue.md` |
+
+
+### Punto actual
+
+Actualmente el proyecto se encuentra en:
+
+```text
+Fase 2: diseño funcional
+Punto 5.2: requisitos no funcionales
+Documento en curso: docs/01-requisitos-funcionales.md
+```
