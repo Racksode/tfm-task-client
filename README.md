@@ -12,20 +12,20 @@ El proyecto se encuentra actualmente en fase de análisis y definición funciona
 
 ```text
 Fase actual: Fase 2 - Diseño funcional
-Punto actual: 5.1 - Requisitos funcionales
-Documento en curso: docs/01-requisitos-funcionales.md
+Punto actual: 5.2 - Requisitos no funcionales
+Documento en curso: docs/02-requisitos-no-funcionales.md
 ```
 
 Último hito completado:
 
 ```text
-Fase 1 - Definición y documentación inicial
+5.1 - Requisitos funcionales del MVP
 ```
 
 Próximo paso:
 
 ```text
-Definir los requisitos funcionales del MVP, separando claramente qué entra en el TFM y qué queda como evolución futura del SaaS.
+Definir los requisitos no funcionales del MVP, separando claramente qué entra en el TFM y qué queda como evolución futura del SaaS.
 ```
 
 Referencia de planificación:
