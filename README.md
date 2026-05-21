@@ -12,14 +12,14 @@ El proyecto se encuentra actualmente en fase de análisis y definición funciona
 
 ```text
 Fase actual: Fase 2 - Diseño funcional
-Punto actual: 5.2 - Requisitos no funcionales
-Documento en curso: docs/02-requisitos-no-funcionales.md
+Punto actual: 5.3 - Modelo de datos inicial
+Documento en curso: docs/03-modelo-datos.md
 ```
 
 Último hito completado:
 
 ```text
-5.1 - Requisitos funcionales del MVP
+5.2 - Modelo de datos
 ```
 
 Próximo paso:
