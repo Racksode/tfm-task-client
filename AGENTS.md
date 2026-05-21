@@ -2,26 +2,26 @@
 
 Este documento define las normas que deben seguir los agentes IA que trabajen sobre este repositorio.
 
-El proyecto corresponde a un Trabajo Final de M·ster, por lo que debe priorizarse un MVP funcional, defendible y limitado.
+El proyecto corresponde a un Trabajo Final de M√°ster, por lo que debe priorizarse un MVP funcional, defendible y limitado.
 
 ## Desarrollo por fases y control de alcance
 
 Los agentes IA deben respetar las siguientes normas:
 
-- No aÒadir funcionalidades nuevas sin aprobaciÛn explÌcita.
+- No a√±adir funcionalidades nuevas sin aprobaci√≥n expl√≠cita.
 - No ampliar el alcance del MVP por iniciativa propia.
-- No convertir lÌneas futuras del SaaS en funcionalidades del TFM sin confirmaciÛn.
+- No convertir l√≠neas futuras del SaaS en funcionalidades del TFM sin confirmaci√≥n.
 - Proponer primero un plan antes de modificar ficheros relevantes.
-- Separar claramente funcionalidades del TFM y lÌneas futuras.
-- Priorizar cÛdigo sencillo, mantenible y justificable.
-- Evitar sobrediseÒar la soluciÛn.
-- No implementar integraciones externas completas si est·n marcadas como evoluciÛn futura.
+- Separar claramente funcionalidades del TFM y l√≠neas futuras.
+- Priorizar c√≥digo sencillo, mantenible y justificable.
+- Evitar sobredise√±ar la soluci√≥n.
+- No implementar integraciones externas completas si est√°n marcadas como evoluci√≥n futura.
 - Sugerir mejoras como pendientes o futuras, no implementarlas directamente.
-- Mantener la documentaciÛn actualizada cuando cambie una decisiÛn importante.
+- Mantener la documentaci√≥n actualizada cuando cambie una decisi√≥n importante.
 
 ## Trabajo en modo plan
 
-Antes de ejecutar una tarea relevante, el agente deber· responder con:
+Antes de ejecutar una tarea relevante, el agente deber√° responder con:
 
 1. Objetivo del cambio.
 2. Ficheros afectados.
@@ -33,51 +33,51 @@ No se deben modificar ficheros importantes hasta que el plan haya sido revisado 
 
 ## Criterio de alcance
 
-Antes de incorporar una funcionalidad, deber· clasificarse como:
+Antes de incorporar una funcionalidad, deber√° clasificarse como:
 
 - Imprescindible para el MVP.
 - Recomendable pero aplazable.
-- LÌnea futura del producto SaaS.
+- L√≠nea futura del producto SaaS.
 - Descartada para el TFM.
 
-Solo las funcionalidades imprescindibles para el MVP deber·n implementarse durante el TFM.
+Solo las funcionalidades imprescindibles para el MVP deber√°n implementarse durante el TFM.
 
-## PrevenciÛn de sobrealcance por IA
+## Prevenci√≥n de sobrealcance por IA
 
-Los agentes IA no deben proponer ni implementar funcionalidades adicionales solo porque sean tÈcnicamente posibles o r·pidas de generar.
+Los agentes IA no deben proponer ni implementar funcionalidades adicionales solo porque sean t√©cnicamente posibles o r√°pidas de generar.
 
-Antes de incorporar cualquier funcionalidad nueva, deber· clasificarse seg˙n:
+Antes de incorporar cualquier funcionalidad nueva, deber√° clasificarse seg√∫n:
 
 - Valor para el MVP.
-- Coste de implementaciÛn.
+- Coste de implementaci√≥n.
 - Coste de mantenimiento.
 - Riesgo de complejidad.
 - Impacto en seguridad.
 - Valor comercial futuro.
-- CategorÌa: TFM, SaaS futuro, experimentaciÛn o descartada.
+- Categor√≠a: TFM, SaaS futuro, experimentaci√≥n o descartada.
 
-El chat con IA no es fuente de verdad del proyecto. Solo se considerar·n decisiones aceptadas aquellas que estÈn reflejadas en la documentaciÛn del repositorio.
+El chat con IA no es fuente de verdad del proyecto. Solo se considerar√°n decisiones aceptadas aquellas que est√©n reflejadas en la documentaci√≥n del repositorio.
 
-Los agentes deber·n evitar:
+Los agentes deber√°n evitar:
 
 - Ampliar el MVP por iniciativa propia.
-- Convertir lÌneas futuras en funcionalidades actuales.
-- Generar documentaciÛn extensa sin utilidad clara.
+- Convertir l√≠neas futuras en funcionalidades actuales.
+- Generar documentaci√≥n extensa sin utilidad clara.
 - Crear nuevos documentos sin necesidad justificada.
-- SobrediseÒar la arquitectura.
-- Proponer integraciones externas como parte del MVP si est·n marcadas como futuras.
+- Sobredise√±ar la arquitectura.
+- Proponer integraciones externas como parte del MVP si est√°n marcadas como futuras.
 
-El criterio principal ser·:
+El criterio principal ser√°:
 
-> Mejor un MVP pequeÒo, completo y defendible que un producto grande, incompleto y difÌcil de justificar.
+> Mejor un MVP peque√±o, completo y defendible que un producto grande, incompleto y dif√≠cil de justificar.
 
 ## Disciplina de desarrollo
 
 El proyecto debe desarrollarse por fases cerradas y verificables.
 
-No se debe trabajar "como si no hubiera un maÒana", aÒadiendo funcionalidades de forma continua solo porque la IA permite generarlas r·pido.
+No se debe trabajar "como si no hubiera un ma√±ana", a√±adiendo funcionalidades de forma continua solo porque la IA permite generarlas r√°pido.
 
-El objetivo es construir un MVP pequeÒo, completo y defendible, no una plataforma SaaS completa en una primera entrega.
+El objetivo es construir un MVP peque√±o, completo y defendible, no una plataforma SaaS completa en una primera entrega.
 
 ## Prompts documentados
 
@@ -85,3 +85,4 @@ Los prompts reutilizables del proyecto se documentan en:
 
 ```text
 docs/prompts/README.md
+```
