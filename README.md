@@ -12,7 +12,7 @@ El proyecto se encuentra actualmente en fase de análisis y definición funciona
 
 ```text
 Fase actual: Fase 2 - Diseño funcional
-Punto actual: 5.3 - Modelo de datos inicial
+Punto actual: 5.4 - Arquitectura
 Documento en curso: docs/03-modelo-datos.md
 ```
 
@@ -25,7 +25,7 @@ Documento en curso: docs/03-modelo-datos.md
 Próximo paso:
 
 ```text
-Definir los requisitos no funcionales del MVP, separando claramente qué entra en el TFM y qué queda como evolución futura del SaaS.
+Definir la arquitectura inicial del MVP y preparar los ADRs principales: elección de arquitectura, base de datos e integración de IA.
 ```
 
 Referencia de planificación:
