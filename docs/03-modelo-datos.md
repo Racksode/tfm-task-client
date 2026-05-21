@@ -102,6 +102,7 @@ Campos conceptuales:
 - nombre
 - descripción
 - estado
+- visible para cliente
 - fecha de inicio
 - fecha prevista de finalizacion
 - tarifa base opcional
@@ -390,7 +391,10 @@ Las relaciones conceptuales del MVP son:
 ### 5.6. Reportes
 
 - Un reporte debe estar asociado a un cliente.
-- Un reporte puede estar asociado a un proyecto concreto o cubrir varios proyectos del cliente, si el flujo funcional lo requiere.
+- Un reporte pertenece siempre a un cliente.
+- Un reporte puede estar asociado opcionalmente a un proyecto concreto.
+- Si el reporte no tiene proyecto asociado, se interpretará como un reporte general del cliente para el periodo seleccionado.
+- No se modela en el MVP una relación muchos-a-muchos entre reportes y proyectos.
 - Un reporte debe generarse para un periodo definido.
 - Un reporte debe recoger tareas, tiempos, total de horas y coste estimado.
 - Un reporte puede incluir un resumen asistido por IA.
