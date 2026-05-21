@@ -30,7 +30,7 @@ Se priorizan:
 
 Se evita incorporar al modelo del MVP:
 
-- facturacion propia
+- facturación propia
 - integración completa con Holded
 - documentos o adjuntos avanzados
 - chat cliente-proveedor
@@ -70,7 +70,7 @@ Notas:
 
 ### 3.2. Cliente
 
-Representa a la organizacion o persona para la que se realizan trabajos.
+Representa a la organización o persona para la que se realizan trabajos.
 
 Campos conceptuales:
 
@@ -87,13 +87,13 @@ Campos conceptuales:
 
 Notas:
 
-- El cliente agrupa proyectos, tareas por derivacion, registros de tiempo por derivacion y reportes.
+- El cliente agrupa proyectos, tareas por derivación, registros de tiempo por derivación y reportes.
 - Las observaciones internas no deben mostrarse en el área de cliente salvo decisión explícita posterior.
 - Un cliente puede estar activo o inactivo.
 
 ### 3.3. Proyecto
 
-Representa una agrupacion de trabajo asociada a un cliente.
+Representa una agrupación de trabajo asociada a un cliente.
 
 Campos conceptuales:
 
@@ -104,16 +104,17 @@ Campos conceptuales:
 - estado
 - visible para cliente
 - fecha de inicio
-- fecha prevista de finalizacion
+- fecha prevista de finalización
 - tarifa base opcional
 - fecha de creación
 - fecha de actualización
 
 Notas:
 
-- Un proyecto pertenece a un unico cliente.
+- Un proyecto pertenece a un único cliente.
 - Un proyecto puede contener varias tareas.
 - El proyecto permite agrupar tiempos y reportes por contexto funcional.
+- Un proyecto solo será visible en el área de cliente si está marcado como visible para cliente.
 
 ### 3.4. Tarea
 
@@ -123,14 +124,14 @@ Campos conceptuales:
 
 - identificador
 - proyecto asociado
-- titulo
+- título
 - descripción
 - estado
 - prioridad básica
 - visible para cliente
 - usuario interno responsable opcional
 - fecha de creación funcional
-- fecha de finalizacion funcional
+- fecha de finalización funcional
 - fecha de creación del registro
 - fecha de actualización del registro
 
@@ -145,13 +146,13 @@ Estados conceptuales para el MVP:
 Notas:
 
 - La tarea pertenece a un proyecto.
-- El cliente asociado a una tarea se obtiene a traves de su proyecto.
+- El cliente asociado a una tarea se obtiene a través de su proyecto.
 - La visibilidad para cliente debe controlarse de forma explícita.
 - No se incluyen comentarios avanzados, adjuntos ni flujos complejos de revisión.
 
 ### 3.5. RegistroTiempo
 
-Representa una dedicacion de tiempo asociada a una tarea.
+Representa una dedicación de tiempo asociada a una tarea.
 
 Puede proceder de:
 
@@ -167,7 +168,7 @@ Campos conceptuales:
 - fecha de trabajo
 - hora de inicio, cuando aplique
 - hora de fin, cuando aplique
-- duracion
+- duración
 - descripción del trabajo realizado
 - tarifa aplicada
 - coste estimado calculado
@@ -178,8 +179,8 @@ Campos conceptuales:
 Notas:
 
 - Todo registro de tiempo debe estar asociado a una tarea.
-- Los registros start/stop deben permitir calcular la duracion a partir de inicio y fin.
-- Los registros manuales deben permitir indicar una duracion sin depender del temporizador.
+- Los registros start/stop deben permitir calcular la duración a partir de inicio y fin.
+- Los registros manuales deben permitir indicar una duración sin depender del temporizador.
 - La tarifa aplicada al registro debe conservar el valor usado para calcular el coste estimado, aunque cambie posteriormente la tarifa base del cliente o proyecto.
 
 ### 3.6. Tarifa
@@ -192,14 +193,14 @@ Campos conceptuales:
 - nombre
 - importe por hora
 - moneda
-- ambito conceptual
+- ámbito conceptual
 - cliente asociado opcional
 - proyecto asociado opcional
 - estado
 - fecha de creación
 - fecha de actualización
 
-Ambitos conceptuales posibles:
+Ámbitos conceptuales posibles:
 
 - tarifa general del sistema
 - tarifa asociada a cliente
@@ -209,7 +210,7 @@ Ambitos conceptuales posibles:
 Notas:
 
 - El MVP no incluye reglas avanzadas por nocturnidad, urgencia, festivos o condiciones comerciales complejas.
-- Los costes calculados son estimaciones y no sustituyen a un sistema de facturacion.
+- Los costes calculados son estimaciones y no sustituyen a un sistema de facturación.
 
 ### 3.7. Reporte
 
@@ -243,7 +244,7 @@ Notas:
 
 - El reporte se genera a partir de cliente, proyecto opcional y periodo.
 - El reporte debe poder consultarse en pantalla.
-- La exportacion a PDF queda como mejora recomendable pero aplazable.
+- La exportación a PDF queda como mejora recomendable pero aplazable.
 - El reporte visible para cliente no debe incluir información interna no compartida.
 
 ### 3.8. UsoIA
@@ -253,7 +254,7 @@ Representa un uso controlado y mínimo de IA dentro del MVP.
 Su finalidad es cubrir:
 
 - generación de resumen asistido para reportes
-- prueba controlada de interpretacion de instrucciones en lenguaje natural
+- prueba controlada de interpretación de instrucciones en lenguaje natural
 
 Campos conceptuales:
 
@@ -270,7 +271,7 @@ Campos conceptuales:
 Tipos conceptuales:
 
 - resumen de reporte
-- interpretacion de lenguaje natural
+- interpretación de lenguaje natural
 
 Estados conceptuales:
 
@@ -297,7 +298,7 @@ Regla de privacidad:
 
 Representa una trazabilidad mínima de acciones relevantes del sistema.
 
-No representa una auditoría avanzada, una solucion de cumplimiento normativo ni una estrategia completa de observabilidad.
+No representa una auditoría avanzada, una solución de cumplimiento normativo ni una estrategia completa de observabilidad.
 
 Campos conceptuales:
 
@@ -333,14 +334,16 @@ Las relaciones conceptuales del MVP son:
 - Un `Cliente` puede tener varios `Proyectos`.
 - Un `Proyecto` pertenece a un `Cliente`.
 - Una `Tarea` pertenece a un `Proyecto`.
-- El `Cliente` de una `Tarea` se deduce a traves del `Proyecto`.
+- El `Cliente` de una `Tarea` se deduce a través del `Proyecto`.
 - Una `Tarea` puede tener varios `RegistrosTiempo`.
 - Un `RegistroTiempo` pertenece a una `Tarea`.
 - Un `RegistroTiempo` pertenece a un `Usuario` interno.
-- Un `Usuario` con rol cliente esta asociado a un `Cliente`.
+- Un `Usuario` con rol cliente está asociado a un `Cliente`.
 - Una `Tarifa` puede asociarse conceptualmente a un `Cliente`, a un `Proyecto` o a un `RegistroTiempo`.
 - Un `Reporte` pertenece a un `Cliente`.
-- Un `Reporte` puede estar asociado a un `Proyecto`.
+- Un `Reporte` puede estar asociado opcionalmente a un `Proyecto` concreto.
+- Si un `Reporte` no tiene proyecto asociado, se interpretará como un reporte general del cliente para el periodo seleccionado.
+- No se modela en el MVP una relación muchos-a-muchos entre `Reportes` y `Proyectos`.
 - Un `Reporte` resume tareas y registros de tiempo de un periodo.
 - Un `UsoIA` puede estar asociado a un `Reporte`.
 - Un `UsoIA` también puede representar una prueba controlada de lenguaje natural sin ejecutar acciones.
@@ -359,7 +362,8 @@ Las relaciones conceptuales del MVP son:
 ### 5.2. Clientes y proyectos
 
 - Todo proyecto debe estar asociado a un cliente.
-- Un cliente inactivo no deberia usarse para crear nuevo trabajo, salvo decisión posterior.
+- Un proyecto solo será visible en el área de cliente si está marcado como visible para cliente.
+- Un cliente inactivo no debería usarse para crear nuevo trabajo, salvo decisión posterior.
 - La información interna del cliente no debe mostrarse en el área de cliente.
 
 ### 5.3. Tareas
@@ -374,23 +378,22 @@ Las relaciones conceptuales del MVP son:
 
 - Todo registro de tiempo debe estar asociado a una tarea.
 - Todo registro de tiempo debe estar asociado a un usuario interno.
-- La duracion debe ser positiva.
+- La duración debe ser positiva.
 - Un registro start/stop debe tener inicio y fin para considerarse completo.
-- Un registro manual debe tener una duracion indicada por el usuario.
+- Un registro manual debe tener una duración indicada por el usuario.
 - Por defecto, un usuario interno solo puede tener una tarea activa al mismo tiempo.
-- Si un usuario inicia una nueva tarea mientras otra esta activa, la tarea anterior debe detenerse antes.
+- Si un usuario inicia una nueva tarea mientras otra está activa, la tarea anterior debe detenerse antes.
 
 ### 5.5. Tarifas y costes
 
 - La tarifa sirve para estimar costes, no para facturar.
 - Puede existir una tarifa base por cliente o por proyecto.
 - El registro de tiempo debe conservar la tarifa aplicada en el momento del registro o cálculo.
-- Cambiar una tarifa base no debe alterar automáticamente los costes historicos ya calculados, salvo decisión posterior explícita.
+- Cambiar una tarifa base no debe alterar automáticamente los costes históricos ya calculados, salvo decisión posterior explícita.
 - Las reglas avanzadas de recargos quedan fuera del MVP.
 
 ### 5.6. Reportes
 
-- Un reporte debe estar asociado a un cliente.
 - Un reporte pertenece siempre a un cliente.
 - Un reporte puede estar asociado opcionalmente a un proyecto concreto.
 - Si el reporte no tiene proyecto asociado, se interpretará como un reporte general del cliente para el periodo seleccionado.
@@ -403,17 +406,17 @@ Las relaciones conceptuales del MVP son:
 
 ### 5.7. Uso de IA
 
-- La IA puede generar resumenes profesionales o propuestas estructuradas.
+- La IA puede generar resúmenes profesionales o propuestas estructuradas.
 - La IA no debe ejecutar acciones reales de forma automática.
 - La prueba de lenguaje natural debe devolver una propuesta revisable.
-- Si la IA no esta disponible, el sistema debe seguir siendo usable.
+- Si la IA no está disponible, el sistema debe seguir siendo usable.
 - UsoIA debe almacenar solo información mínima necesaria para el MVP.
 
 ### 5.8. Trazabilidad mínima
 
 - Debe existir trazabilidad mínima de acciones relevantes.
 - La trazabilidad no sustituye a una auditoría avanzada.
-- La trazabilidad debe permitir saber que acción se realizo, sobre que entidad, por qué usuario y con que resultado básico.
+- La trazabilidad debe permitir saber qué acción se realizó, sobre qué entidad, por qué usuario y con qué resultado básico.
 - La estrategia exacta de auditoría queda fuera del modelo conceptual inicial.
 
 ## 6. Privacidad y visibilidad
@@ -422,18 +425,18 @@ El modelo debe ayudar a proteger la información interna y la información de cl
 
 Reglas principales:
 
-- Un cliente solo debe ver información asociada a el.
-- La visibilidad de tareas y reportes debe controlarse de forma explícita.
+- Un cliente solo debe ver información asociada a él.
+- La visibilidad de proyectos, tareas y reportes debe controlarse de forma explícita.
 - Las observaciones internas y datos no compartidos no deben mostrarse al cliente.
 - Los datos enviados o registrados en relación con IA deben minimizarse.
 - UsoIA no debe almacenar información sensible innecesaria.
-- No se conservaran prompts completos si no aportan valor funcional al MVP.
+- No se conservarán prompts completos si no aportan valor funcional al MVP.
 
-Estas reglas se inspiran en buenas prácticas de privacidad, sin considerar el MVP una solucion legalmente certificada.
+Estas reglas se inspiran en buenas prácticas de privacidad, sin considerar el MVP una solución legalmente certificada.
 
 ## 7. Entidades fuera del alcance del MVP
 
-No se incluiran en el modelo inicial:
+No se incluirán en el modelo inicial:
 
 - facturas
 - documentos adjuntos
@@ -446,7 +449,7 @@ No se incluiran en el modelo inicial:
 - notificaciones avanzadas
 - firma digital
 - auditoría avanzada
-- historico completo de cambios de cada campo
+- histórico completo de cambios de cada campo
 
 Estas entidades podrán evaluarse como evolución futura del producto SaaS, pero no forman parte del modelo conceptual inicial del TFM.
 
@@ -456,7 +459,7 @@ Las siguientes decisiones quedan expresamente aplazadas para `docs/04-arquitectu
 
 - ORM o estrategia de acceso a datos.
 - Tipos exactos de columnas.
-- índices.
+- Índices.
 - Claves, restricciones y estructura final de tablas.
 - Borrado físico o lógico.
 - Estrategia exacta de auditoría.
@@ -471,23 +474,23 @@ Este documento solo fija el modelo conceptual necesario para razonar sobre el MV
 
 ## 9. Validación documental del modelo
 
-El modelo se considerara adecuado para esta fase si permite cubrir:
+El modelo se considerará adecuado para esta fase si permite cubrir:
 
 1. Autenticación básica y diferenciación entre usuario interno y cliente.
 2. Gestión de clientes.
 3. Gestión de proyectos asociados a clientes.
 4. Gestión de tareas asociadas a proyectos.
-5. Visibilidad básica de tareas y reportes para el área de cliente.
+5. Visibilidad básica de proyectos, tareas y reportes para el área de cliente.
 6. Registro manual de tiempos.
 7. Control start/stop de tareas.
-8. Prevencion de solapamientos de tareas activas por usuario interno.
+8. Prevención de solapamientos de tareas activas por usuario interno.
 9. Cálculo básico de horas.
 10. Aplicación de tarifa básica y coste estimado.
 11. Generación de reportes por cliente, proyecto opcional y periodo.
 12. Resumen asistido por IA revisable.
-13. Prueba controlada de lenguaje natural sin ejecucion automática.
+13. Prueba controlada de lenguaje natural sin ejecución automática.
 14. Trazabilidad mínima de acciones relevantes.
-15. Separaci?n clara entre MVP del TFM y líneas futuras del SaaS.
+15. Separación clara entre MVP del TFM y líneas futuras del SaaS.
 
 ## 10. Conclusión
 
@@ -495,4 +498,4 @@ El modelo de datos conceptual del MVP se centra en las entidades necesarias para
 
 La propuesta mantiene un alcance reducido y defendible, evitando convertir el modelo inicial en una plataforma SaaS completa.
 
-Las decisiones técnicas de implementación quedan aplazadas para la fase de arquitectura, donde se concretaran herramientas, estructura física, persistencia y detalles propios del desarrollo.
+Las decisiones técnicas de implementación quedan aplazadas para la fase de arquitectura, donde se concretarán herramientas, estructura física, persistencia y detalles propios del desarrollo.
