@@ -272,6 +272,14 @@ Mantén el alcance limitado al MVP.
 Indica los cambios realizados y sugiere un commit.
 ```
 
+## 6.1. Prompts reutilizables
+
+Los prompts reutilizables empleados para trabajar con agentes IA se documentan en:
+
+[../prompts/README.md](../prompts/README.md)
+
+No se registran todos los prompts utilizados durante el proyecto, solo aquellos que sirven como plantilla de trabajo o que aportan valor metodológico al TFM.
+
 ## 7. Uso de ramas
 
 Para esta fase puede trabajarse con ramas sencillas.

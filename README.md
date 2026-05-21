@@ -84,6 +84,10 @@ Documentos internos de trabajo:
 - [Trabajo desde el IDE con agentes IA](docs/notas/01-trabajo-ide-agentes-ia.md)
 - [Guía de próximos pasos](docs/notas/02-guia-proximos-pasos-tfm.md)
 
+Documentación sobre uso de IA:
+
+- [Prompts de trabajo con IA](docs/prompts/README.md)
+
 ## Metodología de trabajo
 
 El proyecto se desarrollará por fases controladas, priorizando un MVP realista para el TFM y evitando el crecimiento descontrolado del alcance.
