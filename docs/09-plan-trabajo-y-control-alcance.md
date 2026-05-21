@@ -46,7 +46,6 @@ Una de las principales ventajas del desarrollo asistido por IA es la velocidad p
 
 Por tanto, cualquier propuesta generada por IA deberá revisarse antes de incorporarse al proyecto.
 
-```md
 ## 3.1. Riesgo de sobredefinición y falsa sensación de avance
 
 Durante la definición del proyecto se ha identificado un riesgo específico asociado al uso intensivo de herramientas de inteligencia artificial: la tendencia a generar rápidamente documentación, funcionalidades, integraciones y líneas futuras, creando una falsa sensación de avance.
@@ -67,7 +66,6 @@ El proyecto aplicará las siguientes reglas:
 La reflexión completa sobre este riesgo se recoge en:
 
 [docs/notas/03-reflexion-sobrealcance-ia.md](docs/notas/03-reflexion-sobrealcance-ia.md)
-```
 
 ## 4. Clasificación de nuevas ideas o funcionalidades
 

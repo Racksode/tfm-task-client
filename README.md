@@ -103,13 +103,11 @@ Las normas de trabajo con agentes IA se encuentran en:
 - [AGENTS.md](AGENTS.md)
 - [docs/notas/01-trabajo-ide-agentes-ia.md](docs/notas/01-trabajo-ide-agentes-ia.md)
 
-```md
 Como parte del uso responsable de IA, el proyecto contempla explícitamente el riesgo de sobrealcance, sobredefinición y falsa sensación de avance por generación rápida de documentación o funcionalidades.
 
 La reflexión interna sobre este punto se encuentra en:
 
 [docs/notas/03-reflexion-sobrealcance-ia.md](docs/notas/03-reflexion-sobrealcance-ia.md)
-```
 
 ## Convención de commits
 
