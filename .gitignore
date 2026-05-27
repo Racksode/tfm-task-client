@@ -3,9 +3,14 @@
 Thumbs.db
 desktop.ini
 
-# Editores / IDEs
-.vscode/
+# IDEs
 .idea/
+
+# VSCode: ignorar configuración local salvo recomendaciones/configuración compartida
+.vscode/*
+!.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
 
 # Logs
 *.log
