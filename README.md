@@ -11,21 +11,21 @@ Desarrollar una aplicación web que permita gestionar clientes, proyectos y tare
 El proyecto ha completado la arquitectura inicial del MVP y pasa a una fase breve de decisiones técnicas iniciales antes de crear el primer código ejecutable.
 
 ```text
-Fase actual: Fase 3 - Decisiones técnicas iniciales
-Punto actual: preparación previa a la implementación
+Fase actual: Fase 4 - Inicio de implementación
+Punto actual: creación del proyecto técnico base
 Documento en curso: pendiente
 ```
 
 Último hito completado:
 
 ```text
-5.4 - Arquitectura inicial y ADRs del MVP
+Fase 3 - Decisiones técnicas iniciales del MVP
 ```
 
 Próximo paso:
 
 ```text
-Cerrar las decisiones técnicas mínimas antes de iniciar el desarrollo: stack, base de datos, ORM o acceso a datos, autenticación, estructura del proyecto, patrones básicos y testing mínimo.
+Fase 3 - Decisiones técnicas iniciales del MVP
 ```
 
 Referencia de planificación:
@@ -129,19 +129,26 @@ test: añadir pruebas del registro de tiempos
 chore: crear estructura base de carpetas
 ```
 
-## Stack tecnológico previsto
+## Stack tecnológico decidido para el MVP
 
-Pendiente de decisión definitiva en la fase breve de decisiones técnicas iniciales previa a la implementación.
+Las decisiones técnicas iniciales del MVP se han documentado en los ADRs:
 
-Stack candidato:
+- `docs/adr/0004-eleccion-stack-tecnologico.md`
+- `docs/adr/0005-persistencia-y-acceso-datos.md`
+- `docs/adr/0006-autenticacion-y-control-acceso.md`
+
+Stack inicial del MVP:
 
 - Next.js.
 - React.
 - TypeScript.
 - PostgreSQL.
-- Docker.
-- GitHub.
-- Integración IA mediante proveedor externo o servicio desacoplado.
+- Prisma.
+- Auth.js / NextAuth.
+- Vitest para testing mínimo.
+- Playwright como opción aplazable.
+- Docker solo como apoyo local para PostgreSQL, si es necesario.
+- GitHub como repositorio y control de versiones.
 
 ## Instalación y ejecución
 
