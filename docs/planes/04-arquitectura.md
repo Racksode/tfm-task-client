@@ -11,9 +11,11 @@ Definir la arquitectura inicial del MVP y los ADRs principales necesarios para j
 - `docs/adr/0002-eleccion-base-datos.md`
 - `docs/adr/0003-integracion-ia.md`
 
-## Plan aprobado
+## Plan propuesto por IA
 
-Documentar una arquitectura inicial limitada al MVP, con módulos funcionales, capas internas, persistencia relacional, autenticación y visibilidad básicas, integración IA controlada, restricciones explícitas, testing previsto y decisiones aplazadas.
+Resumen estructurado del plan propuesto.
+
+Documentar una arquitectura inicial limitada al MVP, con monolito modular, módulos funcionales, capas internas, persistencia relacional, autenticación y visibilidad básicas, integración IA controlada, restricciones explícitas, testing previsto y ADRs principales.
 
 ## Ajustes humanos aplicados
 
@@ -22,11 +24,15 @@ Documentar una arquitectura inicial limitada al MVP, con módulos funcionales, c
 - Documentar ADRs breves para arquitectura, base de datos e integración IA.
 - Aplazar decisiones de stack concreto, ORM, proveedor de autenticación, proveedor IA y despliegue final.
 
+## Plan aprobado
+
+Completar la arquitectura inicial y los ADRs previstos con una base técnica suficiente para el MVP, manteniendo decisiones futuras aplazadas hasta la fase de implementación.
+
 ## Resultado
 
 Arquitectura inicial y ADRs del MVP completados, dejando el proyecto preparado para una fase breve de decisiones técnicas iniciales antes del primer código ejecutable.
 
-## Commit asociado, si se conoce
+## Commit asociado
 
 ```text
 docs: definir arquitectura inicial del proyecto

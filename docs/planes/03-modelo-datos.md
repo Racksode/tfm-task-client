@@ -8,7 +8,9 @@ Definir el modelo de datos conceptual inicial del MVP sin entrar todavía en SQL
 
 - `docs/03-modelo-datos.md`
 
-## Plan aprobado
+## Plan propuesto por IA
+
+Resumen estructurado del plan propuesto.
 
 Describir entidades principales, relaciones, reglas de negocio, privacidad, visibilidad, trazabilidad mínima y decisiones aplazadas para arquitectura.
 
@@ -18,11 +20,15 @@ Describir entidades principales, relaciones, reglas de negocio, privacidad, visi
 - Mantener el enfoque conceptual.
 - Evitar decisiones técnicas concretas como Prisma, Drizzle, migraciones, SQL físico o índices.
 
+## Plan aprobado
+
+Completar `docs/03-modelo-datos.md` como modelo conceptual inicial del MVP, incorporando las entidades y relaciones necesarias sin bajar a detalles físicos de implementación.
+
 ## Resultado
 
 Modelo de datos conceptual completado como puente entre requisitos funcionales, requisitos no funcionales y arquitectura inicial.
 
-## Commit asociado, si se conoce
+## Commit asociado
 
 ```text
 docs: definir modelo de datos inicial
