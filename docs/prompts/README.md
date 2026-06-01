@@ -469,6 +469,9 @@ No edites.
 - No convertir ideas futuras en funcionalidades actuales.
 - Mantener el repositorio como fuente de verdad.
 - No guardar prompts triviales o puntuales que no aporten valor metodológico.
+- Registrar los planes importantes en `docs/planes/` como resumen metodológico breve y formal.
+- Registrar el histórico ampliado en `docs/historico-ia/` cuando el trabajo incluya prompts, plan IA, revisión humana, aplicación, resultado y commit o PR.
+- No registrar cambios menores, correcciones tipográficas simples o ajustes sin impacto.
 - Evitar nueva documentación extensa antes del primer código ejecutable, salvo decisión explícita del usuario.
 
 ## 19. Relación con la memoria del TFM

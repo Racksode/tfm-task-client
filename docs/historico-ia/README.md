@@ -16,6 +16,17 @@ No sustituye a la documentacion principal del proyecto, al historial de Git ni a
 
 La documentacion principal del proyecto sigue siendo la fuente de verdad sobre requisitos, arquitectura, modelo de datos, integraciones, despliegue y alcance.
 
+## Cuando registrar un historico
+
+Se registraran los planes importantes generados con IA que afecten a fases, decisiones o bloques relevantes del proyecto.
+
+No hace falta registrar cambios menores, correcciones tipograficas simples o ajustes sin impacto.
+
+Los planes importantes se registran en dos niveles:
+
+- `docs/planes/`: resumen metodologico breve y formal.
+- `docs/historico-ia/`: historico ampliado del trabajo con IA.
+
 ## Tipos de historico
 
 Cada bloque indica uno de estos estados:
