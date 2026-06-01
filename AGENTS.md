@@ -31,6 +31,13 @@ Antes de ejecutar una tarea relevante, el agente deberá responder con:
 
 No se deben modificar ficheros importantes hasta que el plan haya sido revisado y aprobado.
 
+Cuando un plan importante sea aprobado y aplicado, deberá registrarse en dos niveles:
+
+- `docs/planes/`: resumen metodológico breve y formal.
+- `docs/historico-ia/`: histórico ampliado del trabajo con IA, incluyendo cuando proceda prompt enviado, plan propuesto, revisión humana, prompt de aplicación, resultado y commit o PR.
+
+No es necesario registrar cambios menores, correcciones tipográficas simples o ajustes sin impacto.
+
 ## Criterio de alcance
 
 Antes de incorporar una funcionalidad, deberá clasificarse como:
