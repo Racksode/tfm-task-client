@@ -152,7 +152,25 @@ Stack inicial del MVP:
 
 ## Instalación y ejecución
 
-Pendiente de definir cuando comience la fase de implementación.
+Instalar dependencias:
+
+```bash
+npm install
+```
+
+Arrancar en local:
+
+```bash
+npm run dev
+```
+
+Validaciones principales:
+
+```bash
+npm run build
+npm run typecheck
+npm run lint
+```
 
 ## Licencia
 
