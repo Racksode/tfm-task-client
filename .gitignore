@@ -26,6 +26,8 @@ node_modules/
 vendor/
 
 # Builds / caches futuras
+.next/
+*.tsbuildinfo
 dist/
 build/
 .cache/
