@@ -1,0 +1,8 @@
+{
+  "editor.formatOnSave": true,
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "markdown.extension.toc.levels": "2..4",
+  "todo-tree.tree.showScanModeButton": false
+}
