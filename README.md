@@ -8,24 +8,24 @@ Desarrollar una aplicación web que permita gestionar clientes, proyectos y tare
 
 ## Estado actual del proyecto
 
-El proyecto se encuentra actualmente en fase de análisis y definición funcional del MVP.
+El proyecto ha completado la arquitectura inicial del MVP y pasa a una fase breve de decisiones técnicas iniciales antes de crear el primer código ejecutable.
 
 ```text
-Fase actual: Fase 2 - Diseño funcional
-Punto actual: 5.4 - Arquitectura
-Documento en curso: docs/03-modelo-datos.md
+Fase actual: Fase 3 - Decisiones técnicas iniciales
+Punto actual: preparación previa a la implementación
+Documento en curso: pendiente
 ```
 
 Último hito completado:
 
 ```text
-5.2 - Modelo de datos
+5.4 - Arquitectura inicial y ADRs del MVP
 ```
 
 Próximo paso:
 
 ```text
-Definir la arquitectura inicial del MVP y preparar los ADRs principales: elección de arquitectura, base de datos e integración de IA.
+Cerrar las decisiones técnicas mínimas antes de iniciar el desarrollo: stack, base de datos, ORM o acceso a datos, autenticación, estructura del proyecto, patrones básicos y testing mínimo.
 ```
 
 Referencia de planificación:
@@ -87,6 +87,7 @@ Documentos internos de trabajo:
 Documentación sobre uso de IA:
 
 - [Prompts de trabajo con IA](docs/prompts/README.md)
+- [Planes revisados con IA](docs/planes/README.md)
 
 ## Metodología de trabajo
 
@@ -109,6 +110,8 @@ La reflexión interna sobre este punto se encuentra en:
 
 [docs/notas/03-reflexion-sobrealcance-ia.md](docs/notas/03-reflexion-sobrealcance-ia.md)
 
+Tras cerrar la documentación conceptual principal, el proyecto no generará más documentación extensa antes del primer código ejecutable. Antes del desarrollo solo se documentarán las decisiones técnicas mínimas necesarias para comenzar con seguridad: stack, base de datos, ORM o acceso a datos, autenticación, estructura del proyecto, patrones básicos y testing mínimo.
+
 ## Convención de commits
 
 El proyecto utiliza una convención basada en Conventional Commits.
@@ -128,7 +131,7 @@ chore: crear estructura base de carpetas
 
 ## Stack tecnológico previsto
 
-Pendiente de decisión definitiva durante la fase de arquitectura.
+Pendiente de decisión definitiva en la fase breve de decisiones técnicas iniciales previa a la implementación.
 
 Stack candidato:
 

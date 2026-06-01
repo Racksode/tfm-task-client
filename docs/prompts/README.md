@@ -191,7 +191,7 @@ docs: definir modelo de datos inicial
 
 ## 8. Prompt para arquitectura inicial
 
-Prompt previsto para completar:
+Usado para completar:
 
 ```text
 docs/04-arquitectura.md
@@ -224,7 +224,77 @@ Commit previsto:
 docs: definir arquitectura inicial del proyecto
 ```
 
-## 9. Prompt para revisión de alcance
+Ajustes aplicados antes de implementar:
+
+```text
+El plan es correcto. Aplícalo con estos ajustes:
+
+1. Mantén el alcance limitado al MVP del TFM.
+2. No conviertas líneas futuras del SaaS en decisiones actuales.
+3. Documenta una arquitectura inicial sencilla, defendible y suficiente.
+4. Crea ADRs breves para arquitectura, base de datos e integración IA.
+5. No definas todavía stack concreto, ORM, proveedor de autenticación, proveedor IA ni despliegue final.
+6. Modifica únicamente los documentos de arquitectura y ADRs previstos.
+
+Al finalizar, resume los cambios realizados y sugiere el commit correspondiente.
+```
+
+Commit asociado:
+
+```text
+docs: definir arquitectura inicial del proyecto
+```
+
+## 9. Prompt base: decisiones técnicas iniciales antes de crear código
+
+Usar antes de inicializar el proyecto técnico o instalar dependencias.
+
+```text
+Lee README.md, AGENTS.md, docs/01-requisitos-funcionales.md, docs/02-requisitos-no-funcionales.md, docs/03-modelo-datos.md, docs/04-arquitectura.md y los ADRs existentes.
+
+Quiero cerrar las decisiones técnicas mínimas antes de crear el primer código ejecutable del MVP.
+
+Decisiones a cubrir:
+
+1. Stack tecnológico inicial.
+2. Motor de base de datos.
+3. ORM o estrategia de acceso a datos.
+4. Autenticación.
+5. Estructura inicial del proyecto.
+6. Patrones básicos de organización.
+7. Testing mínimo para empezar.
+
+Restricciones:
+
+- Mantén el alcance limitado al MVP del TFM.
+- No inicialices el proyecto.
+- No instales dependencias.
+- No crees código.
+- No propongas arquitectura distribuida, microservicios ni integraciones externas completas.
+- No generes documentación extensa si basta con una decisión breve y justificable.
+
+Primero propón un plan de decisiones, ficheros afectados, riesgos y posible commit.
+
+No edites, no crees y no borres ficheros todavía. Solo devuelve el plan.
+```
+
+## 10. Nota metodológica: cierre de documentación conceptual
+
+Tras cerrar la documentación conceptual principal, no se generará más documentación extensa antes del primer código ejecutable.
+
+Antes del desarrollo solo se documentarán decisiones técnicas mínimas:
+
+- stack
+- base de datos
+- ORM o acceso a datos
+- autenticación
+- estructura del proyecto
+- patrones básicos
+- testing mínimo
+
+El objetivo de esta regla es evitar sobredefinición documental y pasar de forma controlada a una implementación real del MVP.
+
+## 11. Prompt para revisión de alcance
 
 Usar cuando una propuesta parezca demasiado grande.
 
@@ -245,7 +315,7 @@ Propuesta a revisar:
 [PEGAR_PROPUESTA]
 ```
 
-## 10. Prompt para revisión antes de commit
+## 12. Prompt para revisión antes de commit
 
 Usar antes de hacer commit de una fase importante.
 
@@ -261,7 +331,7 @@ Revisa los cambios realizados en [FICHERO/RAMA] y comprueba:
 No edites todavía. Primero devuelve observaciones y recomendación.
 ```
 
-## 11. Prompt para resumen de cambios
+## 13. Prompt para resumen de cambios
 
 Usar después de que el agente edite un fichero.
 
@@ -277,7 +347,7 @@ Resume los cambios realizados indicando:
 No realices nuevos cambios.
 ```
 
-## 12. Prompt para trabajo con Pull Request
+## 14. Prompt para trabajo con Pull Request
 
 Usar cuando se quiera preparar una PR en GitHub.
 
@@ -324,7 +394,7 @@ No se incluyen funcionalidades ni decisiones correspondientes a fases posteriore
 - [ ] El commit sigue la convención del proyecto.
 ```
 
-## 13. Prompt para revisión de seguridad
+## 15. Prompt para revisión de seguridad
 
 Usar más adelante, cuando exista implementación.
 
@@ -348,7 +418,7 @@ Contenido a revisar:
 [PEGAR_CODIGO_O_DESCRIPCION]
 ```
 
-## 14. Prompt para revisión de testing
+## 16. Prompt para revisión de testing
 
 Usar más adelante, cuando existan funcionalidades implementadas.
 
@@ -367,7 +437,7 @@ Incluye:
 Mantén el alcance realista para un TFM.
 ```
 
-## 15. Prompt para modo caveman
+## 17. Prompt para modo caveman
 
 Versión corta para cuando el flujo ya esté interiorizado.
 
@@ -390,7 +460,7 @@ Plan primero.
 No edites.
 ```
 
-## 16. Reglas de uso de estos prompts
+## 18. Reglas de uso de estos prompts
 
 - Usar siempre modo plan antes de modificar ficheros importantes.
 - Revisar el plan manualmente antes de aprobar cambios.
@@ -399,8 +469,9 @@ No edites.
 - No convertir ideas futuras en funcionalidades actuales.
 - Mantener el repositorio como fuente de verdad.
 - No guardar prompts triviales o puntuales que no aporten valor metodológico.
+- Evitar nueva documentación extensa antes del primer código ejecutable, salvo decisión explícita del usuario.
 
-## 17. Relación con la memoria del TFM
+## 19. Relación con la memoria del TFM
 
 Este documento puede servir como evidencia metodológica para explicar que el uso de IA durante el TFM no se ha realizado de forma improvisada, sino siguiendo un proceso controlado.
 
