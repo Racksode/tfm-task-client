@@ -12,20 +12,20 @@ El proyecto ha completado la arquitectura inicial del MVP y pasa a una fase brev
 
 ```text
 Fase actual: Fase 4 - Inicio de implementación
-Punto actual: creación del proyecto técnico base
+Punto actual: proyecto técnico base creado y validado
 Documento en curso: pendiente
 ```
 
 Último hito completado:
 
 ```text
-Fase 3 - Decisiones técnicas iniciales del MVP
+Creación del proyecto técnico base con Next.js
 ```
 
 Próximo paso:
 
 ```text
-Fase 3 - Decisiones técnicas iniciales del MVP
+Preparar la persistencia inicial del MVP: configurar Prisma y PostgreSQL, definir el primer schema físico a partir del modelo conceptual y validar la conexión básica sin implementar todavía funcionalidades de negocio.
 ```
 
 Referencia de planificación:
@@ -170,6 +170,15 @@ Validaciones principales:
 npm run build
 npm run typecheck
 npm run lint
+```
+
+El proyecto técnico base ha sido validado con:
+
+```bash
+npm run typecheck
+npm run lint
+npm run build
+npm run dev
 ```
 
 ## Licencia
