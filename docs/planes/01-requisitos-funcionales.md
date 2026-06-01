@@ -8,9 +8,11 @@ Completar los requisitos funcionales del MVP del TFM manteniendo el alcance limi
 
 - `docs/01-requisitos-funcionales.md`
 
-## Plan aprobado
+## Plan propuesto por IA
 
-Definir el alcance funcional del MVP, actores principales, requisitos funcionales, casos de uso, reglas relevantes, clasificación de funcionalidades y criterios de aceptación.
+Resumen estructurado del plan propuesto.
+
+Definir el alcance funcional del MVP, los actores principales, los requisitos funcionales, los casos de uso, las reglas relevantes, la clasificación de funcionalidades y los criterios de aceptación.
 
 ## Ajustes humanos aplicados
 
@@ -19,11 +21,15 @@ Definir el alcance funcional del MVP, actores principales, requisitos funcionale
 - Añadir una tabla de clasificación de funcionalidades.
 - No adelantar modelo de datos ni decisiones técnicas.
 
+## Plan aprobado
+
+Completar `docs/01-requisitos-funcionales.md` con una descripción funcional del MVP, incorporando los ajustes humanos y separando claramente el TFM de las líneas futuras del SaaS.
+
 ## Resultado
 
 Documento de requisitos funcionales completado como base funcional del MVP, con separación explícita entre TFM y evolución futura.
 
-## Commit asociado, si se conoce
+## Commit asociado
 
 ```text
 docs: definir requisitos funcionales del MVP
