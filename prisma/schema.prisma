@@ -1,0 +1,242 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  INTERNAL
+  CLIENT
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum ClientStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum ProjectStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  PAUSED
+  COMPLETED
+  DISCARDED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum TimeEntryType {
+  MANUAL
+  START_STOP
+}
+
+enum RateScope {
+  SYSTEM
+  CLIENT
+  PROJECT
+}
+
+enum RateStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum ReportStatus {
+  DRAFT
+  GENERATED
+  REVIEWED
+}
+
+enum AiUsageType {
+  REPORT_SUMMARY
+  NATURAL_LANGUAGE_INTERPRETATION
+}
+
+enum AiUsageStatus {
+  GENERATED
+  REVIEWED
+  DISCARDED
+  ERROR
+}
+
+enum AuditResult {
+  SUCCESS
+  FAILURE
+}
+
+model User {
+  id           String     @id @default(cuid())
+  name         String
+  email        String     @unique
+  role         UserRole
+  status       UserStatus @default(ACTIVE)
+  clientId     String?
+  client       Client?    @relation(fields: [clientId], references: [id])
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  assignedTasks Task[]      @relation("TaskResponsible")
+  timeEntries   TimeEntry[]
+  reports       Report[]    @relation("ReportReviewer")
+  aiUsages      AiUsage[]
+  auditLogs     AuditLog[]
+}
+
+model Client {
+  id            String       @id @default(cuid())
+  name          String
+  email         String?
+  phone         String?
+  company       String?
+  internalNotes String?
+  status        ClientStatus @default(ACTIVE)
+  baseRate      Decimal?     @db.Decimal(10, 2)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  users    User[]
+  projects Project[]
+  rates    Rate[]
+  reports  Report[]
+}
+
+model Project {
+  id              String        @id @default(cuid())
+  clientId        String
+  client          Client        @relation(fields: [clientId], references: [id])
+  name            String
+  description     String?
+  status          ProjectStatus @default(ACTIVE)
+  visibleToClient Boolean       @default(false)
+  startDate       DateTime?
+  expectedEndDate DateTime?
+  baseRate        Decimal?      @db.Decimal(10, 2)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  tasks   Task[]
+  rates   Rate[]
+  reports Report[]
+}
+
+model Task {
+  id              String       @id @default(cuid())
+  projectId       String
+  project         Project      @relation(fields: [projectId], references: [id])
+  title           String
+  description     String?
+  status          TaskStatus   @default(PENDING)
+  priority        TaskPriority @default(MEDIUM)
+  visibleToClient Boolean      @default(false)
+  responsibleId   String?
+  responsible     User?        @relation("TaskResponsible", fields: [responsibleId], references: [id])
+  functionalStart DateTime?
+  functionalEnd   DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  timeEntries TimeEntry[]
+}
+
+model TimeEntry {
+  id                 String        @id @default(cuid())
+  taskId             String
+  task               Task          @relation(fields: [taskId], references: [id])
+  userId             String
+  user               User          @relation(fields: [userId], references: [id])
+  type               TimeEntryType
+  workDate           DateTime
+  startedAt          DateTime?
+  endedAt            DateTime?
+  durationMinutes    Int
+  description        String?
+  appliedHourlyRate  Decimal?      @db.Decimal(10, 2)
+  estimatedCost      Decimal?      @db.Decimal(10, 2)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+}
+
+model Rate {
+  id           String     @id @default(cuid())
+  name         String
+  hourlyAmount Decimal    @db.Decimal(10, 2)
+  currency     String     @default("EUR")
+  scope        RateScope
+  status       RateStatus @default(ACTIVE)
+  clientId     String?
+  client       Client?    @relation(fields: [clientId], references: [id])
+  projectId    String?
+  project      Project?   @relation(fields: [projectId], references: [id])
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Report {
+  id              String       @id @default(cuid())
+  clientId        String
+  client          Client       @relation(fields: [clientId], references: [id])
+  projectId       String?
+  project         Project?     @relation(fields: [projectId], references: [id])
+  periodStart     DateTime
+  periodEnd       DateTime
+  totalHours      Decimal?     @db.Decimal(10, 2)
+  estimatedCost   Decimal?     @db.Decimal(10, 2)
+  functionalSummary String?
+  aiSummary       String?
+  visibleToClient Boolean      @default(false)
+  status          ReportStatus @default(DRAFT)
+  generatedAt     DateTime?
+  reviewedAt      DateTime?
+  reviewerId      String?
+  reviewer        User?        @relation("ReportReviewer", fields: [reviewerId], references: [id])
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  aiUsages AiUsage[]
+}
+
+model AiUsage {
+  id                String        @id @default(cuid())
+  type              AiUsageType
+  requesterId       String
+  requester         User          @relation(fields: [requesterId], references: [id])
+  reportId          String?
+  report            Report?       @relation(fields: [reportId], references: [id])
+  inputSummary      String?
+  outputSummary     String?
+  status            AiUsageStatus @default(GENERATED)
+  requestedAt       DateTime      @default(now())
+  reviewedAt        DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+}
+
+model AuditLog {
+  id           String      @id @default(cuid())
+  actionType   String
+  userId       String?
+  user         User?       @relation(fields: [userId], references: [id])
+  entityType   String
+  entityId     String?
+  result       AuditResult
+  detail       String?
+  occurredAt   DateTime    @default(now())
+  createdAt    DateTime    @default(now())
+}
