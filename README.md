@@ -172,6 +172,17 @@ npm run typecheck
 npm run lint
 ```
 
+Persistencia local con PostgreSQL y Prisma:
+
+```bash
+docker compose up -d
+npm run prisma:validate
+npm run prisma:generate
+npm run prisma:migrate:dev -- --name init
+npm run prisma:studio
+docker compose down
+```
+
 El proyecto técnico base ha sido validado con:
 
 ```bash
