@@ -12,20 +12,20 @@ El proyecto ha completado la arquitectura inicial del MVP y pasa a una fase brev
 
 ```text
 Fase actual: Fase 4 - Inicio de implementación
-Punto actual: proyecto técnico base creado y validado
+Punto actual: persistencia inicial materializada con Prisma, PostgreSQL y migración inicial
 Documento en curso: pendiente
 ```
 
 Último hito completado:
 
 ```text
-Creación del proyecto técnico base con Next.js
+Migración inicial de Prisma ejecutada y versionada sobre PostgreSQL local con Docker Compose.
 ```
 
 Próximo paso:
 
 ```text
-Preparar la persistencia inicial del MVP: configurar Prisma y PostgreSQL, definir el primer schema físico a partir del modelo conceptual y validar la conexión básica sin implementar todavía funcionalidades de negocio.
+Preparar la siguiente fase técnica: definir una capa prudente de acceso a datos antes de implementar funcionalidades de negocio.
 ```
 
 Referencia de planificación:
@@ -174,14 +174,24 @@ npm run lint
 
 Persistencia local con PostgreSQL y Prisma:
 
+PostgreSQL se ejecuta localmente mediante Docker Compose. Docker Desktop debe estar arrancado antes de usar Docker.
+
+El archivo `.env` se crea localmente a partir de `.env.example` y no debe versionarse.
+
 ```bash
 docker compose up -d
-npm run prisma:validate
-npm run prisma:generate
+docker compose ps
 npm run prisma:migrate:dev -- --name init
 npm run prisma:studio
-docker compose down
 ```
+
+`npm run prisma:studio` abre Prisma Studio en navegador para inspeccionar modelos, tablas y datos de la base de datos.
+
+Notas formativas relacionadas:
+
+- [Persistencia con Prisma y PostgreSQL](docs/notas/05-explicaciones-persistencia-prisma-postgresql.md)
+- [Entorno local con Docker, PostgreSQL y Prisma](docs/notas/06-guia-entorno-local-docker-postgresql-prisma.md)
+- [Migración inicial de Prisma](docs/notas/08-explicacion-migracion-inicial-prisma.md)
 
 El proyecto técnico base ha sido validado con:
 
