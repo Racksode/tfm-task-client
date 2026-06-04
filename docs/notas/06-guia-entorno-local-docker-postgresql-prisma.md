@@ -386,3 +386,13 @@ Prisma valida el modelo, genera el cliente y prepara migraciones.
 PostgreSQL conserva los datos del proyecto.
 
 Esta configuracion permite trabajar con persistencia de forma reproducible sin instalar PostgreSQL directamente como servicio del sistema.
+
+## Inspección local de PostgreSQL
+
+PostgreSQL se ejecuta en un contenedor Docker mediante Docker Compose, por lo que no es necesario instalar PostgreSQL directamente en Windows o macOS.
+
+Prisma no es un gestor visual de bases de datos: actúa como ORM, sistema de migraciones y cliente de acceso desde la aplicación. Para consultar los datos reales desde la perspectiva de los modelos Prisma puede utilizarse Prisma Studio.
+
+Cuando se necesite una inspección SQL completa, puede utilizarse un cliente externo como DBeaver, pgAdmin, TablePlus o DataGrip. Como opción inicial se recomienda DBeaver, porque es gratuito y multiplataforma.
+
+Los datos de conexión necesarios para configurar el cliente se obtienen de `DATABASE_URL` en el fichero `.env`. Este fichero contiene información sensible y no debe compartirse ni versionarse.
