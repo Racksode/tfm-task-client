@@ -38,6 +38,14 @@ Cuando un plan importante sea aprobado y aplicado, deberá registrarse en dos ni
 
 No es necesario registrar cambios menores, correcciones tipográficas simples o ajustes sin impacto.
 
+## Documentación formativa
+
+Cuando una tarea introduzca una decisión técnica, infraestructura, dependencia, patrón de arquitectura, migración, integración, herramienta nueva o un cambio relevante del flujo de trabajo, se deberá crear o actualizar una nota formativa en `docs/notas/`, ya sea en la misma tarea o proponiéndola como tarea posterior cuando convenga separar implementación y documentación.
+
+La nota debe explicar brevemente qué se ha hecho, por qué, qué archivos o conceptos intervienen, qué implicaciones tiene para el proyecto y qué queda sin implementar, si aplica. No debe presentar como implementado nada que no exista realmente.
+
+No es necesario crear una nota para cambios menores, correcciones de texto, ajustes triviales o cambios sin impacto técnico. Este tipo de documentación debe mantenerse en `docs/notas/`; no se debe crear `docs/guias/`.
+
 ## Criterio de alcance
 
 Antes de incorporar una funcionalidad, deberá clasificarse como:
