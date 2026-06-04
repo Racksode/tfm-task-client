@@ -18,6 +18,7 @@ Los agentes IA deben respetar las siguientes normas:
 - No implementar integraciones externas completas si están marcadas como evolución futura.
 - Sugerir mejoras como pendientes o futuras, no implementarlas directamente.
 - Mantener la documentación actualizada cuando cambie una decisión importante.
+- Antes de introducir nuevas fases técnicas relevantes, revisar las notas de planificación en `docs/notas/`, especialmente las relacionadas con skills, CI/CD o metodología de trabajo. Si una tarea alcanza el punto definido para introducir skills, CI o CD, avisarlo explícitamente y proponer una tarea separada; no implementarlos sin aprobación previa.
 
 ## Trabajo en modo plan
 
