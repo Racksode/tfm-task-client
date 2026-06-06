@@ -14,6 +14,7 @@ Este bloque incluye:
 - validación contra `prisma.user`;
 - comparación de contraseña con `bcryptjs.compare`;
 - sesión JWT con datos mínimos del usuario;
+- revalidación del usuario actual contra Prisma en el callback `jwt`;
 - route handler de App Router en `src/app/api/auth/[...nextauth]/route.ts`;
 - tipado mínimo de sesión y JWT;
 - placeholder `AUTH_SECRET` en `.env.example`;

@@ -10,6 +10,20 @@ type ParsedCredentials = {
   password: string;
 };
 
+const invalidateTokenUser = (token: {
+  name?: unknown;
+  email?: unknown;
+  role?: unknown;
+  status?: unknown;
+  clientId?: unknown;
+}) => {
+  token.name = null;
+  token.email = null;
+  token.role = null;
+  token.status = "INACTIVE";
+  token.clientId = null;
+};
+
 const parseCredentials = (
   credentials: Partial<Record<"email" | "password", unknown>> | undefined,
 ): ParsedCredentials | null => {
@@ -89,13 +103,52 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    jwt({ token, user }) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = user.role as UserRole;
-        token.status = user.status as UserStatus;
-        token.clientId = user.clientId;
+        token.sub = user.id;
       }
+
+      const userId =
+        typeof token.id === "string"
+          ? token.id
+          : typeof token.sub === "string"
+            ? token.sub
+            : null;
+
+      if (!userId) {
+        invalidateTokenUser(token);
+        return token;
+      }
+
+      const currentUser = await prisma.user.findUnique({
+        where: {
+          id: userId,
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          status: true,
+          clientId: true,
+        },
+      });
+
+      if (!currentUser || currentUser.status !== "ACTIVE") {
+        token.id = userId;
+        token.sub = userId;
+        invalidateTokenUser(token);
+        return token;
+      }
+
+      token.id = currentUser.id;
+      token.sub = currentUser.id;
+      token.name = currentUser.name;
+      token.email = currentUser.email;
+      token.role = currentUser.role;
+      token.status = currentUser.status;
+      token.clientId = currentUser.clientId;
 
       return token;
     },
