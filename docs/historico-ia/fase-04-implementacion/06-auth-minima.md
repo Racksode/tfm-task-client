@@ -47,7 +47,7 @@ La validación de credenciales consulta `prisma.user`, rechaza usuarios inexiste
 
 La sesión usa estrategia JWT y expone solo datos mínimos del usuario autenticado: `id`, `name`, `email`, `role`, `status` y `clientId`.
 
-El callback `jwt` revalida el usuario contra Prisma para priorizar seguridad y consistencia en el MVP, especialmente si un usuario se desactiva o elimina después de haber iniciado sesión.
+El callback `jwt` revalida el usuario contra Prisma para priorizar seguridad y consistencia en el MVP, especialmente si un usuario se desactiva o elimina después de haber iniciado sesión. En esos casos, el token se invalida para evitar que `auth()` o `useSession().status === "authenticated"` sigan tratando la sesión como autenticada y usable.
 
 Esta decisión puede generar más consultas a base de datos. Posibles optimizaciones futuras, no implementadas en esta fase, son sesiones más cortas, versionado de sesión, `sessionVersion` o `updatedAt`, invalidación explícita, estrategia de sesión en base de datos o cache controlada.
 
