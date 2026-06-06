@@ -45,6 +45,8 @@ La sesión expone únicamente:
 
 No se añade Prisma Adapter en esta fase. La sesión usa estrategia JWT para evitar crear tablas específicas de Auth.js y mantener el alcance reducido.
 
+El callback `jwt` revalida el usuario contra la base de datos usando Prisma. Esto evita que un JWT existente mantenga datos obsoletos si el usuario cambia de rol, cambia de estado, se asocia a otro cliente o deja de existir.
+
 ## Cómo se valida un login
 
 El flujo previsto es:
@@ -77,6 +79,12 @@ En esta fase solo se añade un placeholder en `.env.example`. No se modifica `.e
 La sesión JWT permite mantener la información mínima del usuario autenticado sin introducir tablas adicionales de sesión.
 
 Esto encaja con el MVP porque reduce infraestructura, evita añadir modelos Auth.js en Prisma y permite avanzar hacia la protección de rutas en fases posteriores.
+
+Aunque se usa JWT, los datos principales del usuario se reconsultan en Prisma durante el callback `jwt`. Si el usuario ya no existe o está inactivo, el token se marca como no activo y deja de representar una sesión válida para operar como usuario activo.
+
+Para el MVP se prioriza seguridad y consistencia frente a minimizar consultas. Esta decisión reduce el riesgo de que un usuario desactivado o eliminado mantenga acceso efectivo mediante un JWT con datos antiguos.
+
+Esta revalidación puede generar más consultas a base de datos. En fases futuras podría optimizarse con sesiones de menor duración, versionado de sesión, un campo `sessionVersion` o `updatedAt`, invalidación explícita, estrategia de sesión en base de datos o cache controlada. Ninguna de estas optimizaciones se implementa en esta fase.
 
 ## Autenticación y autorización
 
