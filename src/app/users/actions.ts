@@ -16,11 +16,15 @@ const redirectToUsers = (kind: "error" | "success", message: string): never => {
   redirect(`/users?${kind}=${encodeURIComponent(message)}`);
 };
 
-const requireSession = async () => {
+const requireInternalSession = async () => {
   const session = await auth();
 
   if (!session?.user?.id) {
     redirect("/api/auth/signin?callbackUrl=/users");
+  }
+
+  if (session.user.role !== UserRole.INTERNAL) {
+    throw new Error("Unauthorized");
   }
 
   return session;
@@ -123,7 +127,7 @@ const validateBaseUserInput = (
 };
 
 export const createUser = async (formData: FormData) => {
-  await requireSession();
+  await requireInternalSession();
 
   const input = validateBaseUserInput(formData);
   const password = getFormString(formData, "password");
@@ -167,7 +171,7 @@ export const createUser = async (formData: FormData) => {
 };
 
 export const updateUser = async (formData: FormData) => {
-  await requireSession();
+  await requireInternalSession();
 
   const userId = getFormString(formData, "userId");
 

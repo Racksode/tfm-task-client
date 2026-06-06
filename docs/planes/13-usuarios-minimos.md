@@ -8,7 +8,7 @@ Crear una gestión mínima de usuarios en `/users`, protegida por sesión, para 
 
 Este bloque incluye:
 
-- ruta protegida `src/app/users/page.tsx`;
+- ruta protegida `src/app/users/page.tsx`, limitada a usuarios `INTERNAL`;
 - acciones de servidor en `src/app/users/actions.ts`;
 - listado de usuarios sin exponer `passwordHash`;
 - creación de usuarios con contraseña inicial hasheada;
@@ -40,7 +40,7 @@ npm run build
 
 ## Resultado esperado
 
-`/users` permitirá una administración mínima y defendible de usuarios del MVP, siempre protegida por sesión y sin exponer contraseñas ni hashes.
+`/users` permitirá una administración mínima y defendible de usuarios del MVP, siempre protegida por sesión, restringida a usuarios `INTERNAL` y sin exponer contraseñas ni hashes.
 
 ## Commit previsto
 
