@@ -80,9 +80,9 @@ La sesión JWT permite mantener la información mínima del usuario autenticado 
 
 Esto encaja con el MVP porque reduce infraestructura, evita añadir modelos Auth.js en Prisma y permite avanzar hacia la protección de rutas en fases posteriores.
 
-Aunque se usa JWT, los datos principales del usuario se reconsultan en Prisma durante el callback `jwt`. Si el usuario ya no existe o está inactivo, el token se marca como no activo y deja de representar una sesión válida para operar como usuario activo.
+Aunque se usa JWT, los datos principales del usuario se reconsultan en Prisma durante el callback `jwt`. Si el usuario ya no existe o está inactivo, el token se invalida para que no siga generando una sesión autenticada usable.
 
-Para el MVP se prioriza seguridad y consistencia frente a minimizar consultas. Esta decisión reduce el riesgo de que un usuario desactivado o eliminado mantenga acceso efectivo mediante un JWT con datos antiguos.
+Para el MVP se prioriza seguridad y consistencia frente a minimizar consultas. Esta decisión reduce el riesgo de que un usuario desactivado o eliminado mantenga acceso efectivo mediante un JWT con datos antiguos o mediante una sesión que siga apareciendo como autenticada.
 
 Esta revalidación puede generar más consultas a base de datos. En fases futuras podría optimizarse con sesiones de menor duración, versionado de sesión, un campo `sessionVersion` o `updatedAt`, invalidación explícita, estrategia de sesión en base de datos o cache controlada. Ninguna de estas optimizaciones se implementa en esta fase.
 

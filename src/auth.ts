@@ -10,20 +10,6 @@ type ParsedCredentials = {
   password: string;
 };
 
-const invalidateTokenUser = (token: {
-  name?: unknown;
-  email?: unknown;
-  role?: unknown;
-  status?: unknown;
-  clientId?: unknown;
-}) => {
-  token.name = null;
-  token.email = null;
-  token.role = null;
-  token.status = "INACTIVE";
-  token.clientId = null;
-};
-
 const parseCredentials = (
   credentials: Partial<Record<"email" | "password", unknown>> | undefined,
 ): ParsedCredentials | null => {
@@ -117,8 +103,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             : null;
 
       if (!userId) {
-        invalidateTokenUser(token);
-        return token;
+        return null;
       }
 
       const currentUser = await prisma.user.findUnique({
@@ -136,10 +121,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       });
 
       if (!currentUser || currentUser.status !== "ACTIVE") {
-        token.id = userId;
-        token.sub = userId;
-        invalidateTokenUser(token);
-        return token;
+        return null;
       }
 
       token.id = currentUser.id;
