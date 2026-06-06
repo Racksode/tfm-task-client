@@ -40,9 +40,9 @@ Se aprobó:
 
 Se creó la ruta protegida `/users`.
 
-La página redirige al login de Auth.js / NextAuth si no hay sesión.
+La página redirige al login de Auth.js / NextAuth si no hay sesión y bloquea el acceso a usuarios autenticados que no tengan rol `INTERNAL`.
 
-Las acciones de servidor de creación y edición también requieren sesión.
+Las acciones de servidor de creación y edición también requieren sesión y rol `INTERNAL`, para impedir que usuarios `CLIENT` creen o modifiquen usuarios.
 
 La vista permite listar usuarios, crear usuarios, editar datos básicos, cambiar contraseña opcionalmente y activar o desactivar usuarios.
 

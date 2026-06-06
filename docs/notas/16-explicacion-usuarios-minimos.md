@@ -12,7 +12,7 @@ La Fase 1 introdujo Auth.js / NextAuth con Credentials Provider y sesión JWT.
 
 La Fase 2A añadió un bootstrap controlado para crear el primer usuario `INTERNAL` autenticable.
 
-Esta fase usa ese primer usuario para acceder a `/users`, que queda protegida por sesión. No se abre un acceso público ni se crea un endpoint de bootstrap.
+Esta fase usa ese primer usuario para acceder a `/users`, que queda protegida por sesión y restringida a usuarios con rol `INTERNAL`. No se abre un acceso público ni se crea un endpoint de bootstrap.
 
 ## Protección de la ruta y acciones
 
@@ -20,7 +20,9 @@ La página `/users` comprueba sesión con `auth()`.
 
 Si no hay sesión, se redirige al flujo de login de Auth.js / NextAuth.
 
-Las acciones de servidor de creación y edición también comprueban sesión. Esto evita depender solo de la protección visual de la página.
+Si hay sesión pero el usuario no tiene rol `INTERNAL`, se bloquea el acceso a la pantalla.
+
+Las acciones de servidor de creación y edición también comprueban sesión y rol `INTERNAL`. Esto evita depender solo de la protección visual de la página e impide que un usuario `CLIENT` ejecute acciones de administración.
 
 ## Campos gestionados
 

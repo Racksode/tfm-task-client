@@ -1,5 +1,5 @@
 import { UserRole, UserStatus } from "@prisma/client";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -24,6 +24,10 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
 
   if (!session?.user?.id) {
     redirect("/api/auth/signin?callbackUrl=/users");
+  }
+
+  if (session.user.role !== UserRole.INTERNAL) {
+    notFound();
   }
 
   const params = await searchParams;
@@ -66,8 +70,8 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
         <p className="eyebrow">Usuarios</p>
         <h1>Gestión mínima de usuarios</h1>
         <p>
-          Esta vista está protegida por sesión y permite administrar usuarios
-          básicos del MVP.
+          Esta vista está protegida por sesión y reservada a usuarios INTERNAL
+          para administrar usuarios básicos del MVP.
         </p>
       </header>
 
