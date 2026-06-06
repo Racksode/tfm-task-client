@@ -63,15 +63,16 @@ Esta fase debe mantenerse orientada a la administración básica del MVP, no a u
 
 ## Fase 3: roles básicos
 
-La tercera fase debe introducir roles simples para distinguir responsabilidades principales dentro del MVP.
+La tercera fase debe introducir los roles simples aceptados para el MVP, alineados con el ADR 0006 y con el enum actual de Prisma `UserRole { INTERNAL CLIENT }`.
 
 Roles previstos:
 
-- `ADMIN`: usuario con capacidad de administración básica.
-- `MEMBER`: usuario interno estándar.
-- `CLIENT`: usuario cliente o perfil externo limitado, si encaja con el flujo funcional del MVP.
+- `INTERNAL`: usuario interno del sistema.
+- `CLIENT`: usuario cliente con acceso futuro al área cliente.
 
-En esta fase no se debe implementar una matriz avanzada de permisos. La finalidad es disponer de una distinción simple y defendible entre tipos de usuario, suficiente para proteger funcionalidades básicas y explicar el modelo del MVP.
+En esta fase no se debe implementar una matriz avanzada de permisos ni una diferenciación adicional entre administradores y miembros internos. Cualquier separación futura tipo `ADMIN`/`MEMBER` queda fuera del alcance actual y requeriría una decisión documentada posterior.
+
+La finalidad es disponer de una distinción simple y defendible entre usuario interno y usuario cliente, suficiente para proteger funcionalidades básicas y explicar el modelo del MVP.
 
 ## Criterio para el MVP
 
