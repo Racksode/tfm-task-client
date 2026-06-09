@@ -83,6 +83,7 @@ Documentos internos de trabajo:
 - [Hoja de ruta del TFM](docs/notas/00-hoja-ruta.md)
 - [Trabajo desde el IDE con agentes IA](docs/notas/01-trabajo-ide-agentes-ia.md)
 - [Guía de próximos pasos](docs/notas/02-guia-proximos-pasos-tfm.md)
+- [Backlog de mejoras futuras](docs/backlog/01-mejoras-futuras.md)
 
 Documentación sobre uso de IA:
 
