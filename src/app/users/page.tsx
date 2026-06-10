@@ -2,6 +2,15 @@ import { UserRole, UserStatus } from "@prisma/client";
 import { notFound, redirect } from "next/navigation";
 
 import { auth } from "@/auth";
+import { DataTable, type DataTableColumn } from "@/components/data/data-table";
+import { TableActions } from "@/components/data/table-actions";
+import { AppShell } from "@/components/layout/app-shell";
+import { PageHeader } from "@/components/layout/page-header";
+import { Alert } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import { prisma } from "@/lib/prisma";
 
 import { createUser, updateUser } from "./actions";
@@ -18,6 +27,12 @@ const formatDate = (date: Date) =>
     dateStyle: "short",
     timeStyle: "short",
   }).format(date);
+
+const getRoleBadgeTone = (role: UserRole): "success" | "neutral" =>
+  role === UserRole.INTERNAL ? "success" : "neutral";
+
+const getStatusBadgeTone = (status: UserStatus): "success" | "warning" =>
+  status === UserStatus.ACTIVE ? "success" : "warning";
 
 export default async function UsersPage({ searchParams }: UsersPageProps) {
   const session = await auth();
@@ -64,158 +79,198 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
     }),
   ]);
 
+  type UserRow = (typeof users)[number];
+
+  const userColumns: DataTableColumn<UserRow>[] = [
+    {
+      key: "name",
+      header: "Nombre",
+      render: (user) => user.name,
+    },
+    {
+      key: "email",
+      header: "Email",
+      render: (user) => user.email,
+    },
+    {
+      key: "role",
+      header: "Rol",
+      render: (user) => (
+        <Badge tone={getRoleBadgeTone(user.role)}>{user.role}</Badge>
+      ),
+    },
+    {
+      key: "status",
+      header: "Estado",
+      render: (user) => (
+        <Badge tone={getStatusBadgeTone(user.status)}>{user.status}</Badge>
+      ),
+    },
+    {
+      key: "client",
+      header: "Cliente",
+      render: (user) => user.client?.name ?? "Sin cliente",
+    },
+    {
+      key: "createdAt",
+      header: "Creado",
+      render: (user) => formatDate(user.createdAt),
+    },
+  ];
+
   return (
-    <main className="users-page">
-      <header className="page-header">
-        <p className="eyebrow">Usuarios</p>
-        <h1>Gestión mínima de usuarios</h1>
-        <p>
-          Esta vista está protegida por sesión y reservada a usuarios INTERNAL
-          para administrar usuarios básicos del MVP.
-        </p>
-      </header>
+    <AppShell>
+      <div className="users-page">
+        <PageHeader
+          description={
+            <>
+              Esta vista está protegida por sesión y reservada a usuarios
+              INTERNAL para administrar usuarios básicos del MVP.
+            </>
+          }
+          eyebrow="Usuarios"
+          title="Gestión mínima de usuarios"
+        />
 
-      {params?.error ? <p className="notice notice-error">{params.error}</p> : null}
-      {params?.success ? (
-        <p className="notice notice-success">{params.success}</p>
-      ) : null}
+        {params?.error ? <Alert tone="error">{params.error}</Alert> : null}
+        {params?.success ? <Alert tone="success">{params.success}</Alert> : null}
 
-      <section className="content-panel" aria-labelledby="create-user-title">
-        <h2 id="create-user-title">Crear usuario</h2>
-        {clients.length === 0 ? (
-          <p className="helper-text">
-            No hay clientes disponibles. La creación de usuarios CLIENT quedará
-            bloqueada por validación hasta que exista al menos un cliente.
-          </p>
-        ) : null}
-        <form action={createUser} className="form-grid">
-          <label>
-            Nombre
-            <input name="name" required />
-          </label>
-          <label>
-            Email
-            <input name="email" type="email" required />
-          </label>
-          <label>
-            Rol
-            <select name="role" defaultValue={UserRole.INTERNAL}>
-              <option value={UserRole.INTERNAL}>INTERNAL</option>
-              <option value={UserRole.CLIENT}>CLIENT</option>
-            </select>
-          </label>
-          <label>
-            Estado
-            <select name="status" defaultValue={UserStatus.ACTIVE}>
-              <option value={UserStatus.ACTIVE}>ACTIVE</option>
-              <option value={UserStatus.INACTIVE}>INACTIVE</option>
-            </select>
-          </label>
-          <label>
-            Cliente
-            <select name="clientId" defaultValue="">
-              <option value="">Sin cliente</option>
-              {clients.map((client) => (
-                <option key={client.id} value={client.id}>
-                  {client.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Contraseña inicial
-            <input name="password" type="password" minLength={8} required />
-          </label>
-          <button type="submit">Crear usuario</button>
-        </form>
-      </section>
+        <section className="content-panel" aria-labelledby="create-user-title">
+          <h2 id="create-user-title">Crear usuario</h2>
+          {clients.length === 0 ? (
+            <p className="helper-text">
+              No hay clientes disponibles. La creación de usuarios CLIENT
+              quedará bloqueada por validación hasta que exista al menos un
+              cliente.
+            </p>
+          ) : null}
+          <form action={createUser} className="form-grid">
+            <label>
+              Nombre
+              <Input name="name" required />
+            </label>
+            <label>
+              Email
+              <Input name="email" type="email" required />
+            </label>
+            <label>
+              Rol
+              <Select name="role" defaultValue={UserRole.INTERNAL}>
+                <option value={UserRole.INTERNAL}>INTERNAL</option>
+                <option value={UserRole.CLIENT}>CLIENT</option>
+              </Select>
+            </label>
+            <label>
+              Estado
+              <Select name="status" defaultValue={UserStatus.ACTIVE}>
+                <option value={UserStatus.ACTIVE}>ACTIVE</option>
+                <option value={UserStatus.INACTIVE}>INACTIVE</option>
+              </Select>
+            </label>
+            <label>
+              Cliente
+              <Select name="clientId" defaultValue="">
+                <option value="">Sin cliente</option>
+                {clients.map((client) => (
+                  <option key={client.id} value={client.id}>
+                    {client.name}
+                  </option>
+                ))}
+              </Select>
+            </label>
+            <label>
+              Contraseña inicial
+              <Input name="password" type="password" minLength={8} required />
+            </label>
+            <Button type="submit">Crear usuario</Button>
+          </form>
+        </section>
 
-      <section className="content-panel" aria-labelledby="users-list-title">
-        <h2 id="users-list-title">Usuarios existentes</h2>
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Email</th>
-                <th>Rol</th>
-                <th>Estado</th>
-                <th>Cliente</th>
-                <th>Creado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user) => (
-                <tr key={user.id}>
-                  <td>{user.name}</td>
-                  <td>{user.email}</td>
-                  <td>{user.role}</td>
-                  <td>{user.status}</td>
-                  <td>{user.client?.name ?? "Sin cliente"}</td>
-                  <td>{formatDate(user.createdAt)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+        <section className="content-panel" aria-labelledby="users-list-title">
+          <h2 id="users-list-title">Usuarios existentes</h2>
+          <DataTable
+            actions={(user) => (
+              <TableActions>
+                <a className="table-action-link" href={`#edit-user-${user.id}`}>
+                  Editar
+                </a>
+              </TableActions>
+            )}
+            columns={userColumns}
+            emptyDescription="Crea el primer usuario para empezar a administrar el MVP."
+            emptyTitle="No hay usuarios registrados"
+            getRowKey={(user) => user.id}
+            rows={users}
+          />
+        </section>
 
-      <section className="content-panel" aria-labelledby="edit-users-title">
-        <h2 id="edit-users-title">Editar usuarios</h2>
-        <div className="user-edit-list">
-          {users.map((user) => (
-            <form key={user.id} action={updateUser} className="form-grid edit-form">
-              <input name="userId" type="hidden" value={user.id} />
-              <label>
-                Nombre
-                <input name="name" defaultValue={user.name} required />
-              </label>
-              <label>
-                Email
-                <input name="email" type="email" defaultValue={user.email} required />
-              </label>
-              <label>
-                Rol
-                <select name="role" defaultValue={user.role}>
-                  <option value={UserRole.INTERNAL}>INTERNAL</option>
-                  <option value={UserRole.CLIENT}>CLIENT</option>
-                </select>
-              </label>
-              <label>
-                Estado
-                <select name="status" defaultValue={user.status}>
-                  <option value={UserStatus.ACTIVE}>ACTIVE</option>
-                  <option value={UserStatus.INACTIVE}>INACTIVE</option>
-                </select>
-              </label>
-              <label>
-                Cliente
-                <select name="clientId" defaultValue={user.clientId ?? ""}>
-                  <option value="">Sin cliente</option>
-                  {clients.map((client) => (
-                    <option key={client.id} value={client.id}>
-                      {client.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                Nueva contraseña
-                <input
-                  name="password"
-                  type="password"
-                  minLength={8}
-                  placeholder="Dejar en blanco para no cambiar"
-                />
-              </label>
-              <p className="helper-text">
-                Última actualización: {formatDate(user.updatedAt)}
-              </p>
-              <button type="submit">Guardar cambios</button>
-            </form>
-          ))}
-        </div>
-      </section>
-    </main>
+        <section className="content-panel" aria-labelledby="edit-users-title">
+          <h2 id="edit-users-title">Editar usuarios</h2>
+          <div className="user-edit-list">
+            {users.map((user) => (
+              <form
+                key={user.id}
+                action={updateUser}
+                className="form-grid edit-form"
+                id={`edit-user-${user.id}`}
+              >
+                <input name="userId" type="hidden" value={user.id} />
+                <label>
+                  Nombre
+                  <Input name="name" defaultValue={user.name} required />
+                </label>
+                <label>
+                  Email
+                  <Input
+                    name="email"
+                    type="email"
+                    defaultValue={user.email}
+                    required
+                  />
+                </label>
+                <label>
+                  Rol
+                  <Select name="role" defaultValue={user.role}>
+                    <option value={UserRole.INTERNAL}>INTERNAL</option>
+                    <option value={UserRole.CLIENT}>CLIENT</option>
+                  </Select>
+                </label>
+                <label>
+                  Estado
+                  <Select name="status" defaultValue={user.status}>
+                    <option value={UserStatus.ACTIVE}>ACTIVE</option>
+                    <option value={UserStatus.INACTIVE}>INACTIVE</option>
+                  </Select>
+                </label>
+                <label>
+                  Cliente
+                  <Select name="clientId" defaultValue={user.clientId ?? ""}>
+                    <option value="">Sin cliente</option>
+                    {clients.map((client) => (
+                      <option key={client.id} value={client.id}>
+                        {client.name}
+                      </option>
+                    ))}
+                  </Select>
+                </label>
+                <label>
+                  Nueva contraseña
+                  <Input
+                    name="password"
+                    type="password"
+                    minLength={8}
+                    placeholder="Dejar en blanco para no cambiar"
+                  />
+                </label>
+                <p className="helper-text">
+                  Última actualización: {formatDate(user.updatedAt)}
+                </p>
+                <Button type="submit">Guardar cambios</Button>
+              </form>
+            ))}
+          </div>
+        </section>
+      </div>
+    </AppShell>
   );
 }
