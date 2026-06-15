@@ -69,6 +69,7 @@ Documentos principales:
 - [Visión y alcance](docs/00-vision-y-alcance.md)
 - [Requisitos funcionales](docs/01-requisitos-funcionales.md)
 - [Casos de uso](docs/10-casos-de-uso.md)
+- [Pantallas y navegación](docs/11-pantallas-y-navegacion.md)
 - [Requisitos no funcionales](docs/02-requisitos-no-funcionales.md)
 - [Modelo de datos](docs/03-modelo-datos.md)
 - [Arquitectura](docs/04-arquitectura.md)
