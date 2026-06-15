@@ -25,7 +25,7 @@ El campo **Estado** de cada pantalla refleja la situación real del repositorio 
 | Ruta | Pantalla | Rol | CU | Estado |
 |---|---|---|---|---|
 | `/api/auth/signin` | Inicio de sesión | Público | CU-01 | Parcial (NextAuth) |
-| `/` | Inicio / panel de estado | Autenticado | — | Parcial (placeholder) |
+| `/` | Inicio / panel de estado | Público | — | Parcial (placeholder público) |
 | `/users` | Gestión de usuarios | `INTERNAL` | CU-02 | Parcial |
 | `/clients` | Listado de clientes | `INTERNAL` | CU-03 | Pendiente |
 | `/clients/[id]` | Ficha de cliente | `INTERNAL` | CU-03 | Pendiente |
@@ -43,6 +43,8 @@ El campo **Estado** de cada pantalla refleja la situación real del repositorio 
 > Las rutas pendientes son una propuesta coherente con el alcance del MVP y podrán ajustarse durante la implementación de cada módulo.
 
 ## 4. Mapa de pantallas (sitemap)
+
+> Estos mapas representan la **navegación objetivo** del MVP, no el estado actual. Hoy el login no redirige según rol y solo existen `/` (panel público), `/users` y el catch-all de Auth.js. Las rutas internas de negocio y toda el área de cliente (`/portal`) están pendientes (ver columna Estado en la sección 3).
 
 ### 4.1. Área interna (`INTERNAL`)
 
@@ -85,11 +87,11 @@ graph TD
 
 ### 5.2. Inicio / panel de estado — `/`
 
-- **Rol**: autenticado. **CU**: —. **Estado**: Parcial (hoy es un panel de estado del proyecto técnico).
-- **Propósito**: punto de entrada tras login; a futuro, acceso rápido a las secciones internas.
-- **Contenido**: cabecera y navegación principal (`Nav`).
-- **Acciones**: navegar a las secciones.
-- **Pendiente**: convertir el placeholder actual en panel de inicio real con accesos por rol.
+- **Rol**: público. **CU**: —. **Estado**: Parcial (placeholder público).
+- **Propósito**: a futuro, punto de entrada tras login con acceso rápido a las secciones internas.
+- **Contenido actual**: panel de estado estático y público (`src/app/page.tsx`), sin `auth()`, `redirect()`, `AppShell` ni `Nav`.
+- **Acciones**: ninguna en el estado actual.
+- **Pendiente**: proteger la ruta y montar el shell de aplicación (`AppShell` + `Nav`) para convertirla en panel de inicio autenticado con accesos por rol. Hoy no aplica protección ni navegación.
 
 ### 5.3. Gestión de usuarios — `/users`
 
