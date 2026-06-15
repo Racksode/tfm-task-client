@@ -8,24 +8,24 @@ Desarrollar una aplicación web que permita gestionar clientes, proyectos y tare
 
 ## Estado actual del proyecto
 
-El proyecto ha completado la arquitectura inicial del MVP y pasa a una fase breve de decisiones técnicas iniciales antes de crear el primer código ejecutable.
+El proyecto tiene implementada la base técnica del MVP (persistencia, autenticación, usuarios, roles y UI base reutilizable) y ha cerrado la documentación funcional/UX antes de continuar con los módulos de negocio.
 
 ```text
-Fase actual: Fase 4 - Inicio de implementación
-Punto actual: persistencia inicial materializada con Prisma, PostgreSQL y migración inicial
+Fase actual: Fase 4 - Implementación del MVP
+Punto actual: documentación funcional/UX completada (casos de uso, pantallas y navegación, diagramas UML)
 Documento en curso: pendiente
 ```
 
 Último hito completado:
 
 ```text
-Migración inicial de Prisma ejecutada y versionada sobre PostgreSQL local con Docker Compose.
+Documentación funcional/UX del MVP cerrada: casos de uso, pantallas y navegación, y diagramas UML.
 ```
 
 Próximo paso:
 
 ```text
-Preparar la siguiente fase técnica: definir una capa prudente de acceso a datos antes de implementar funcionalidades de negocio.
+Implementar el primer módulo funcional de negocio (Client) reutilizando la UI base, según docs/planes/16-ui-base-y-modulo-client.md.
 ```
 
 Referencia de planificación:
