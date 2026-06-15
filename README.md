@@ -228,3 +228,5 @@ El proyecto se publica bajo **licencia dual**:
 - **Licencia comercial** de pago para usos que no quieran asumir las obligaciones de copyleft de la AGPL (ver [COMMERCIAL-LICENSE.md](COMMERCIAL-LICENSE.md)).
 
 El uso bajo AGPL es gratuito. Se solicita mantener la atribución al autor y un enlace al proyecto en los créditos.
+
+La decisión de licencia se documenta en [ADR 0007](docs/adr/0007-licencia.md).
