@@ -41,7 +41,7 @@ Los actores del MVP se definen en `docs/01-requisitos-funcionales.md`:
 ### CU-01. Iniciar sesión
 
 - **Actor principal**: Usuario interno o Cliente.
-- **Estado**: Implementado.
+- **Estado**: Parcial. Implementado: autenticación por credenciales y resolución del rol en sesión (`src/auth.ts`). Pendiente: redirección por rol y área de cliente.
 - **RF relacionados**: RF-01.
 - **Precondiciones**: El usuario existe en el sistema y está activo.
 
@@ -51,7 +51,7 @@ Los actores del MVP se definen en `docs/01-requisitos-funcionales.md`:
 2. Introduce email y contraseña.
 3. El sistema valida las credenciales.
 4. El sistema crea la sesión y resuelve el rol del usuario.
-5. El sistema redirige al área correspondiente según el rol.
+5. El sistema redirige al `callbackUrl` o a la página de inicio. La redirección automática al área según el rol está pendiente (ver `docs/11-pantallas-y-navegacion.md`, 5.1).
 
 **Flujos alternativos y excepciones**
 

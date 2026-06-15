@@ -24,7 +24,7 @@ El campo **Estado** de cada pantalla refleja la situación real del repositorio 
 
 | Ruta | Pantalla | Rol | CU | Estado |
 |---|---|---|---|---|
-| `/api/auth/signin` | Inicio de sesión | Público | CU-01 | Implementado (NextAuth) |
+| `/api/auth/signin` | Inicio de sesión | Público | CU-01 | Parcial (NextAuth) |
 | `/` | Inicio / panel de estado | Autenticado | — | Parcial (placeholder) |
 | `/users` | Gestión de usuarios | `INTERNAL` | CU-02 | Parcial |
 | `/clients` | Listado de clientes | `INTERNAL` | CU-03 | Pendiente |
@@ -75,12 +75,13 @@ graph TD
 
 ### 5.1. Inicio de sesión — `/api/auth/signin`
 
-- **Rol**: público. **CU**: CU-01. **Estado**: Implementado (NextAuth).
+- **Rol**: público. **CU**: CU-01. **Estado**: Parcial (NextAuth).
 - **Propósito**: autenticar al usuario y resolver su rol.
 - **Contenido**: formulario de email y contraseña.
 - **Acciones**: iniciar sesión.
 - **Estados**: error de credenciales (mensaje genérico); usuario inactivo (acceso denegado).
-- **Navegación**: tras autenticar, redirige al área según rol (`/` interno, `/portal` cliente o `callbackUrl`).
+- **Implementado**: autenticación por credenciales y resolución del rol en la sesión (`src/auth.ts`). Tras autenticar, NextAuth redirige al `callbackUrl` o a `/`.
+- **Pendiente**: redirección automática al área según rol (panel interno vs `/portal` de cliente). Hoy `src/auth.ts` no define este comportamiento y el área de cliente aún no existe.
 
 ### 5.2. Inicio / panel de estado — `/`
 
