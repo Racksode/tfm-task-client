@@ -151,7 +151,7 @@ Stack inicial del MVP:
 - PostgreSQL.
 - Prisma.
 - Auth.js / NextAuth.
-- Vitest para testing mínimo.
+- Vitest para testing mínimo (previsto; aún no instalado).
 - Playwright como opción aplazable.
 - Docker solo como apoyo local para PostgreSQL, si es necesario.
 - GitHub como repositorio y control de versiones.
@@ -184,6 +184,18 @@ PostgreSQL se ejecuta localmente mediante Docker Compose. Docker Desktop debe es
 
 El archivo `.env` se crea localmente a partir de `.env.example` y no debe versionarse.
 
+Variables de entorno:
+
+| Variable | Obligatoria | Descripción |
+|---|---|---|
+| `DATABASE_URL` | Sí | Cadena de conexión a PostgreSQL usada por Prisma. |
+| `AUTH_SECRET` | Sí | Secreto de Auth.js / NextAuth para firmar la sesión. Generar uno con `npx auth secret` o `openssl rand -base64 32`. |
+| `BOOTSTRAP_USER_EMAIL` | Solo bootstrap | Email del primer usuario interno creado por `npm run bootstrap:first-user`. |
+| `BOOTSTRAP_USER_PASSWORD` | Solo bootstrap | Contraseña inicial del primer usuario. |
+| `BOOTSTRAP_USER_NAME` | Solo bootstrap | Nombre del primer usuario. |
+
+Las variables `BOOTSTRAP_USER_*` solo se utilizan al ejecutar el script de bootstrap del primer usuario y pueden retirarse después.
+
 ```bash
 docker compose up -d
 docker compose ps
@@ -210,4 +222,9 @@ npm run dev
 
 ## Licencia
 
-Pendiente de definir.
+El proyecto se publica bajo **licencia dual**:
+
+- **AGPL-3.0** como licencia open source por defecto (ver [LICENSE](LICENSE)).
+- **Licencia comercial** de pago para usos que no quieran asumir las obligaciones de copyleft de la AGPL (ver [COMMERCIAL-LICENSE.md](COMMERCIAL-LICENSE.md)).
+
+El uso bajo AGPL es gratuito. Se solicita mantener la atribución al autor y un enlace al proyecto en los créditos.
