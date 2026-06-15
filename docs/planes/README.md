@@ -22,7 +22,30 @@ No se deben guardar conversaciones menores, propuestas descartadas sin impacto o
 
 ## Planes registrados
 
+### Documentación y diseño inicial
+
 - [Requisitos funcionales](01-requisitos-funcionales.md)
 - [Requisitos no funcionales](02-requisitos-no-funcionales.md)
 - [Modelo de datos](03-modelo-datos.md)
 - [Arquitectura](04-arquitectura.md)
+- [Decisiones técnicas iniciales](05-decisiones-tecnicas-iniciales.md)
+
+### Implementación del MVP
+
+- [Proyecto técnico base](06-proyecto-tecnico-base.md)
+- [Persistencia inicial con Prisma](07-persistencia-inicial-prisma.md)
+- [Capa de acceso a datos con Prisma](08-capa-acceso-datos-prisma.md)
+- [CI básica con GitHub Actions](09-ci-basica-github-actions.md)
+- [Prerrequisito de credenciales para auth](10-prerrequisito-credenciales-auth.md)
+- [Autenticación mínima](11-auth-minima.md)
+- [Bootstrap del primer usuario](12-bootstrap-primer-usuario.md)
+- [Gestión mínima de usuarios](13-usuarios-minimos.md)
+- [Backlog de mejoras futuras](14-backlog-mejoras-futuras.md)
+- [Roles básicos](15-roles-basicos.md)
+- [UI base reutilizable y módulo Client](16-ui-base-y-modulo-client.md)
+
+### Documentación funcional y UX
+
+- [Casos de uso](17-documentacion-casos-de-uso.md)
+- [Pantallas y navegación](18-documentacion-pantallas-navegacion.md)
+- [Diagramas UML](19-documentacion-diagramas-uml.md)
