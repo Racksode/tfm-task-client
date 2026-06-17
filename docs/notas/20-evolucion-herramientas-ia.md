@@ -33,6 +33,17 @@ El problema combinó dos factores: una especificación incompleta y un resultado
 
 En el mismo punto del proyecto se hizo una prueba con **Claude Code**, partiendo de un contexto equivalente. El resultado fue **bastante mejor**, lo que motivó adoptarlo como herramienta principal de trabajo en el IDE a partir de ese momento.
 
+### Matiz: aprendizaje guiado frente a autonomía
+
+El cambio de herramienta trajo también un matiz sobre el propio aprendizaje:
+
+- Con **ChatGPT** el trabajo era más **guiado**: el flujo de preguntas y respuestas obligaba a entender y decidir paso a paso, lo que favorecía el aprendizaje.
+- Con **Claude Code** el trabajo es más **autónomo**: el agente avanza con menos intervención. Eso aumenta la productividad, pero introduce un riesgo: si no se mantiene una actitud activa, es fácil **acomodarse e ir "de pasajero"**, perdiendo control y aprendizaje.
+
+Esa autonomía llega más lejos de lo que parece. Claude Code puede **crear ramas, implementar desarrollo y documentación, hacer commits, abrir y mergear Pull Requests e incluso limpiar la rama `main`** sin intervención humana en medio. Visto en frío es un ciclo de trabajo casi completo con muy poca fricción, y ahí está justo el filo de la navaja: lo mismo que ahorra esfuerzo puede llevar un error hasta la rama principal sin que nadie lo pare. En este propio proyecto pasó: en un par de ocasiones un commit acabó directamente en `main` por trabajar demasiado en automático. La conclusión que saco es que la autonomía no elimina la necesidad de una puerta humana, sino que la vuelve más importante.
+
+La conclusión no es renunciar a la autonomía, sino **mantener el rol activo**: revisar, decidir y entender lo que el agente propone en lugar de aceptarlo sin más.
+
 ## Trabajo de documentación con Claude Code
 
 Tras el cambio, se utilizó Claude Code para **revisar el proyecto completo** e identificar qué faltaba a nivel de documentación, construyendo un mapa de los documentos a crear.
@@ -52,6 +63,7 @@ Durante este trabajo también se aplicó revisión humana sobre los resultados: 
 - **Conviene comparar herramientas en el mismo punto.** Probar Claude Code sobre un contexto equivalente permitió decidir el cambio con criterio, no por intuición.
 - **La IA no es fuente de verdad.** Los resultados se revisan y se contrastan con el estado real del repositorio antes de darlos por buenos, como exige `AGENTS.md`.
 - **Trabajo por fases cerradas y verificables.** Cada bloque documental se ha tratado como una fase con rama y PR propios, facilitando la revisión y la trazabilidad.
+- **Más autonomía exige más disciplina.** Cuanto más autónomo es el agente, mayor es el riesgo de "ir de pasajero"; conviene mantener un papel activo de revisión y decisión para no perder control ni aprendizaje.
 
 ## Estado actual
 
