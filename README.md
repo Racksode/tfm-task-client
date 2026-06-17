@@ -72,6 +72,7 @@ Documentos principales:
 - [Pantallas y navegación](docs/11-pantallas-y-navegacion.md)
 - [Diagramas UML](docs/12-diagramas-uml.md)
 - [Historias de usuario](docs/13-historias-de-usuario.md)
+- [Guía de diseño](docs/14-guia-de-diseno.md)
 - [Requisitos no funcionales](docs/02-requisitos-no-funcionales.md)
 - [Modelo de datos](docs/03-modelo-datos.md)
 - [Arquitectura](docs/04-arquitectura.md)
