@@ -18,7 +18,7 @@ El estado refleja la realidad del repositorio y no presenta como hecho lo que no
 
 La CI está definida en `.github/workflows/ci.yml` (job **"Validate project"**).
 
-- **Disparador**: `pull_request` contra `main`.
+- **Disparador**: `pull_request` contra `main`. Mediante `paths-ignore`, los PR que solo cambian documentación (`**/*.md`, `docs/**`, `LICENSE`) no ejecutan la CI, ya que no pueden romper tipos, lint ni build.
 - **Entorno**: Ubuntu, Node.js LTS, `DATABASE_URL` definida como variable de entorno.
 - **Pasos**:
   1. `npm ci` — instalación reproducible de dependencias.
