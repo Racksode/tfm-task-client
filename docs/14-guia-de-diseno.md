@@ -162,11 +162,11 @@ De momento, página simple "en construcción". Como patrón futuro se contempla 
 | `Button` | Acciones | Variantes: `default` (primario), `secondary`, `outline`, `ghost`, `destructive`; tamaños incluido icono. |
 | `Input`, `Label`, `Textarea`, `Select` | Formularios | Label con asterisco para obligatorios; mensajes de validación bajo el campo. |
 | `Badge` | Estado | Mapear enums de dominio: `ACTIVE`→success, `INACTIVE`→neutral/destructive, `PAUSED`→warning, `IN_PROGRESS`→info, etc. |
-| `Table` | Listados | Cabecera ordenable, hover de fila, columna de acciones. |
+| `Table` | Listados | Base MVP (DataTable v1): hover de fila y columna de acciones. La ordenación de columnas es evolución futura (DataTable v2). |
 | `Card` | Paneles | Cabecera + contenido. |
 | `Alert` | Mensajes | Variantes info/success/warning/destructive. |
 | `AlertDialog` | Confirmaciones | Confirmar acciones destructivas (borrar) en lugar de hacerlo directo. |
-| `Pagination` | Listados | Controles anterior/siguiente y tamaño de página. |
+| `Pagination` | Listados (evolución futura) | Controles anterior/siguiente y tamaño de página; DataTable v2, no forma parte del MVP. |
 | `DropdownMenu` + `Avatar` | Menú de usuario | En la topbar; incluye cerrar sesión. |
 | Sidebar/Nav | Navegación | Ítem activo con primario. |
 | `EmptyState` | Estado vacío | Mensaje + llamada a la acción. |
