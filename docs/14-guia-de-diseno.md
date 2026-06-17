@@ -110,17 +110,15 @@ Tarjeta centrada, sin shell.
 ┌─────────────────────────────────────────────────────────┐
 │ Título del listado                        [ + Nuevo ]    │
 ├─────────────────────────────────────────────────────────┤
-│ Col A ▲▼ │ Col B ▲▼ │ Estado │            Acciones       │
-│ ─────────┼──────────┼────────┼─────────────────────────  │
-│  dato    │  dato    │ [badge]│   [ver] [editar] [borrar] │
-│  dato    │  dato    │ [badge]│   [ver] [editar] [borrar] │
-├─────────────────────────────────────────────────────────┤
-│ Mostrar [50 ▾]                       « ‹ 1 › »           │
+│ Col A   │ Col B   │ Estado │            Acciones          │
+│ ────────┼─────────┼────────┼───────────────────────────  │
+│  dato   │  dato   │ [badge]│   [ver] [editar] [borrar]   │
+│  dato   │  dato   │ [badge]│   [ver] [editar] [borrar]   │
 └─────────────────────────────────────────────────────────┘
 ```
 
-- Cabeceras ordenables; badges de estado semánticos; acciones por fila como botones icono (ghost; el de borrar en rojo).
-- Acción principal "Nuevo" arriba a la derecha.
+- **Base del MVP (DataTable v1)**: columnas básicas, badges de estado semánticos, acciones por fila como botones icono (ghost; el de borrar en rojo), estado vacío y acción principal "Nuevo" arriba a la derecha.
+- **Evolución futura (no requisito del MVP)**: ordenación por columna, paginación y selector de tamaño de página (DataTable v2), conforme a `docs/planes/16-ui-base-y-modulo-client.md`.
 
 ### 5.3. Formulario — `/users/new`, `/users/[id]/edit`, …
 
