@@ -12,7 +12,7 @@ Parte de los requisitos funcionales (`docs/01-requisitos-funcionales.md`), los c
 ## 2. Convención
 
 - **Formato de historia**: "Como `<rol>`, quiero `<objetivo>` para `<beneficio>`".
-- **Prioridad (MoSCoW)**: `Must` (imprescindible para el MVP), `Should` (recomendable dentro del MVP), `Could` (deseable, prueba conceptual). Las funcionalidades `Won't` quedan fuera y se listan en `docs/01-requisitos-funcionales.md` (§8).
+- **Prioridad (MoSCoW)**: `Must` (imprescindible para el MVP), `Should` (recomendable dentro del MVP), `Could` (deseable, opcional). Las funcionalidades `Won't` quedan fuera y se listan en `docs/01-requisitos-funcionales.md` (§8).
 - **Criterios de aceptación**: en formato Dado / Cuando / Entonces.
 - Cada historia referencia su caso de uso (`CU-XX`) y, por derivación, sus reglas de negocio.
 
@@ -130,6 +130,7 @@ Parte de los requisitos funcionales (`docs/01-requisitos-funcionales.md`), los c
 - **Criterios de aceptación**:
   - Dados cliente y periodo, cuando genera el reporte, entonces se reúnen tareas, tiempos, total de horas y coste estimado en estado borrador.
   - Dado un periodo sin datos, cuando intenta generarlo, entonces el sistema avisa y no crea un reporte vacío sin confirmación.
+  - Dado un reporte en borrador, cuando el usuario interno lo revisa y lo marca visible para el cliente, entonces queda disponible en el área de cliente; si no lo marca, no se expone.
 
 #### HU-13. Resumen profesional con IA
 
@@ -155,7 +156,7 @@ Parte de los requisitos funcionales (`docs/01-requisitos-funcionales.md`), los c
 #### HU-15. Interpretar instrucción en lenguaje natural
 
 - **Como** usuario interno, **quiero** introducir una instrucción en lenguaje natural y obtener una propuesta estructurada **para** demostrar la interpretación controlada con IA.
-- **Prioridad**: Could (prueba conceptual). **CU**: CU-12.
+- **Prioridad**: Must (prueba conceptual interna, clasificada como imprescindible en RF-13). **CU**: CU-12.
 - **Criterios de aceptación**:
   - Dada una instrucción, cuando la envía, entonces el sistema devuelve una propuesta estructurada sin ejecutar ninguna acción.
   - Dada una instrucción no interpretable, cuando la envía, entonces el sistema indica que requiere revisión y no propone acción.
