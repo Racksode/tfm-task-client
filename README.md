@@ -25,7 +25,7 @@ Documentación funcional/UX del MVP cerrada: casos de uso, pantallas y navegaci�
 Próximo paso:
 
 ```text
-Implementar el primer módulo funcional de negocio (Client) reutilizando la UI base, según docs/planes/16-ui-base-y-modulo-client.md.
+Montar la base de UI (Tailwind + shadcn, ADR 0009) y rehacer login y usuarios (ADR 0008); después, implementar el primer módulo de negocio (Client, docs/planes/16-ui-base-y-modulo-client.md).
 ```
 
 Referencia de planificación:
