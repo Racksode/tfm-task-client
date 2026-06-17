@@ -41,17 +41,17 @@ Los actores del MVP se definen en `docs/01-requisitos-funcionales.md`:
 ### CU-01. Iniciar sesión
 
 - **Actor principal**: Usuario interno o Cliente.
-- **Estado**: Parcial. Implementado: autenticación por credenciales y resolución del rol en sesión (`src/auth.ts`). Pendiente: redirección por rol y área de cliente.
+- **Estado**: Parcial. Implementado: autenticación por credenciales y resolución del rol en sesión (`src/auth.ts`). Pendiente: pantalla `/login` propia, redirección por rol y área de cliente (ver `docs/adr/0008`).
 - **RF relacionados**: RF-01.
 - **Precondiciones**: El usuario existe en el sistema y está activo.
 
 **Flujo principal**
 
-1. El actor accede a la pantalla de inicio de sesión.
+1. El actor accede a la pantalla de inicio de sesión (`/login`).
 2. Introduce email y contraseña.
 3. El sistema valida las credenciales.
 4. El sistema crea la sesión y resuelve el rol del usuario.
-5. El sistema redirige al `callbackUrl` o a la página de inicio. La redirección automática al área según el rol está pendiente (ver `docs/11-pantallas-y-navegacion.md`, 5.1).
+5. El sistema redirige según el rol: `INTERNAL` → `/dashboard`, `CLIENT` → `/portal` (pendiente de implementación; ver `docs/11-pantallas-y-navegacion.md`, 5.2).
 
 **Flujos alternativos y excepciones**
 
@@ -65,15 +65,15 @@ Los actores del MVP se definen en `docs/01-requisitos-funcionales.md`:
 ### CU-02. Gestionar usuarios
 
 - **Actor principal**: Usuario interno.
-- **Estado**: Parcial. Existe gestión mínima de usuarios en `/users` (ver `docs/planes/13-usuarios-minimos.md`).
+- **Estado**: Parcial. Existe gestión en una sola página `/users` (ver `docs/planes/13-usuarios-minimos.md`); se reestructura en rutas CRUD separadas (`/users`, `/users/new`, `/users/[id]/edit`) según `docs/adr/0008`.
 - **RF relacionados**: RF-01.
 - **Precondiciones**: El usuario interno tiene sesión activa con rol `INTERNAL`.
 
 **Flujo principal**
 
-1. El usuario interno accede a la administración de usuarios.
+1. El usuario interno accede al listado de usuarios en `/users`.
 2. Consulta el listado de usuarios existentes.
-3. Crea o edita un usuario indicando nombre, email y rol.
+3. Crea un usuario desde `/users/new` o edita uno existente desde `/users/[id]/edit`, indicando nombre, email y rol.
 4. El sistema valida los datos y guarda el usuario.
 
 **Flujos alternativos y excepciones**

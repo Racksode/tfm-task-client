@@ -9,6 +9,8 @@ Este documento describe las pantallas del MVP y cómo se navega entre ellas.
 
 Sirve de puente entre los casos de uso (`docs/10-casos-de-uso.md`) y la implementación de la interfaz, reutilizando la UI base ya creada en `src/components/` (ver `docs/notas/19-explicacion-ui-base-reutilizable.md`).
 
+El diseño de acceso (login propio) y de la gestión de usuarios (rutas CRUD separadas) sigue las decisiones del diagnóstico `docs/notas/21-diagnostico-login-users.md` y el `docs/adr/0008-login-y-estructura-usuarios.md`.
+
 No define acabado visual final, sistema de diseño completo ni maquetación definitiva. Describe propósito, contenido funcional, estados y navegación dentro del alcance del MVP.
 
 El campo **Estado** de cada pantalla refleja la situación real del repositorio (`Implementado`, `Parcial`, `Pendiente`) y no presenta como hecho lo que no existe.
@@ -24,9 +26,12 @@ El campo **Estado** de cada pantalla refleja la situación real del repositorio 
 
 | Ruta | Pantalla | Rol | CU | Estado |
 |---|---|---|---|---|
-| `/api/auth/signin` | Inicio de sesión | Público | CU-01 | Parcial (NextAuth) |
-| `/` | Inicio / panel de estado | Público | — | Parcial (placeholder público) |
-| `/users` | Gestión de usuarios | `INTERNAL` | CU-02 | Parcial |
+| `/login` | Inicio de sesión | Público | CU-01 | Pendiente |
+| `/` | Redirección por rol | Autenticado | CU-01 | Pendiente |
+| `/dashboard` | Panel interno (en construcción) | `INTERNAL` | — | Pendiente |
+| `/users` | Usuarios — listado | `INTERNAL` | CU-02 | Parcial |
+| `/users/new` | Usuarios — alta | `INTERNAL` | CU-02 | Pendiente |
+| `/users/[id]/edit` | Usuarios — edición | `INTERNAL` | CU-02 | Pendiente |
 | `/clients` | Listado de clientes | `INTERNAL` | CU-03 | Pendiente |
 | `/clients/[id]` | Ficha de cliente | `INTERNAL` | CU-03 | Pendiente |
 | `/projects` | Listado de proyectos | `INTERNAL` | CU-04 | Pendiente |
@@ -37,28 +42,32 @@ El campo **Estado** de cada pantalla refleja la situación real del repositorio 
 | `/reports` | Listado y generación de reportes | `INTERNAL` | CU-08, CU-09 | Pendiente |
 | `/reports/[id]` | Vista de reporte (con resumen IA) | `INTERNAL` | CU-09, CU-10 | Pendiente |
 | `/assistant` | Prueba de lenguaje natural | `INTERNAL` | CU-12 | Pendiente |
-| `/portal` | Área de cliente (inicio) | `CLIENT` | CU-11 | Pendiente |
+| `/portal` | Área de cliente (en construcción) | `CLIENT` | CU-11 | Pendiente |
 | `/portal/reports/[id]` | Reporte visible para cliente | `CLIENT` | CU-11 | Pendiente |
 
+> `/api/auth/*` es el manejador de Auth.js/NextAuth (no es una pantalla); la interfaz de acceso será la pantalla propia `/login`.
 > Las rutas pendientes son una propuesta coherente con el alcance del MVP y podrán ajustarse durante la implementación de cada módulo.
 
 ## 4. Mapa de pantallas (sitemap)
 
-> Estos mapas representan la **navegación objetivo** del MVP, no el estado actual. Hoy el login no redirige según rol y solo existen `/` (panel público), `/users` y el catch-all de Auth.js. Las rutas internas de negocio y toda el área de cliente (`/portal`) están pendientes (ver columna Estado en la sección 3).
+> Estos mapas representan la **navegación objetivo** del MVP, no el estado actual. Hoy no existe `/login` propio (se usa la pantalla por defecto de Auth.js), `/` es un panel público sin redirección por rol y `/users` concentra listado, alta y edición en una sola página. El rework descrito en `docs/notas/21` y `docs/adr/0008` alinea la implementación con estos mapas.
 
 ### 4.1. Área interna (`INTERNAL`)
 
 ```mermaid
 graph TD
-  Login["/api/auth/signin"] --> Home["/ inicio"]
-  Home --> Users["/users"]
-  Home --> Clients["/clients"]
-  Home --> Projects["/projects"]
-  Home --> Tasks["/tasks"]
-  Home --> Time["/time"]
-  Home --> Reports["/reports"]
-  Home --> Assistant["/assistant"]
+  Login["/login"] --> Root["/ (redirección por rol)"]
+  Root --> Dashboard["/dashboard"]
+  Dashboard --> Users["/users"]
+  Dashboard --> Clients["/clients"]
+  Dashboard --> Projects["/projects"]
+  Dashboard --> Tasks["/tasks"]
+  Dashboard --> Time["/time"]
+  Dashboard --> Reports["/reports"]
+  Dashboard --> Assistant["/assistant"]
 
+  Users --> UserNew["/users/new"]
+  Users --> UserEdit["/users/[id]/edit"]
   Clients --> ClientDetail["/clients/[id]"]
   Projects --> ProjectDetail["/projects/[id]"]
   Tasks --> TaskDetail["/tasks/[id]"]
@@ -69,42 +78,52 @@ graph TD
 
 ```mermaid
 graph TD
-  LoginC["/api/auth/signin"] --> Portal["/portal"]
+  LoginC["/login"] --> RootC["/ (redirección por rol)"]
+  RootC --> Portal["/portal"]
   Portal --> PortalReport["/portal/reports/[id]"]
 ```
 
 ## 5. Ficha por pantalla
 
-### 5.1. Inicio de sesión — `/api/auth/signin`
+### 5.1. Inicio de sesión — `/login`
 
-- **Rol**: público. **CU**: CU-01. **Estado**: Parcial (NextAuth).
-- **Propósito**: autenticar al usuario y resolver su rol.
-- **Contenido**: formulario de email y contraseña.
+- **Rol**: público. **CU**: CU-01. **Estado**: Pendiente (pantalla propia).
+- **Propósito**: autenticar al usuario y resolver su rol mediante una pantalla propia.
+- **Contenido**: formulario de email y contraseña que invoca `signIn` de Auth.js.
 - **Acciones**: iniciar sesión.
 - **Estados**: error de credenciales (mensaje genérico); usuario inactivo (acceso denegado).
-- **Implementado**: autenticación por credenciales y resolución del rol en la sesión (`src/auth.ts`). Tras autenticar, NextAuth redirige al `callbackUrl` o a `/`.
-- **Pendiente**: redirección automática al área según rol (panel interno vs `/portal` de cliente). Hoy `src/auth.ts` no define este comportamiento y el área de cliente aún no existe.
+- **Implementado**: autenticación por credenciales y resolución del rol en la sesión (`src/auth.ts`).
+- **Pendiente**: crear la pantalla propia `/login` y configurar NextAuth con `pages.signIn = "/login"`. Tras autenticar, la navegación se resuelve en `/` por rol (ver 5.2).
 
-### 5.2. Inicio / panel de estado — `/`
+### 5.2. Redirección por rol — `/`
 
-- **Rol**: público. **CU**: —. **Estado**: Parcial (placeholder público).
-- **Propósito**: a futuro, punto de entrada tras login con acceso rápido a las secciones internas.
-- **Contenido actual**: panel de estado estático y público (`src/app/page.tsx`), sin `auth()`, `redirect()`, `AppShell` ni `Nav`.
-- **Acciones**: ninguna en el estado actual.
-- **Pendiente**: proteger la ruta y montar el shell de aplicación (`AppShell` + `Nav`) para convertirla en panel de inicio autenticado con accesos por rol. Hoy no aplica protección ni navegación.
+- **Rol**: autenticado. **CU**: CU-01. **Estado**: Pendiente.
+- **Propósito**: entrada de la aplicación; no muestra contenido propio, redirige.
+- **Comportamiento objetivo**: sin sesión → `/login`; con sesión → `/dashboard` si el rol es `INTERNAL`, `/portal` si es `CLIENT`.
+- **Contenido actual**: hoy es un panel de estado estático y público (`src/app/page.tsx`), sin `auth()` ni redirección.
+- **Pendiente**: convertir `/` en una redirección protegida según el estado de sesión y el rol.
 
-### 5.3. Gestión de usuarios — `/users`
+### 5.3. Panel interno — `/dashboard`
 
-- **Rol**: `INTERNAL`. **CU**: CU-02. **Estado**: Parcial (implementado: listado, alta y edición básica).
-- **Propósito**: administrar usuarios básicos del MVP.
-- **Contenido**: cabecera (`PageHeader`), formulario de alta, tabla de usuarios (`DataTable`), formularios de edición por usuario.
+- **Rol**: `INTERNAL`. **CU**: —. **Estado**: Pendiente (placeholder).
+- **Propósito**: destino tras login para usuarios internos y, a futuro, panel de inicio con accesos a las secciones.
+- **Contenido**: de momento, página simple "dashboard en construcción" dentro del `AppShell`, con la navegación interna y el logout.
+- **Pendiente**: contenido real del panel (accesos rápidos, resúmenes); fuera del alcance de este rework.
+
+### 5.4. Usuarios — `/users`, `/users/new`, `/users/[id]/edit`
+
+- **Rol**: `INTERNAL`. **CU**: CU-02. **Estado**: Parcial (hoy todo en una sola página; se reestructura en rutas CRUD).
+- **Propósito**: administrar usuarios básicos del MVP con un patrón CRUD reutilizable.
+- **`/users` (listado)**: cabecera (`PageHeader`), tabla de usuarios (`DataTable`) con rol y estado (`Badge`), y acciones por fila (editar, activar/desactivar) y acceso a alta.
+- **`/users/new` (alta)**: formulario de creación.
+- **`/users/[id]/edit` (edición)**: formulario de edición, incluido cambio de estado y de contraseña opcional.
 - **Campos**: nombre, email, rol (`INTERNAL`/`CLIENT`), estado (`ACTIVE`/`INACTIVE`), cliente asociado, contraseña inicial / nueva.
-- **Acciones**: crear usuario, editar usuario.
+- **Acciones**: crear, editar, activar/desactivar.
 - **Validaciones**: email único; contraseña mínima 8 caracteres; creación de `CLIENT` condicionada a que exista al menos un cliente.
-- **Estados**: vacío ("No hay usuarios registrados"); alerta de error/éxito vía `searchParams`.
-- **Visibilidad/seguridad**: redirección a login sin sesión; `notFound()` si el rol no es `INTERNAL`; server actions protegidas (RN-03).
+- **Estados**: vacío ("No hay usuarios registrados"); alerta de error/éxito.
+- **Visibilidad/seguridad**: acceso restringido a `INTERNAL` mediante helper común (`requireInternal`) coherente en página y server actions (RN-03); sin sesión, redirección a `/login`.
 
-### 5.4. Clientes — `/clients` y `/clients/[id]`
+### 5.5. Clientes — `/clients` y `/clients/[id]`
 
 - **Rol**: `INTERNAL`. **CU**: CU-03. **Estado**: Pendiente.
 - **Propósito**: gestionar clientes y consultar su ficha.
@@ -115,7 +134,7 @@ graph TD
 - **Validaciones**: nombre obligatorio.
 - **Reglas**: RN-04, RN-05, RN-07 (las observaciones internas no se muestran al cliente).
 
-### 5.5. Proyectos — `/projects` y `/projects/[id]`
+### 5.6. Proyectos — `/projects` y `/projects/[id]`
 
 - **Rol**: `INTERNAL`. **CU**: CU-04. **Estado**: Pendiente.
 - **Propósito**: gestionar proyectos asociados a clientes.
@@ -126,7 +145,7 @@ graph TD
 - **Validaciones**: cliente obligatorio (RN-04).
 - **Reglas**: RN-06, RN-20.
 
-### 5.6. Tareas — `/tasks` y `/tasks/[id]`
+### 5.7. Tareas — `/tasks` y `/tasks/[id]`
 
 - **Rol**: `INTERNAL`. **CU**: CU-05, CU-06, CU-07. **Estado**: Pendiente.
 - **Propósito**: gestionar tareas y, desde su ficha, sus tiempos y el control start/stop.
@@ -137,14 +156,14 @@ graph TD
 - **Validaciones**: proyecto obligatorio (RN-08); duración positiva en registro manual (RN-11).
 - **Reglas**: RN-09, RN-10, RN-12, RN-13.
 
-### 5.7. Panel de tiempos — `/time`
+### 5.8. Panel de tiempos — `/time`
 
 - **Rol**: `INTERNAL`. **CU**: CU-07, CU-08. **Estado**: Pendiente.
 - **Propósito**: mostrar la tarea activa actual y totales de horas/coste por ámbito.
 - **Contenido**: indicador de tarea activa con acción de detener; resumen de totales por tarea/proyecto/cliente/periodo.
 - **Reglas**: RN-12 (una sola tarea activa), RN-13, RN-14.
 
-### 5.8. Reportes — `/reports` y `/reports/[id]`
+### 5.9. Reportes — `/reports` y `/reports/[id]`
 
 - **Rol**: `INTERNAL`. **CU**: CU-08, CU-09, CU-10. **Estado**: Pendiente.
 - **Propósito**: generar y consultar reportes de actividad.
@@ -153,18 +172,18 @@ graph TD
 - **Acciones**: generar reporte, solicitar resumen IA, revisar, marcar visible para cliente.
 - **Reglas**: RN-15, RN-16, RN-17, RN-18, RN-19, RN-22.
 
-### 5.9. Asistente de lenguaje natural — `/assistant`
+### 5.10. Asistente de lenguaje natural — `/assistant`
 
 - **Rol**: `INTERNAL`. **CU**: CU-12. **Estado**: Pendiente. Prueba conceptual.
 - **Propósito**: introducir una instrucción en lenguaje natural y obtener una propuesta estructurada.
 - **Contenido**: campo de texto y panel de resultado con la propuesta (sin ejecutar acciones).
 - **Reglas**: RN-18 (no ejecuta acciones), RN-22.
 
-### 5.10. Área de cliente — `/portal` y `/portal/reports/[id]`
+### 5.11. Área de cliente — `/portal` y `/portal/reports/[id]`
 
 - **Rol**: `CLIENT`. **CU**: CU-11. **Estado**: Pendiente.
 - **Propósito**: consulta restringida de información asociada al cliente y marcada como visible.
-- **Contenido**: proyectos visibles, tareas visibles, estado de trabajos y reportes generados.
+- **Contenido**: de momento, página simple "área de cliente en construcción"; a futuro, proyectos visibles, tareas visibles, estado de trabajos y reportes generados.
 - **Estados**: vacío informativo cuando no hay información visible.
 - **Visibilidad/seguridad**: solo recursos del propio cliente y marcados como visibles; denegación de acceso al resto (RN-02, RN-17, RN-20, RN-21).
 
@@ -176,11 +195,23 @@ Cada pantalla con datos debe contemplar:
 - **Vacío**: estado informativo con llamada a la acción (`EmptyState`).
 - **Error**: mensaje claro y no técnico (`Alert` tono error).
 - **Éxito**: confirmación de la acción (`Alert` tono éxito).
-- **Sin permisos**: redirección a login o `notFound()` según el caso, siguiendo el patrón de `/users`.
+- **Sin permisos**: redirección a `/login` o `notFound()` según el caso, mediante el helper común de protección.
 
 ## 7. Flujos de navegación
 
-### 7.1. Flujo principal de la demo (usuario interno)
+### 7.1. Acceso y redirección por rol (CU-01)
+
+```mermaid
+flowchart TD
+  Entra[Entra en la app] --> Sesion{Hay sesión}
+  Sesion -- No --> Login["/login"]
+  Login --> Sesion
+  Sesion -- Si --> Rol{Rol}
+  Rol -- INTERNAL --> Dashboard["/dashboard"]
+  Rol -- CLIENT --> Portal["/portal"]
+```
+
+### 7.2. Flujo principal de la demo (usuario interno)
 
 ```mermaid
 graph LR
@@ -194,7 +225,7 @@ graph LR
   H --> I[Marcar reporte visible]
 ```
 
-### 7.2. Control start/stop con prevención de solapamiento (CU-07)
+### 7.3. Control start/stop con prevención de solapamiento (CU-07)
 
 ```mermaid
 flowchart TD
@@ -206,11 +237,12 @@ flowchart TD
   End --> Save[Crear registro de tiempo de B]
 ```
 
-### 7.3. Consulta como cliente (CU-11)
+### 7.4. Consulta como cliente (CU-11)
 
 ```mermaid
 flowchart TD
-  L[Login cliente] --> P[/portal/]
+  L["Login /login"] --> R[/ redirección por rol/]
+  R --> P["/portal"]
   P --> V{Recurso asociado y visible}
   V -- Si --> Show[Mostrar proyecto, tarea o reporte]
   V -- No --> Deny[Acceso denegado o estado vacio]
@@ -220,8 +252,10 @@ flowchart TD
 
 | Pantalla | Casos de uso |
 |---|---|
-| `/api/auth/signin` | CU-01 |
-| `/users` | CU-02 |
+| `/login` | CU-01 |
+| `/` (redirección por rol) | CU-01 |
+| `/dashboard` | — |
+| `/users`, `/users/new`, `/users/[id]/edit` | CU-02 |
 | `/clients`, `/clients/[id]` | CU-03 |
 | `/projects`, `/projects/[id]` | CU-04 |
 | `/tasks`, `/tasks/[id]` | CU-05, CU-06, CU-07 |
