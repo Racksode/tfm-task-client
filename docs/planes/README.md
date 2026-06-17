@@ -49,3 +49,8 @@ No se deben guardar conversaciones menores, propuestas descartadas sin impacto o
 - [Casos de uso](17-documentacion-casos-de-uso.md)
 - [Pantallas y navegación](18-documentacion-pantallas-navegacion.md)
 - [Diagramas UML](19-documentacion-diagramas-uml.md)
+- [Historias de usuario](20-documentacion-historias-usuario.md)
+
+### Rework de login y usuarios
+
+- [Implementación: base de UI, login y usuarios](21-implementacion-login-users.md)
