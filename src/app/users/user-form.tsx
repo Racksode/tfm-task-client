@@ -19,6 +19,7 @@ type UserFormProps = {
   passwordLabel: string;
   passwordRequired: boolean;
   passwordHint?: string;
+  dismissMs?: number;
   defaultValues?: {
     id?: string;
     name?: string;
@@ -36,6 +37,7 @@ export function UserForm({
   passwordLabel,
   passwordRequired,
   passwordHint,
+  dismissMs = 5000,
   defaultValues,
 }: UserFormProps) {
   const [state, formAction, pending] = useActionState<UserFormState, FormData>(
@@ -56,7 +58,7 @@ export function UserForm({
               key={state.nonce}
               type="error"
               message={state.error}
-              dismissMs={0}
+              dismissMs={dismissMs}
             />
           </div>
         ) : null}

@@ -1,14 +1,14 @@
 import { UserRole, UserStatus } from "@prisma/client";
-import { Eye, Pencil, Power, PowerOff, Trash2 } from "lucide-react";
+import { Eye, Pencil, Plus, Power, PowerOff, Trash2 } from "lucide-react";
 import Link from "next/link";
 
 import { AlertBanner } from "@/components/feedback/alert-banner";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { iconActionClass } from "@/components/data/icon-action";
+import { ClickableRow } from "@/components/data/clickable-row";
+import { actionButtonClass, iconActionClass } from "@/components/data/icon-action";
 import {
   Table,
   TableBody,
@@ -67,25 +67,24 @@ export default async function UsersPage() {
   return (
     <AppShell>
       <div className="grid gap-4 p-8">
-        <PageHeader
-          eyebrow="Usuarios"
-          title="Gestión de usuarios"
-          actions={
-            <Button asChild>
-              <Link href="/users/new">Nuevo usuario</Link>
-            </Button>
-          }
-        />
+        <PageHeader title="Usuarios" />
 
         {flash ? (
           <AlertBanner
-            key={flash.id}
+            key={flash.message}
             type={flash.type}
             message={flash.message}
             dismissMs={appConfig.alertAutoDismissMs}
             onShow={clearFlash}
           />
         ) : null}
+
+        <div className="flex justify-end">
+          <Link href="/users/new" className={actionButtonClass("create")}>
+            <Plus className="size-4" />
+            Nuevo usuario
+          </Link>
+        </div>
 
         <Card className="p-0">
           <Table>
@@ -112,21 +111,16 @@ export default async function UsersPage() {
                   const manageable = canManageUser(actorRole, user.role);
                   const isSelf = user.id === actorId;
                   const active = user.status === UserStatus.ACTIVE;
+                  const rowHref = manageable
+                    ? `/users/${user.id}/edit`
+                    : `/users/${user.id}`;
 
                   return (
-                    <TableRow key={user.id}>
-                      <TableCell className="font-medium">{user.name}</TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>
-                        <RoleBadge role={user.role} />
-                      </TableCell>
-                      <TableCell>
-                        <StatusBadge status={user.status} />
-                      </TableCell>
-                      <TableCell>{user.client?.name ?? "Sin cliente"}</TableCell>
-                      <TableCell>{formatDate(user.createdAt)}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center justify-end gap-2">
+                    <ClickableRow
+                      key={user.id}
+                      href={rowHref}
+                      actions={
+                        <>
                           <Link
                             href={`/users/${user.id}`}
                             className={iconActionClass("view")}
@@ -182,9 +176,20 @@ export default async function UsersPage() {
                               </button>
                             </DeleteUserDialog>
                           ) : null}
-                        </div>
+                        </>
+                      }
+                    >
+                      <TableCell className="font-medium">{user.name}</TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>
+                        <RoleBadge role={user.role} />
                       </TableCell>
-                    </TableRow>
+                      <TableCell>
+                        <StatusBadge status={user.status} />
+                      </TableCell>
+                      <TableCell>{user.client?.name ?? "Sin cliente"}</TableCell>
+                      <TableCell>{formatDate(user.createdAt)}</TableCell>
+                    </ClickableRow>
                   );
                 })
               )}

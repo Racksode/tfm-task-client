@@ -1,9 +1,11 @@
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
+import { actionButtonClass } from "@/components/data/icon-action";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/layout/page-header";
-import { Button } from "@/components/ui/button";
 import { requireAdmin } from "@/lib/auth-guards";
+import { appConfig } from "@/lib/config";
 import { prisma } from "@/lib/prisma";
 
 import { createUser } from "../actions";
@@ -24,9 +26,10 @@ export default async function NewUserPage() {
           eyebrow="Usuarios"
           title="Nuevo usuario"
           actions={
-            <Button asChild variant="outline">
-              <Link href="/users">Volver al listado</Link>
-            </Button>
+            <Link href="/users" className={actionButtonClass("back")}>
+              <ArrowLeft className="size-4" />
+              Volver al listado
+            </Link>
           }
         />
 
@@ -36,6 +39,7 @@ export default async function NewUserPage() {
           submitLabel="Grabar datos"
           passwordLabel="Contraseña inicial"
           passwordRequired
+          dismissMs={appConfig.alertAutoDismissMs}
         />
       </div>
     </AppShell>
