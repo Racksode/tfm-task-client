@@ -33,7 +33,7 @@ export default async function NewUserPage() {
         <UserForm
           action={createUser}
           clients={clients}
-          submitLabel="Crear usuario"
+          submitLabel="Grabar datos"
           passwordLabel="Contraseña inicial"
           passwordRequired
         />

@@ -5,9 +5,11 @@ import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { requireAdmin } from "@/lib/auth-guards";
+import { canManageUser } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 
 import { updateUser } from "../../actions";
+import { DeleteUserDialog } from "../../delete-user-dialog";
 import { UserForm } from "../../user-form";
 
 type EditUserPageProps = {
@@ -15,8 +17,7 @@ type EditUserPageProps = {
 };
 
 export default async function EditUserPage({ params }: EditUserPageProps) {
-  await requireAdmin();
-
+  const session = await requireAdmin();
   const { id } = await params;
 
   const [user, clients] = await Promise.all([
@@ -41,16 +42,30 @@ export default async function EditUserPage({ params }: EditUserPageProps) {
     notFound();
   }
 
+  const canDelete =
+    canManageUser(session.user.role, user.role) &&
+    user.id !== session.user.id;
+
   return (
     <AppShell>
-      <div className="grid gap-6 p-8">
+      <div className="grid gap-4 p-8">
         <PageHeader
           eyebrow="Usuarios"
           title={`Editar: ${user.name}`}
           actions={
-            <Button asChild variant="outline">
-              <Link href="/users">Volver al listado</Link>
-            </Button>
+            <>
+              <Button asChild variant="outline">
+                <Link href="/users">Volver al listado</Link>
+              </Button>
+              <Button asChild variant="secondary">
+                <Link href={`/users/${user.id}`}>Ver detalles</Link>
+              </Button>
+              {canDelete ? (
+                <DeleteUserDialog userId={user.id} userName={user.name}>
+                  <Button variant="destructive">Eliminar</Button>
+                </DeleteUserDialog>
+              ) : null}
+            </>
           }
         />
 
@@ -58,7 +73,7 @@ export default async function EditUserPage({ params }: EditUserPageProps) {
           action={updateUser}
           clients={clients}
           defaultValues={user}
-          submitLabel="Guardar cambios"
+          submitLabel="Actualizar datos"
           passwordLabel="Nueva contraseña"
           passwordRequired={false}
           passwordHint="Dejar en blanco para no cambiar"

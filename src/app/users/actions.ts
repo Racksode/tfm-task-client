@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 
 import { requireAdmin } from "@/lib/auth-guards";
 import { setFlash } from "@/lib/flash";
+import { canManageUser } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 
 const MIN_PASSWORD_LENGTH = 8;
@@ -250,5 +251,65 @@ export const setUserStatus = async (formData: FormData) => {
   });
 
   await setFlash("success", "Estado del usuario actualizado.");
+  redirect("/users");
+};
+
+export const deleteUser = async (formData: FormData) => {
+  const session = await requireAdmin();
+  const userId = getString(formData, "userId");
+
+  if (!userId) {
+    await setFlash("error", "No se ha indicado el usuario a eliminar.");
+    redirect("/users");
+  }
+
+  if (userId === session.user.id) {
+    await setFlash("error", "No puedes eliminar tu propio usuario.");
+    redirect("/users");
+  }
+
+  const target = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      role: true,
+      _count: {
+        select: {
+          assignedTasks: true,
+          timeEntries: true,
+          reports: true,
+          aiUsages: true,
+          auditLogs: true,
+        },
+      },
+    },
+  });
+
+  if (!target) {
+    await setFlash("error", "El usuario indicado no existe.");
+    redirect("/users");
+  }
+
+  if (!canManageUser(session.user.role, target.role)) {
+    await setFlash("error", "No tienes permisos para eliminar este usuario.");
+    redirect("/users");
+  }
+
+  const links =
+    target._count.assignedTasks +
+    target._count.timeEntries +
+    target._count.reports +
+    target._count.aiUsages +
+    target._count.auditLogs;
+
+  if (links > 0) {
+    await setFlash(
+      "error",
+      "No se puede eliminar: el usuario tiene datos vinculados. Desactívalo en su lugar.",
+    );
+    redirect("/users");
+  }
+
+  await prisma.user.delete({ where: { id: userId } });
+  await setFlash("success", "Usuario eliminado correctamente.");
   redirect("/users");
 };
