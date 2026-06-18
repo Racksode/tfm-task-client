@@ -1,13 +1,13 @@
 import { cn } from "@/lib/utils";
 
 const TONES = {
-  view: "bg-blue-600 hover:bg-blue-700",
-  edit: "bg-cyan-500 hover:bg-cyan-600",
+  view: "bg-cyan-500 hover:bg-cyan-600",
+  edit: "bg-teal-500 hover:bg-teal-600",
   delete: "bg-red-600 hover:bg-red-700",
   activate: "bg-emerald-600 hover:bg-emerald-700",
   deactivate: "bg-amber-500 hover:bg-amber-600",
   back: "bg-slate-600 hover:bg-slate-700",
-  create: "bg-blue-600 hover:bg-blue-700",
+  create: "bg-teal-500 hover:bg-teal-600",
 } as const;
 
 export type ActionTone = keyof typeof TONES;

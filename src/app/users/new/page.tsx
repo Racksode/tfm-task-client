@@ -23,7 +23,6 @@ export default async function NewUserPage() {
     <AppShell>
       <div className="grid gap-6 p-8">
         <PageHeader
-          eyebrow="Usuarios"
           title="Nuevo usuario"
           actions={
             <Link href="/users" className={actionButtonClass("back")}>

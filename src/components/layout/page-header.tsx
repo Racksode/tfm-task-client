@@ -14,7 +14,7 @@ export function PageHeader({
   actions,
 }: PageHeaderProps) {
   return (
-    <header className="flex flex-wrap items-start justify-between gap-4">
+    <header className="flex flex-wrap items-center justify-between gap-4">
       <div className="grid gap-1">
         {eyebrow ? (
           <p className="text-sm font-medium text-primary">{eyebrow}</p>
