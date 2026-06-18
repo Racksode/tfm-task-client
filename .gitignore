@@ -54,3 +54,4 @@ docker-compose.override.yml
 ~$*
 *.bak
 *.tmp
+next-env.d.ts
