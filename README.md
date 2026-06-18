@@ -8,24 +8,24 @@ Desarrollar una aplicación web que permita gestionar clientes, proyectos y tare
 
 ## Estado actual del proyecto
 
-El proyecto tiene implementada la base técnica del MVP (persistencia, autenticación, usuarios, roles y UI base reutilizable) y ha cerrado la documentación funcional/UX antes de continuar con los módulos de negocio.
+El proyecto tiene implementada la base técnica del MVP, la documentación funcional/UX cerrada y el rework de acceso y usuarios completado: UI base con Tailwind + shadcn, login propio con redirección por rol y gestión de usuarios en rutas CRUD.
 
 ```text
 Fase actual: Fase 4 - Implementación del MVP
-Punto actual: documentación funcional/UX completada (casos de uso, pantallas y navegación, diagramas UML)
+Punto actual: rework de login y usuarios implementado (UI base shadcn, /login, redirección por rol, /users CRUD)
 Documento en curso: pendiente
 ```
 
 Último hito completado:
 
 ```text
-Documentación funcional/UX del MVP cerrada: casos de uso, pantallas y navegación, y diagramas UML.
+Gestión de usuarios en rutas CRUD con shadcn y login propio con redirección por rol (ADR 0008 y 0009).
 ```
 
 Próximo paso:
 
 ```text
-Montar la base de UI (Tailwind + shadcn, ADR 0009) y rehacer login y usuarios (ADR 0008); después, implementar el primer módulo de negocio (Client, docs/planes/16-ui-base-y-modulo-client.md).
+Pulir la UI (migrar el shell a Tailwind y limpiar el CSS legacy) e implementar el primer módulo de negocio (Client, docs/planes/16-ui-base-y-modulo-client.md).
 ```
 
 Referencia de planificación:

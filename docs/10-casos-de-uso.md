@@ -41,7 +41,7 @@ Los actores del MVP se definen en `docs/01-requisitos-funcionales.md`:
 ### CU-01. Iniciar sesión
 
 - **Actor principal**: Usuario interno o Cliente.
-- **Estado**: Parcial. Implementado: autenticación por credenciales y resolución del rol en sesión (`src/auth.ts`). Pendiente: pantalla `/login` propia, redirección por rol y área de cliente (ver `docs/adr/0008`).
+- **Estado**: Implementado. Pantalla `/login` propia, autenticación por credenciales y redirección por rol (`INTERNAL` → `/dashboard`, `CLIENT` → `/portal`); el contenido real del área de cliente es placeholder (ver `docs/adr/0008`).
 - **RF relacionados**: RF-01.
 - **Precondiciones**: El usuario existe en el sistema y está activo.
 
@@ -51,7 +51,7 @@ Los actores del MVP se definen en `docs/01-requisitos-funcionales.md`:
 2. Introduce email y contraseña.
 3. El sistema valida las credenciales.
 4. El sistema crea la sesión y resuelve el rol del usuario.
-5. El sistema redirige según el rol: `INTERNAL` → `/dashboard`, `CLIENT` → `/portal` (pendiente de implementación; ver `docs/11-pantallas-y-navegacion.md`, 5.2).
+5. El sistema redirige según el rol: `INTERNAL` → `/dashboard`, `CLIENT` → `/portal` (ver `docs/11-pantallas-y-navegacion.md`, 5.2).
 
 **Flujos alternativos y excepciones**
 
@@ -65,7 +65,7 @@ Los actores del MVP se definen en `docs/01-requisitos-funcionales.md`:
 ### CU-02. Gestionar usuarios
 
 - **Actor principal**: Usuario interno.
-- **Estado**: Parcial. Existe gestión en una sola página `/users` (ver `docs/planes/13-usuarios-minimos.md`); se reestructura en rutas CRUD separadas (`/users`, `/users/new`, `/users/[id]/edit`) según `docs/adr/0008`.
+- **Estado**: Implementado. Gestión en rutas CRUD separadas (`/users`, `/users/new`, `/users/[id]/edit`) con alta, edición y activación/desactivación, según `docs/adr/0008`.
 - **RF relacionados**: RF-01.
 - **Precondiciones**: El usuario interno tiene sesión activa con rol `INTERNAL`.
 
