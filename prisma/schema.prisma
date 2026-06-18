@@ -92,6 +92,10 @@ model User {
   status       UserStatus @default(ACTIVE)
   clientId     String?
   client       Client?    @relation(fields: [clientId], references: [id])
+  createdById  String?
+  createdBy    User?      @relation("UserCreatedBy", fields: [createdById], references: [id])
+  updatedById  String?
+  updatedBy    User?      @relation("UserUpdatedBy", fields: [updatedById], references: [id])
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
@@ -100,6 +104,8 @@ model User {
   reports       Report[]    @relation("ReportReviewer")
   aiUsages      AiUsage[]
   auditLogs     AuditLog[]
+  createdUsers  User[]      @relation("UserCreatedBy")
+  updatedUsers  User[]      @relation("UserUpdatedBy")
 }
 
 model Client {

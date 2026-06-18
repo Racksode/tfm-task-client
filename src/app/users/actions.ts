@@ -97,7 +97,7 @@ const validateBaseUserInput = (
 };
 
 export const createUser = async (formData: FormData) => {
-  await requireAdmin();
+  const session = await requireAdmin();
 
   const errorPath = "/users/new";
   const input = validateBaseUserInput(formData, errorPath);
@@ -127,6 +127,8 @@ export const createUser = async (formData: FormData) => {
       status: input.status,
       clientId,
       passwordHash,
+      createdById: session.user.id,
+      updatedById: session.user.id,
     },
   });
 
@@ -134,7 +136,7 @@ export const createUser = async (formData: FormData) => {
 };
 
 export const updateUser = async (formData: FormData) => {
-  await requireAdmin();
+  const session = await requireAdmin();
 
   const userId = getFormString(formData, "userId");
 
@@ -179,6 +181,7 @@ export const updateUser = async (formData: FormData) => {
       role: input.role,
       status: input.status,
       clientId,
+      updatedById: session.user.id,
       ...(passwordHash ? { passwordHash } : {}),
     },
   });
@@ -187,7 +190,7 @@ export const updateUser = async (formData: FormData) => {
 };
 
 export const setUserStatus = async (formData: FormData) => {
-  await requireAdmin();
+  const session = await requireAdmin();
 
   const userId = getFormString(formData, "userId");
   const status = parseStatus(getFormString(formData, "status"));
@@ -198,7 +201,7 @@ export const setUserStatus = async (formData: FormData) => {
 
   await prisma.user.update({
     where: { id: userId },
-    data: { status: status! },
+    data: { status: status!, updatedById: session.user.id },
   });
 
   succeed("Estado del usuario actualizado.");
