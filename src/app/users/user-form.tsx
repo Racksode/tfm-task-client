@@ -52,7 +52,12 @@ export function UserForm({
       <CardContent className="pt-6">
         {state.error ? (
           <div className="mb-4">
-            <AlertBanner type="error" message={state.error} dismissMs={0} />
+            <AlertBanner
+              key={state.nonce}
+              type="error"
+              message={state.error}
+              dismissMs={0}
+            />
           </div>
         ) : null}
 

@@ -196,10 +196,13 @@ export const updateUser = async (
 
   const current = await prisma.user.findUnique({
     where: { id: userId },
-    select: { id: true },
+    select: { id: true, role: true },
   });
   if (!current) {
     return invalid(values, "El usuario indicado no existe.");
+  }
+  if (!canManageUser(session.user.role, current.role)) {
+    return invalid(values, "No tienes permisos para gestionar este usuario.");
   }
 
   const duplicate = await prisma.user.findFirst({
@@ -245,6 +248,26 @@ export const setUserStatus = async (formData: FormData) => {
     redirect("/users");
   }
 
+  if (userId === session.user.id) {
+    await setFlash("error", "No puedes cambiar el estado de tu propio usuario.");
+    redirect("/users");
+  }
+
+  const target = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true },
+  });
+
+  if (!target) {
+    await setFlash("error", "El usuario indicado no existe.");
+    redirect("/users");
+  }
+
+  if (!canManageUser(session.user.role, target.role)) {
+    await setFlash("error", "No tienes permisos para gestionar este usuario.");
+    redirect("/users");
+  }
+
   await prisma.user.update({
     where: { id: userId },
     data: { status, updatedById: session.user.id },
@@ -279,6 +302,8 @@ export const deleteUser = async (formData: FormData) => {
           reports: true,
           aiUsages: true,
           auditLogs: true,
+          createdUsers: true,
+          updatedUsers: true,
         },
       },
     },
@@ -299,7 +324,9 @@ export const deleteUser = async (formData: FormData) => {
     target._count.timeEntries +
     target._count.reports +
     target._count.aiUsages +
-    target._count.auditLogs;
+    target._count.auditLogs +
+    target._count.createdUsers +
+    target._count.updatedUsers;
 
   if (links > 0) {
     await setFlash(

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/layout/page-header";
@@ -42,9 +42,11 @@ export default async function EditUserPage({ params }: EditUserPageProps) {
     notFound();
   }
 
-  const canDelete =
-    canManageUser(session.user.role, user.role) &&
-    user.id !== session.user.id;
+  if (!canManageUser(session.user.role, user.role)) {
+    redirect(`/users/${user.id}`);
+  }
+
+  const canDelete = user.id !== session.user.id;
 
   return (
     <AppShell>
