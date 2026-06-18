@@ -7,6 +7,8 @@ export type FlashType = "info" | "success" | "warning" | "error";
 export type Flash = {
   type: FlashType;
   message: string;
+  /** Identificador único por evento flash (para forzar remonte de la alerta). */
+  id: string;
 };
 
 /**
@@ -16,7 +18,10 @@ export type Flash = {
  */
 export async function setFlash(type: FlashType, message: string) {
   const store = await cookies();
-  store.set(FLASH_COOKIE, JSON.stringify({ type, message } satisfies Flash), {
+  store.set(
+    FLASH_COOKIE,
+    JSON.stringify({ type, message, id: crypto.randomUUID() } satisfies Flash),
+    {
     httpOnly: true,
     sameSite: "lax",
     path: "/",
@@ -37,7 +42,7 @@ export async function readFlash(): Promise<Flash | null> {
   try {
     const parsed = JSON.parse(raw) as Flash;
     if (parsed && typeof parsed.message === "string") {
-      return parsed;
+      return { ...parsed, id: parsed.id ?? crypto.randomUUID() };
     }
   } catch {
     // cookie corrupta: se ignora
