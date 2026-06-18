@@ -1,14 +1,19 @@
-import { UserRole, UserStatus } from "@prisma/client";
-import type { ReactNode } from "react";
+"use client";
 
+import { UserRole, UserStatus } from "@prisma/client";
+import { useActionState } from "react";
+
+import { AlertBanner } from "@/components/feedback/alert-banner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 
+import type { UserFormState } from "./actions";
+
 type UserFormProps = {
-  action: (formData: FormData) => Promise<void>;
+  action: (state: UserFormState, formData: FormData) => Promise<UserFormState>;
   clients: { id: string; name: string }[];
   submitLabel: string;
   passwordLabel: string;
@@ -24,15 +29,6 @@ type UserFormProps = {
   };
 };
 
-function Field({ label, htmlFor, children }: { label: string; htmlFor: string; children: ReactNode }) {
-  return (
-    <div className="grid gap-2">
-      <Label htmlFor={htmlFor}>{label}</Label>
-      {children}
-    </div>
-  );
-}
-
 export function UserForm({
   action,
   clients,
@@ -42,38 +38,66 @@ export function UserForm({
   passwordHint,
   defaultValues,
 }: UserFormProps) {
-  const values = defaultValues ?? {};
+  const [state, formAction, pending] = useActionState<UserFormState, FormData>(
+    action,
+    {},
+  );
+
+  const base = defaultValues ?? {};
+  const value = (key: keyof NonNullable<UserFormState["values"]>, fallback = "") =>
+    state.values?.[key] ?? fallback;
 
   return (
     <Card>
       <CardContent className="pt-6">
-        <form action={action} className="grid gap-4 sm:grid-cols-2">
-          {values.id ? <input type="hidden" name="userId" value={values.id} /> : null}
+        {state.error ? (
+          <div className="mb-4">
+            <AlertBanner type="error" message={state.error} dismissMs={0} />
+          </div>
+        ) : null}
 
-          <Field label="Nombre" htmlFor="name">
-            <Input id="name" name="name" defaultValue={values.name} required />
-          </Field>
+        <form
+          key={state.nonce ?? "init"}
+          action={formAction}
+          className="grid gap-4 sm:grid-cols-2"
+        >
+          {base.id ? <input type="hidden" name="userId" value={base.id} /> : null}
 
-          <Field label="Email" htmlFor="email">
-            <Input id="email" name="email" type="email" defaultValue={values.email} required />
-          </Field>
+          <div className="grid gap-2">
+            <Label htmlFor="name">Nombre</Label>
+            <Input id="name" name="name" defaultValue={value("name", base.name)} required />
+          </div>
 
-          <Field label="Rol" htmlFor="role">
-            <Select id="role" name="role" defaultValue={values.role ?? UserRole.INTERNAL}>
+          <div className="grid gap-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              defaultValue={value("email", base.email)}
+              required
+            />
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="role">Rol</Label>
+            <Select id="role" name="role" defaultValue={value("role", base.role ?? UserRole.INTERNAL)}>
               <option value={UserRole.INTERNAL}>INTERNAL</option>
               <option value={UserRole.CLIENT}>CLIENT</option>
             </Select>
-          </Field>
+          </div>
 
-          <Field label="Estado" htmlFor="status">
-            <Select id="status" name="status" defaultValue={values.status ?? UserStatus.ACTIVE}>
+          <div className="grid gap-2">
+            <Label htmlFor="status">Estado</Label>
+            <Select id="status" name="status" defaultValue={value("status", base.status ?? UserStatus.ACTIVE)}>
               <option value={UserStatus.ACTIVE}>ACTIVE</option>
               <option value={UserStatus.INACTIVE}>INACTIVE</option>
             </Select>
-          </Field>
+          </div>
 
-          <Field label="Cliente" htmlFor="clientId">
-            <Select id="clientId" name="clientId" defaultValue={values.clientId ?? ""}>
+          <div className="grid gap-2">
+            <Label htmlFor="clientId">Cliente</Label>
+            <Select id="clientId" name="clientId" defaultValue={value("clientId", base.clientId ?? "")}>
               <option value="">Sin cliente</option>
               {clients.map((client) => (
                 <option key={client.id} value={client.id}>
@@ -81,9 +105,10 @@ export function UserForm({
                 </option>
               ))}
             </Select>
-          </Field>
+          </div>
 
-          <Field label={passwordLabel} htmlFor="password">
+          <div className="grid gap-2">
+            <Label htmlFor="password">{passwordLabel}</Label>
             <Input
               id="password"
               name="password"
@@ -92,10 +117,12 @@ export function UserForm({
               required={passwordRequired}
               placeholder={passwordHint}
             />
-          </Field>
+          </div>
 
           <div className="flex items-center gap-3 sm:col-span-2">
-            <Button type="submit">{submitLabel}</Button>
+            <Button type="submit" disabled={pending}>
+              {submitLabel}
+            </Button>
             <span className="text-sm text-muted-foreground">
               Los usuarios CLIENT requieren un cliente asociado.
             </span>

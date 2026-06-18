@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/layout/page-header";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { requireAdmin } from "@/lib/auth-guards";
 import { prisma } from "@/lib/prisma";
@@ -13,14 +12,12 @@ import { UserForm } from "../../user-form";
 
 type EditUserPageProps = {
   params: Promise<{ id: string }>;
-  searchParams?: Promise<{ error?: string }>;
 };
 
-export default async function EditUserPage({ params, searchParams }: EditUserPageProps) {
+export default async function EditUserPage({ params }: EditUserPageProps) {
   await requireAdmin();
 
   const { id } = await params;
-  const sp = await searchParams;
 
   const [user, clients] = await Promise.all([
     prisma.user.findUnique({
@@ -56,12 +53,6 @@ export default async function EditUserPage({ params, searchParams }: EditUserPag
             </Button>
           }
         />
-
-        {sp?.error ? (
-          <Alert variant="destructive">
-            <AlertDescription>{sp.error}</AlertDescription>
-          </Alert>
-        ) : null}
 
         <UserForm
           action={updateUser}
