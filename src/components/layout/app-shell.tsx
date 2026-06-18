@@ -19,8 +19,8 @@ export async function AppShell({ children, navItems = defaultNavItems }: AppShel
   const session = await auth();
 
   return (
-    <div className="flex min-h-svh">
-      <aside className="flex w-60 shrink-0 flex-col gap-6 bg-sidebar p-4 text-sidebar-foreground">
+    <div className="flex min-h-svh flex-col md:flex-row">
+      <aside className="flex w-full shrink-0 flex-col gap-6 bg-sidebar p-4 text-sidebar-foreground md:w-60">
         <div className="flex items-center gap-2 px-2 font-semibold">
           <span className="flex size-8 items-center justify-center rounded-md bg-sidebar-primary text-sm text-sidebar-primary-foreground">
             TC
