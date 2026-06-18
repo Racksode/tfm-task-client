@@ -50,10 +50,10 @@ export function Nav({ role }: { role: UserRole }) {
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-sidebar-foreground/80 transition-colors",
-                  "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                  "flex items-center gap-2 rounded-md border-l-2 border-transparent px-3 py-1.5 text-sm font-medium text-sidebar-foreground/70 transition-colors",
+                  "hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
                   active &&
-                    "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary hover:text-sidebar-primary-foreground",
+                    "border-sidebar-primary bg-sidebar-accent/50 text-sidebar-foreground",
                 )}
               >
                 <Icon className="size-4 shrink-0" />

@@ -1,12 +1,13 @@
 import { UserRole, UserStatus } from "@prisma/client";
+import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 
+import { actionButtonClass } from "@/components/data/icon-action";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -75,17 +76,25 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
           title={user.name}
           actions={
             <>
-              <Button asChild variant="outline">
-                <Link href="/users">Volver al listado</Link>
-              </Button>
+              <Link href="/users" className={actionButtonClass("back")}>
+                <ArrowLeft className="size-4" />
+                Volver al listado
+              </Link>
               {manageable ? (
-                <Button asChild variant="secondary">
-                  <Link href={`/users/${user.id}/edit`}>Editar</Link>
-                </Button>
+                <Link
+                  href={`/users/${user.id}/edit`}
+                  className={actionButtonClass("edit")}
+                >
+                  <Pencil className="size-4" />
+                  Editar
+                </Link>
               ) : null}
               {manageable && !isSelf ? (
                 <DeleteUserDialog userId={user.id} userName={user.name}>
-                  <Button variant="destructive">Eliminar</Button>
+                  <button type="button" className={actionButtonClass("delete")}>
+                    <Trash2 className="size-4" />
+                    Eliminar
+                  </button>
                 </DeleteUserDialog>
               ) : null}
             </>

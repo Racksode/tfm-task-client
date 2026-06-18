@@ -8,11 +8,7 @@ export default async function DashboardPage() {
   return (
     <AppShell>
       <div className="p-8">
-        <PageHeader
-          eyebrow="Panel interno"
-          title="Dashboard"
-          description="Panel de inicio en construcción."
-        />
+        <PageHeader title="Dashboard" />
       </div>
     </AppShell>
   );

@@ -8,14 +8,17 @@ const toInt = (value: string | undefined, fallback: number) => {
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
 };
 
+/**
+ * Versión de la app (version.subversion.revisión).
+ * Fuente de verdad en código; se incrementa al avanzar cada PR.
+ * Puede sobrescribirse por entorno con APP_VERSION.
+ */
+const APP_VERSION = "1.1.0";
+
 export const appConfig = {
   /** Milisegundos antes de auto-cerrar las alertas. 0 = no auto-cerrar. */
   alertAutoDismissMs: toInt(process.env.ALERT_AUTO_DISMISS_MS, 5000),
 
-  /** Versión de la app (version.subversion.revisión). */
-  version: [
-    process.env.APP_VERSION_MAJOR ?? "1",
-    process.env.APP_VERSION_MINOR ?? "0",
-    process.env.APP_VERSION_PATCH ?? "0",
-  ].join("."),
+  /** Versión mostrada en el footer. */
+  version: process.env.APP_VERSION ?? APP_VERSION,
 };

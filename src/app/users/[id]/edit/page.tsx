@@ -1,10 +1,12 @@
+import { ArrowLeft, Eye, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
+import { actionButtonClass } from "@/components/data/icon-action";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/layout/page-header";
-import { Button } from "@/components/ui/button";
 import { requireAdmin } from "@/lib/auth-guards";
+import { appConfig } from "@/lib/config";
 import { canManageUser } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 
@@ -56,15 +58,23 @@ export default async function EditUserPage({ params }: EditUserPageProps) {
           title={`Editar: ${user.name}`}
           actions={
             <>
-              <Button asChild variant="outline">
-                <Link href="/users">Volver al listado</Link>
-              </Button>
-              <Button asChild variant="secondary">
-                <Link href={`/users/${user.id}`}>Ver detalles</Link>
-              </Button>
+              <Link href="/users" className={actionButtonClass("back")}>
+                <ArrowLeft className="size-4" />
+                Volver al listado
+              </Link>
+              <Link
+                href={`/users/${user.id}`}
+                className={actionButtonClass("view")}
+              >
+                <Eye className="size-4" />
+                Ver detalles
+              </Link>
               {canDelete ? (
                 <DeleteUserDialog userId={user.id} userName={user.name}>
-                  <Button variant="destructive">Eliminar</Button>
+                  <button type="button" className={actionButtonClass("delete")}>
+                    <Trash2 className="size-4" />
+                    Eliminar
+                  </button>
                 </DeleteUserDialog>
               ) : null}
             </>
@@ -79,6 +89,7 @@ export default async function EditUserPage({ params }: EditUserPageProps) {
           passwordLabel="Nueva contraseña"
           passwordRequired={false}
           passwordHint="Dejar en blanco para no cambiar"
+          dismissMs={appConfig.alertAutoDismissMs}
         />
       </div>
     </AppShell>
