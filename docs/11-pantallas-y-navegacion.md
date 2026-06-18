@@ -26,12 +26,12 @@ El campo **Estado** de cada pantalla refleja la situación real del repositorio 
 
 | Ruta | Pantalla | Rol | CU | Estado |
 |---|---|---|---|---|
-| `/login` | Inicio de sesión | Público | CU-01 | Pendiente |
-| `/` | Redirección por rol | Autenticado | CU-01 | Pendiente |
-| `/dashboard` | Panel interno (en construcción) | `INTERNAL` | — | Pendiente |
-| `/users` | Usuarios — listado | `INTERNAL` | CU-02 | Parcial |
-| `/users/new` | Usuarios — alta | `INTERNAL` | CU-02 | Pendiente |
-| `/users/[id]/edit` | Usuarios — edición | `INTERNAL` | CU-02 | Pendiente |
+| `/login` | Inicio de sesión | Público | CU-01 | Implementado |
+| `/` | Redirección por rol | Autenticado | CU-01 | Implementado |
+| `/dashboard` | Panel interno (en construcción) | `INTERNAL` | — | Implementado (placeholder) |
+| `/users` | Usuarios — listado | `INTERNAL` | CU-02 | Implementado |
+| `/users/new` | Usuarios — alta | `INTERNAL` | CU-02 | Implementado |
+| `/users/[id]/edit` | Usuarios — edición | `INTERNAL` | CU-02 | Implementado |
 | `/clients` | Listado de clientes | `INTERNAL` | CU-03 | Pendiente |
 | `/clients/[id]` | Ficha de cliente | `INTERNAL` | CU-03 | Pendiente |
 | `/projects` | Listado de proyectos | `INTERNAL` | CU-04 | Pendiente |
@@ -42,7 +42,7 @@ El campo **Estado** de cada pantalla refleja la situación real del repositorio 
 | `/reports` | Listado y generación de reportes | `INTERNAL` | CU-08, CU-09 | Pendiente |
 | `/reports/[id]` | Vista de reporte (con resumen IA) | `INTERNAL` | CU-09, CU-10 | Pendiente |
 | `/assistant` | Prueba de lenguaje natural | `INTERNAL` | CU-12 | Pendiente |
-| `/portal` | Área de cliente (en construcción) | `CLIENT` | CU-11 | Pendiente |
+| `/portal` | Área de cliente (en construcción) | `CLIENT` | CU-11 | Implementado (placeholder) |
 | `/portal/reports/[id]` | Reporte visible para cliente | `CLIENT` | CU-11 | Pendiente |
 
 > `/api/auth/*` es el manejador de Auth.js/NextAuth (no es una pantalla); la interfaz de acceso será la pantalla propia `/login`.
@@ -50,7 +50,7 @@ El campo **Estado** de cada pantalla refleja la situación real del repositorio 
 
 ## 4. Mapa de pantallas (sitemap)
 
-> Estos mapas representan la **navegación objetivo** del MVP, no el estado actual. Hoy no existe `/login` propio (se usa la pantalla por defecto de Auth.js), `/` es un panel público sin redirección por rol y `/users` concentra listado, alta y edición en una sola página. El rework descrito en `docs/notas/21` y `docs/adr/0008` alinea la implementación con estos mapas.
+> El acceso (login propio, redirección por rol) y la gestión de usuarios (rutas CRUD) ya están implementados según `docs/adr/0008`. Las rutas de los módulos de negocio (clientes, proyectos, tareas, tiempos, reportes, asistente) y el contenido real de `/dashboard` y `/portal` siguen pendientes (ver columna Estado en la sección 3).
 
 ### 4.1. Área interna (`INTERNAL`)
 
@@ -87,34 +87,31 @@ graph TD
 
 ### 5.1. Inicio de sesión — `/login`
 
-- **Rol**: público. **CU**: CU-01. **Estado**: Pendiente (pantalla propia).
+- **Rol**: público. **CU**: CU-01. **Estado**: Implementado.
 - **Propósito**: autenticar al usuario y resolver su rol mediante una pantalla propia.
 - **Contenido**: formulario de email y contraseña que invoca `signIn` de Auth.js.
 - **Acciones**: iniciar sesión.
 - **Estados**: error de credenciales (mensaje genérico); usuario inactivo (acceso denegado).
-- **Implementado**: autenticación por credenciales y resolución del rol en la sesión (`src/auth.ts`).
-- **Pendiente**: crear la pantalla propia `/login` y configurar NextAuth con `pages.signIn = "/login"`. Tras autenticar, la navegación se resuelve en `/` por rol (ver 5.2).
+- **Notas**: pantalla propia `/login` con `pages.signIn = "/login"`; tras autenticar, la navegación se resuelve en `/` por rol (ver 5.2).
 
 ### 5.2. Redirección por rol — `/`
 
-- **Rol**: autenticado. **CU**: CU-01. **Estado**: Pendiente.
+- **Rol**: autenticado. **CU**: CU-01. **Estado**: Implementado.
 - **Propósito**: entrada de la aplicación; no muestra contenido propio, redirige.
-- **Comportamiento objetivo**: sin sesión → `/login`; con sesión → `/dashboard` si el rol es `INTERNAL`, `/portal` si es `CLIENT`.
-- **Contenido actual**: hoy es un panel de estado estático y público (`src/app/page.tsx`), sin `auth()` ni redirección.
-- **Pendiente**: convertir `/` en una redirección protegida según el estado de sesión y el rol.
+- **Comportamiento**: sin sesión → `/login`; con sesión → `/dashboard` si el rol es `INTERNAL`, `/portal` si es `CLIENT` (`src/app/page.tsx`).
 
 ### 5.3. Panel interno — `/dashboard`
 
-- **Rol**: `INTERNAL`. **CU**: —. **Estado**: Pendiente (placeholder).
+- **Rol**: `INTERNAL`. **CU**: —. **Estado**: Implementado (placeholder).
 - **Propósito**: destino tras login para usuarios internos y, a futuro, panel de inicio con accesos a las secciones.
-- **Contenido**: de momento, página simple "dashboard en construcción" dentro del `AppShell`, con la navegación interna y el logout.
+- **Contenido**: página simple "dashboard en construcción" dentro del `AppShell`, con la navegación interna y el logout.
 - **Pendiente**: contenido real del panel (accesos rápidos, resúmenes); fuera del alcance de este rework.
 
 ### 5.4. Usuarios — `/users`, `/users/new`, `/users/[id]/edit`
 
-- **Rol**: `INTERNAL`. **CU**: CU-02. **Estado**: Parcial (hoy todo en una sola página; se reestructura en rutas CRUD).
+- **Rol**: `INTERNAL`. **CU**: CU-02. **Estado**: Implementado.
 - **Propósito**: administrar usuarios básicos del MVP con un patrón CRUD reutilizable.
-- **`/users` (listado)**: cabecera (`PageHeader`), tabla de usuarios (`DataTable`) con rol y estado (`Badge`), y acciones por fila (editar, activar/desactivar) y acceso a alta.
+- **`/users` (listado)**: cabecera (`PageHeader`), tabla de usuarios (`Table` de shadcn) con rol y estado (`Badge`), y acciones por fila (editar, activar/desactivar) y acceso a alta.
 - **`/users/new` (alta)**: formulario de creación.
 - **`/users/[id]/edit` (edición)**: formulario de edición, incluido cambio de estado y de contraseña opcional.
 - **Campos**: nombre, email, rol (`INTERNAL`/`CLIENT`), estado (`ACTIVE`/`INACTIVE`), cliente asociado, contraseña inicial / nueva.
@@ -181,7 +178,7 @@ graph TD
 
 ### 5.11. Área de cliente — `/portal` y `/portal/reports/[id]`
 
-- **Rol**: `CLIENT`. **CU**: CU-11. **Estado**: Pendiente.
+- **Rol**: `CLIENT`. **CU**: CU-11. **Estado**: Implementado (placeholder).
 - **Propósito**: consulta restringida de información asociada al cliente y marcada como visible.
 - **Contenido**: de momento, página simple "área de cliente en construcción"; a futuro, proyectos visibles, tareas visibles, estado de trabajos y reportes generados.
 - **Estados**: vacío informativo cuando no hay información visible.

@@ -167,8 +167,8 @@ Relaciona requisito funcional, caso de uso, historia, pantalla principal, estado
 
 | RF | CU | HU | Pantalla | Estado impl. | Test |
 |---|---|---|---|---|---|
-| RF-01 | CU-01 | HU-01 | `/login`, `/` | Parcial | Pendiente |
-| RF-01 | CU-02 | HU-02 | `/users`, `/users/new`, `/users/[id]/edit` | Parcial | Pendiente |
+| RF-01 | CU-01 | HU-01 | `/login`, `/` | Implementado | Pendiente |
+| RF-01 | CU-02 | HU-02 | `/users`, `/users/new`, `/users/[id]/edit` | Implementado | Pendiente |
 | RF-02 | CU-03 | HU-03 | `/clients` | Pendiente | Pendiente |
 | RF-03 | CU-04 | HU-04, HU-05 | `/projects` | Pendiente | Pendiente |
 | RF-04 | CU-05 | HU-06, HU-07 | `/tasks` | Pendiente | Pendiente |
