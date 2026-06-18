@@ -30,6 +30,7 @@ El campo **Estado** de cada pantalla refleja la situación real del repositorio 
 | `/` | Redirección por rol | Autenticado | CU-01 | Implementado |
 | `/dashboard` | Panel interno (en construcción) | `INTERNAL` | — | Implementado (placeholder) |
 | `/users` | Usuarios — listado | `ADMIN`+ | CU-02 | Implementado |
+| `/users/[id]` | Usuarios — detalle | `ADMIN`+ | CU-02 | Implementado |
 | `/users/new` | Usuarios — alta | `ADMIN`+ | CU-02 | Implementado |
 | `/users/[id]/edit` | Usuarios — edición | `ADMIN`+ | CU-02 | Implementado |
 | `/clients` | Listado de clientes | `INTERNAL` | CU-03 | Pendiente |
@@ -107,15 +108,17 @@ graph TD
 - **Contenido**: página simple "dashboard en construcción" dentro del `AppShell`, con la navegación interna y el logout.
 - **Pendiente**: contenido real del panel (accesos rápidos, resúmenes); fuera del alcance de este rework.
 
-### 5.4. Usuarios — `/users`, `/users/new`, `/users/[id]/edit`
+### 5.4. Usuarios — `/users`, `/users/[id]`, `/users/new`, `/users/[id]/edit`
 
-- **Rol**: `INTERNAL`. **CU**: CU-02. **Estado**: Implementado.
-- **Propósito**: administrar usuarios básicos del MVP con un patrón CRUD reutilizable.
-- **`/users` (listado)**: cabecera (`PageHeader`), tabla de usuarios (`Table` de shadcn) con rol y estado (`Badge`), y acciones por fila (editar, activar/desactivar) y acceso a alta.
-- **`/users/new` (alta)**: formulario de creación.
-- **`/users/[id]/edit` (edición)**: formulario de edición, incluido cambio de estado y de contraseña opcional.
+- **Rol**: `ADMIN`/`SUPERADMIN`. **CU**: CU-02. **Estado**: Implementado.
+- **Propósito**: administrar usuarios con un patrón CRUD reutilizable (listado, detalle, alta, edición) que sirve de referencia para los módulos de negocio.
+- **`/users` (listado)**: cabecera (`PageHeader`) con "Nuevo" junto al título, tabla con cabecera en gris, badges de rol/estado y acciones por fila en iconos (ver=azul, editar=cian, eliminar=rojo, activar/desactivar), visibles según permisos (`canManageUser`).
+- **`/users/[id]` (detalle)**: información en pastillas ("Información principal" y "Datos de grabación" con createdBy/updatedBy) y botones de cabecera (Volver, Editar, Eliminar) según permisos.
+- **`/users/new` (alta)**: formulario; botón "Grabar datos".
+- **`/users/[id]/edit` (edición)**: formulario; botones de cabecera (Volver, Ver detalles, Eliminar) y botón "Actualizar datos".
+- **Borrado**: con diálogo de confirmación; sin cascada, bloqueado si el usuario tiene datos vinculados.
 - **Campos**: nombre, email, rol (`INTERNAL`/`CLIENT`), estado (`ACTIVE`/`INACTIVE`), cliente asociado, contraseña inicial / nueva.
-- **Acciones**: crear, editar, activar/desactivar.
+- **Acciones**: ver, crear, editar, activar/desactivar, eliminar.
 - **Validaciones**: email único; contraseña mínima 8 caracteres; creación de `CLIENT` condicionada a que exista al menos un cliente.
 - **Estados**: vacío ("No hay usuarios registrados"); alerta de error/éxito.
 - **Visibilidad/seguridad**: acceso restringido a `ADMIN`/`SUPERADMIN` mediante helper común (`requireAdmin`) coherente en página y server actions (RN-03, ADR 0010); sin sesión, redirección a `/login`.
