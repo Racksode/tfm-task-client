@@ -61,6 +61,8 @@ Campos conceptuales:
 - estado
 - fecha de creación
 - fecha de actualización
+- usuario que lo creó (createdBy, opcional)
+- usuario que lo actualizó por última vez (updatedBy, opcional)
 
 Notas:
 
