@@ -31,7 +31,7 @@ El campo **Estado** puede tomar los valores: `Implementado`, `Parcial` o `Pendie
 
 Los actores del MVP se definen en `docs/01-requisitos-funcionales.md`:
 
-- **Usuario interno** (`INTERNAL`): gestiona clientes, proyectos, tareas, tiempos y reportes.
+- **Usuario interno** (`INTERNAL`, `ADMIN`, `SUPERADMIN`): gestiona clientes, proyectos, tareas, tiempos y reportes. La jerarquía de roles y sus permisos se definen en `docs/adr/0010-roles-y-permisos.md` (INTERNAL opera; ADMIN gestiona usuarios/configuración/borrado; SUPERADMIN además gestiona ADMIN).
 - **Cliente** (`CLIENT`): consulta únicamente información asociada a su cliente y marcada como visible.
 - **Sistema**: actor de apoyo para acciones automáticas (cálculos, trazabilidad mínima).
 - **Servicio de IA**: actor externo de apoyo, invocado de forma controlada y siempre revisable por el usuario interno.
@@ -328,7 +328,7 @@ Las reglas siguientes consolidan, con identificador, las reglas dispersas en `do
 |---|---|---|
 | RN-01 | Las zonas privadas requieren un usuario autenticado. | Modelo §5.1 |
 | RN-02 | Un usuario cliente solo puede consultar información asociada a su cliente y marcada como visible. | RF §6, Modelo §5.1 |
-| RN-03 | La administración de usuarios está restringida a usuarios `INTERNAL`. | Plan 13/15 |
+| RN-03 | La administración de usuarios está restringida a `ADMIN` y `SUPERADMIN`. | ADR 0010 |
 | RN-04 | Todo proyecto debe estar asociado a un cliente. | Modelo §5.2 |
 | RN-05 | Un cliente inactivo no debería usarse para crear nuevo trabajo, salvo decisión posterior. | Modelo §5.2 |
 | RN-06 | Un proyecto solo es visible en el área de cliente si está marcado como visible. | Modelo §5.2 |

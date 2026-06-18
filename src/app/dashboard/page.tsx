@@ -1,9 +1,9 @@
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/layout/page-header";
-import { requireInternal } from "@/lib/auth-guards";
+import { requireStaff } from "@/lib/auth-guards";
 
 export default async function DashboardPage() {
-  await requireInternal();
+  await requireStaff();
 
   return (
     <AppShell>

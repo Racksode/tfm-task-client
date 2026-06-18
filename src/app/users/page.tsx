@@ -15,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { requireInternal } from "@/lib/auth-guards";
+import { requireAdmin } from "@/lib/auth-guards";
 import { prisma } from "@/lib/prisma";
 
 import { setUserStatus } from "./actions";
@@ -42,7 +42,7 @@ const StatusBadge = ({ status }: { status: UserStatus }) =>
   );
 
 export default async function UsersPage({ searchParams }: UsersPageProps) {
-  await requireInternal();
+  await requireAdmin();
 
   const params = await searchParams;
 

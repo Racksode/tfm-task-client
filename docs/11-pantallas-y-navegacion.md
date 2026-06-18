@@ -29,9 +29,9 @@ El campo **Estado** de cada pantalla refleja la situación real del repositorio 
 | `/login` | Inicio de sesión | Público | CU-01 | Implementado |
 | `/` | Redirección por rol | Autenticado | CU-01 | Implementado |
 | `/dashboard` | Panel interno (en construcción) | `INTERNAL` | — | Implementado (placeholder) |
-| `/users` | Usuarios — listado | `INTERNAL` | CU-02 | Implementado |
-| `/users/new` | Usuarios — alta | `INTERNAL` | CU-02 | Implementado |
-| `/users/[id]/edit` | Usuarios — edición | `INTERNAL` | CU-02 | Implementado |
+| `/users` | Usuarios — listado | `ADMIN`+ | CU-02 | Implementado |
+| `/users/new` | Usuarios — alta | `ADMIN`+ | CU-02 | Implementado |
+| `/users/[id]/edit` | Usuarios — edición | `ADMIN`+ | CU-02 | Implementado |
 | `/clients` | Listado de clientes | `INTERNAL` | CU-03 | Pendiente |
 | `/clients/[id]` | Ficha de cliente | `INTERNAL` | CU-03 | Pendiente |
 | `/projects` | Listado de proyectos | `INTERNAL` | CU-04 | Pendiente |
@@ -118,7 +118,7 @@ graph TD
 - **Acciones**: crear, editar, activar/desactivar.
 - **Validaciones**: email único; contraseña mínima 8 caracteres; creación de `CLIENT` condicionada a que exista al menos un cliente.
 - **Estados**: vacío ("No hay usuarios registrados"); alerta de error/éxito.
-- **Visibilidad/seguridad**: acceso restringido a `INTERNAL` mediante helper común (`requireInternal`) coherente en página y server actions (RN-03); sin sesión, redirección a `/login`.
+- **Visibilidad/seguridad**: acceso restringido a `ADMIN`/`SUPERADMIN` mediante helper común (`requireAdmin`) coherente en página y server actions (RN-03, ADR 0010); sin sesión, redirección a `/login`.
 
 ### 5.5. Clientes — `/clients` y `/clients/[id]`
 
