@@ -79,7 +79,7 @@ body {
 
 .eyebrow {
   margin: 0 0 0.75rem;
-  color: var(--accent);
+  color: var(--primary);
   font-size: 0.875rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -93,7 +93,7 @@ h1 {
 
 p {
   margin: 0;
-  color: var(--muted);
+  color: var(--muted-foreground);
   font-size: 1rem;
   line-height: 1.6;
 }
@@ -145,7 +145,7 @@ h2 {
 }
 
 .helper-text {
-  color: var(--muted);
+  color: var(--muted-foreground);
   font-size: 0.875rem;
 }
 
@@ -177,7 +177,7 @@ select {
 button {
   border: 0;
   border-radius: 6px;
-  background: var(--accent);
+  background: var(--primary);
   color: #ffffff;
   cursor: pointer;
   font: inherit;
@@ -211,7 +211,7 @@ button {
   height: 2.25rem;
   place-items: center;
   border-radius: 6px;
-  background: var(--accent);
+  background: var(--primary);
   color: #ffffff;
   font-size: 0.875rem;
 }
@@ -236,7 +236,7 @@ button {
 
 .app-nav-link:hover {
   background: var(--accent-muted);
-  color: var(--accent);
+  color: var(--primary);
 }
 
 .page-header {
@@ -270,7 +270,7 @@ button {
 }
 
 .ui-button-primary {
-  background: var(--accent);
+  background: var(--primary);
   color: #ffffff;
 }
 
@@ -354,7 +354,7 @@ button {
 .table-action-link {
   border: 1px solid var(--border);
   border-radius: 6px;
-  color: var(--accent);
+  color: var(--primary);
   font-size: 0.875rem;
   font-weight: 700;
   padding: 0.35rem 0.625rem;
@@ -439,7 +439,7 @@ th {
   --color-border: var(--border);
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
+  --color-accent: var(--primary);
   --color-muted-foreground: var(--muted-foreground);
   --color-muted: var(--muted);
   --color-secondary-foreground: var(--secondary-foreground);
