@@ -1,11 +1,14 @@
-export default function Home() {
-  return (
-    <main className="page">
-      <section className="status-panel" aria-labelledby="status-title">
-        <p className="eyebrow">TFM MVP</p>
-        <h1 id="status-title">Proyecto tecnico base</h1>
-        <p>La aplicacion Next.js del MVP arranca correctamente.</p>
-      </section>
-    </main>
-  );
+import { UserRole } from "@prisma/client";
+import { redirect } from "next/navigation";
+
+import { auth } from "@/auth";
+
+export default async function Home() {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    redirect("/login");
+  }
+
+  redirect(session.user.role === UserRole.INTERNAL ? "/dashboard" : "/portal");
 }
