@@ -136,6 +136,18 @@ test: añadir pruebas del registro de tiempos
 chore: crear estructura base de carpetas
 ```
 
+## Convención de versionado
+
+La versión de la app sigue el formato `versión.subversión.revisión` (semver simplificado) y se define en código en `src/lib/config.ts` (constante `APP_VERSION`), pudiendo sobrescribirse por entorno con `APP_VERSION`. Se muestra en el footer.
+
+Se incrementa al cerrar cada PR relevante, según su tipo:
+
+- **Revisión** (`x.y.→z`): correcciones y ajustes menores de código (`fix`, `refactor`, `chore` con impacto).
+- **Subversión** (`x.→y→.0`): nueva funcionalidad (`feat`), por ejemplo un módulo. Reinicia la revisión a 0.
+- **Versión** (`→x→.0.0`): hitos grandes o cambios incompatibles (p. ej. cerrar una fase mayor del MVP). Reinicia subversión y revisión a 0.
+
+Los PR exclusivamente de documentación no incrementan la versión salvo que se considere oportuno.
+
 ## Stack tecnológico decidido para el MVP
 
 Las decisiones técnicas iniciales del MVP se han documentado en los ADRs:

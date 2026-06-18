@@ -13,7 +13,7 @@ const toInt = (value: string | undefined, fallback: number) => {
  * Fuente de verdad en código; se incrementa al avanzar cada PR.
  * Puede sobrescribirse por entorno con APP_VERSION.
  */
-const APP_VERSION = "1.1.0";
+const APP_VERSION = "1.1.1";
 
 export const appConfig = {
   /** Milisegundos antes de auto-cerrar las alertas. 0 = no auto-cerrar. */
