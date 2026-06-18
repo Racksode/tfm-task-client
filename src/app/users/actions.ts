@@ -5,7 +5,7 @@ import { hash } from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { requireInternal } from "@/lib/auth-guards";
+import { requireAdmin } from "@/lib/auth-guards";
 import { prisma } from "@/lib/prisma";
 
 const MIN_PASSWORD_LENGTH = 8;
@@ -97,7 +97,7 @@ const validateBaseUserInput = (
 };
 
 export const createUser = async (formData: FormData) => {
-  await requireInternal();
+  await requireAdmin();
 
   const errorPath = "/users/new";
   const input = validateBaseUserInput(formData, errorPath);
@@ -134,7 +134,7 @@ export const createUser = async (formData: FormData) => {
 };
 
 export const updateUser = async (formData: FormData) => {
-  await requireInternal();
+  await requireAdmin();
 
   const userId = getFormString(formData, "userId");
 
@@ -187,7 +187,7 @@ export const updateUser = async (formData: FormData) => {
 };
 
 export const setUserStatus = async (formData: FormData) => {
-  await requireInternal();
+  await requireAdmin();
 
   const userId = getFormString(formData, "userId");
   const status = parseStatus(getFormString(formData, "status"));

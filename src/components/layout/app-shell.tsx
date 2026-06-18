@@ -1,22 +1,29 @@
 import type { ReactNode } from "react";
 
 import { auth } from "@/auth";
+import { can, type Section } from "@/lib/permissions";
 
 import { Nav, type NavItem } from "./nav";
 import { UserMenu } from "./user-menu";
 
 type AppShellProps = {
   children: ReactNode;
-  navItems?: NavItem[];
 };
 
-const defaultNavItems: NavItem[] = [
-  { href: "/dashboard", label: "Inicio" },
-  { href: "/users", label: "Usuarios" },
+const NAV: (NavItem & { section: Section })[] = [
+  { href: "/dashboard", label: "Inicio", section: "dashboard" },
+  { href: "/users", label: "Usuarios", section: "users" },
 ];
 
-export async function AppShell({ children, navItems = defaultNavItems }: AppShellProps) {
+export async function AppShell({ children }: AppShellProps) {
   const session = await auth();
+  const role = session?.user?.role;
+
+  const navItems: NavItem[] = role
+    ? NAV.filter((item) => can(role, "view", item.section)).map(
+        ({ href, label }) => ({ href, label }),
+      )
+    : [];
 
   return (
     <div className="flex min-h-svh flex-col md:flex-row">

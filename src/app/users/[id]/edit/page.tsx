@@ -5,7 +5,7 @@ import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/layout/page-header";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { requireInternal } from "@/lib/auth-guards";
+import { requireAdmin } from "@/lib/auth-guards";
 import { prisma } from "@/lib/prisma";
 
 import { updateUser } from "../../actions";
@@ -17,7 +17,7 @@ type EditUserPageProps = {
 };
 
 export default async function EditUserPage({ params, searchParams }: EditUserPageProps) {
-  await requireInternal();
+  await requireAdmin();
 
   const { id } = await params;
   const sp = await searchParams;

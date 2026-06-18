@@ -39,17 +39,17 @@ const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
 
 try {
-  const existingInternalUser = await prisma.user.findFirst({
+  const existingSuperadmin = await prisma.user.findFirst({
     where: {
-      role: "INTERNAL",
+      role: "SUPERADMIN",
     },
     select: {
       id: true,
     },
   });
 
-  if (existingInternalUser) {
-    fail("an INTERNAL user already exists.");
+  if (existingSuperadmin) {
+    fail("a SUPERADMIN user already exists.");
     process.exit();
   }
 
@@ -74,7 +74,7 @@ try {
       name,
       email,
       passwordHash,
-      role: "INTERNAL",
+      role: "SUPERADMIN",
       status: "ACTIVE",
       clientId: null,
     },
