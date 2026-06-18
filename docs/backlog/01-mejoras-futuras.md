@@ -110,6 +110,12 @@ Aspectos que probablemente variarán según proyecto:
 
 ---
 
+## Versionado y entrega
+
+- Automatizar el versionado (`versión.subversión.revisión`) con `release-please` o `semantic-release`: bump, changelog y tag automáticos al mergear a `main`, a partir de los tipos de commit (`feat` → subversión, `fix` → revisión, `BREAKING` → versión). Implica añadir tooling de CI/CD (tarea aparte y aprobada). De momento el versionado es manual en `src/lib/config.ts` (ver "Convención de versionado" en el README).
+
+---
+
 ## IA y automatización
 
 - Resúmenes IA de tareas, proyectos o actividad.
