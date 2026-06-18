@@ -71,7 +71,7 @@ export default async function UsersPage() {
 
         {flash ? (
           <AlertBanner
-            key={flash.message}
+            key={flash.id}
             type={flash.type}
             message={flash.message}
             dismissMs={appConfig.alertAutoDismissMs}
