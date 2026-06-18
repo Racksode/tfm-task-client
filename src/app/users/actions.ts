@@ -2,29 +2,48 @@
 
 import { UserRole, UserStatus } from "@prisma/client";
 import { hash } from "bcryptjs";
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireAdmin } from "@/lib/auth-guards";
+import { setFlash } from "@/lib/flash";
 import { prisma } from "@/lib/prisma";
 
 const MIN_PASSWORD_LENGTH = 8;
 const SALT_ROUNDS = 12;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const fail = (path: string, message: string): never => {
-  redirect(`${path}?error=${encodeURIComponent(message)}`);
+export type UserFormValues = {
+  name: string;
+  email: string;
+  role: string;
+  status: string;
+  clientId: string;
 };
 
-const succeed = (message: string): never => {
-  revalidatePath("/users");
-  redirect(`/users?success=${encodeURIComponent(message)}`);
+export type UserFormState = {
+  error?: string;
+  values?: UserFormValues;
+  nonce?: number;
 };
 
-const getFormString = (formData: FormData, field: string) => {
+const getString = (formData: FormData, field: string) => {
   const value = formData.get(field);
   return typeof value === "string" ? value.trim() : "";
 };
+
+const extractValues = (formData: FormData): UserFormValues => ({
+  name: getString(formData, "name"),
+  email: getString(formData, "email"),
+  role: getString(formData, "role"),
+  status: getString(formData, "status"),
+  clientId: getString(formData, "clientId"),
+});
+
+const invalid = (values: UserFormValues, error: string): UserFormState => ({
+  error,
+  values,
+  nonce: Date.now(),
+});
 
 const parseRole = (value: string): UserRole | null =>
   value === UserRole.INTERNAL || value === UserRole.CLIENT ? value : null;
@@ -32,19 +51,55 @@ const parseRole = (value: string): UserRole | null =>
 const parseStatus = (value: string): UserStatus | null =>
   value === UserStatus.ACTIVE || value === UserStatus.INACTIVE ? value : null;
 
-const normalizeEmail = (email: string) => email.trim().toLowerCase();
+type ValidatedInput = {
+  name: string;
+  email: string;
+  role: UserRole;
+  status: UserStatus;
+  clientId: string;
+};
+
+const validate = (
+  values: UserFormValues,
+): { ok: true; data: ValidatedInput } | { ok: false; error: string } => {
+  if (!values.name) {
+    return { ok: false, error: "El nombre es obligatorio." };
+  }
+
+  const email = values.email.toLowerCase();
+  if (!email || !EMAIL_PATTERN.test(email)) {
+    return { ok: false, error: "El email debe tener un formato válido." };
+  }
+
+  const role = parseRole(values.role);
+  if (!role) {
+    return { ok: false, error: "El rol seleccionado no es válido." };
+  }
+
+  const status = parseStatus(values.status);
+  if (!status) {
+    return { ok: false, error: "El estado seleccionado no es válido." };
+  }
+
+  return {
+    ok: true,
+    data: { name: values.name, email, role, status, clientId: values.clientId },
+  };
+};
 
 const resolveClientId = async (
   role: UserRole,
   rawClientId: string,
-  errorPath: string,
-) => {
-  if (role === UserRole.INTERNAL) {
-    return null;
+): Promise<{ ok: true; clientId: string | null } | { ok: false; error: string }> => {
+  if (role !== UserRole.CLIENT) {
+    return { ok: true, clientId: null };
   }
 
   if (!rawClientId) {
-    fail(errorPath, "Los usuarios CLIENT requieren un cliente existente asociado.");
+    return {
+      ok: false,
+      error: "Los usuarios CLIENT requieren un cliente existente asociado.",
+    };
   }
 
   const client = await prisma.client.findUnique({
@@ -53,156 +108,147 @@ const resolveClientId = async (
   });
 
   if (!client) {
-    fail(errorPath, "El cliente seleccionado no existe.");
+    return { ok: false, error: "El cliente seleccionado no existe." };
   }
 
-  return client!.id;
+  return { ok: true, clientId: client.id };
 };
 
-type BaseUserInput = {
-  name: string;
-  email: string;
-  role: UserRole;
-  status: UserStatus;
-  clientId: string;
-};
-
-const validateBaseUserInput = (
+export const createUser = async (
+  _prev: UserFormState,
   formData: FormData,
-  errorPath: string,
-): BaseUserInput => {
-  const name = getFormString(formData, "name");
-  const email = normalizeEmail(getFormString(formData, "email"));
-  const role = parseRole(getFormString(formData, "role"));
-  const status = parseStatus(getFormString(formData, "status"));
-  const clientId = getFormString(formData, "clientId");
-
-  if (!name) {
-    fail(errorPath, "El nombre es obligatorio.");
-  }
-
-  if (!email || !EMAIL_PATTERN.test(email)) {
-    fail(errorPath, "El email debe tener un formato válido.");
-  }
-
-  if (!role) {
-    fail(errorPath, "El rol seleccionado no es válido.");
-  }
-
-  if (!status) {
-    fail(errorPath, "El estado seleccionado no es válido.");
-  }
-
-  return { name, email, role: role!, status: status!, clientId };
-};
-
-export const createUser = async (formData: FormData) => {
+): Promise<UserFormState> => {
   const session = await requireAdmin();
+  const values = extractValues(formData);
 
-  const errorPath = "/users/new";
-  const input = validateBaseUserInput(formData, errorPath);
-  const password = getFormString(formData, "password");
+  const validation = validate(values);
+  if (!validation.ok) {
+    return invalid(values, validation.error);
+  }
+  const { data } = validation;
 
+  const password = getString(formData, "password");
   if (password.length < MIN_PASSWORD_LENGTH) {
-    fail(errorPath, `La contraseña debe tener al menos ${MIN_PASSWORD_LENGTH} caracteres.`);
+    return invalid(
+      values,
+      `La contraseña debe tener al menos ${MIN_PASSWORD_LENGTH} caracteres.`,
+    );
   }
 
-  const existingUser = await prisma.user.findUnique({
-    where: { email: input.email },
+  const existing = await prisma.user.findUnique({
+    where: { email: data.email },
     select: { id: true },
   });
-
-  if (existingUser) {
-    fail(errorPath, "Ya existe un usuario con ese email.");
+  if (existing) {
+    return invalid(values, "Ya existe un usuario con ese email.");
   }
 
-  const clientId = await resolveClientId(input.role, input.clientId, errorPath);
+  const client = await resolveClientId(data.role, data.clientId);
+  if (!client.ok) {
+    return invalid(values, client.error);
+  }
+
   const passwordHash = await hash(password, SALT_ROUNDS);
 
   await prisma.user.create({
     data: {
-      name: input.name,
-      email: input.email,
-      role: input.role,
-      status: input.status,
-      clientId,
+      name: data.name,
+      email: data.email,
+      role: data.role,
+      status: data.status,
+      clientId: client.clientId,
       passwordHash,
       createdById: session.user.id,
       updatedById: session.user.id,
     },
   });
 
-  succeed("Usuario creado correctamente.");
+  await setFlash("success", "Usuario creado correctamente.");
+  redirect("/users");
 };
 
-export const updateUser = async (formData: FormData) => {
+export const updateUser = async (
+  _prev: UserFormState,
+  formData: FormData,
+): Promise<UserFormState> => {
   const session = await requireAdmin();
-
-  const userId = getFormString(formData, "userId");
+  const values = extractValues(formData);
+  const userId = getString(formData, "userId");
 
   if (!userId) {
-    fail("/users", "No se ha indicado el usuario a editar.");
+    return invalid(values, "No se ha indicado el usuario a editar.");
   }
 
-  const errorPath = `/users/${userId}/edit`;
-  const input = validateBaseUserInput(formData, errorPath);
-  const password = getFormString(formData, "password");
+  const validation = validate(values);
+  if (!validation.ok) {
+    return invalid(values, validation.error);
+  }
+  const { data } = validation;
 
+  const password = getString(formData, "password");
   if (password && password.length < MIN_PASSWORD_LENGTH) {
-    fail(errorPath, `La nueva contraseña debe tener al menos ${MIN_PASSWORD_LENGTH} caracteres.`);
+    return invalid(
+      values,
+      `La nueva contraseña debe tener al menos ${MIN_PASSWORD_LENGTH} caracteres.`,
+    );
   }
 
-  const currentUser = await prisma.user.findUnique({
+  const current = await prisma.user.findUnique({
     where: { id: userId },
     select: { id: true },
   });
-
-  if (!currentUser) {
-    fail("/users", "El usuario indicado no existe.");
+  if (!current) {
+    return invalid(values, "El usuario indicado no existe.");
   }
 
-  const existingEmail = await prisma.user.findFirst({
-    where: { email: input.email, NOT: { id: userId } },
+  const duplicate = await prisma.user.findFirst({
+    where: { email: data.email, NOT: { id: userId } },
     select: { id: true },
   });
-
-  if (existingEmail) {
-    fail(errorPath, "Ya existe otro usuario con ese email.");
+  if (duplicate) {
+    return invalid(values, "Ya existe otro usuario con ese email.");
   }
 
-  const clientId = await resolveClientId(input.role, input.clientId, errorPath);
+  const client = await resolveClientId(data.role, data.clientId);
+  if (!client.ok) {
+    return invalid(values, client.error);
+  }
+
   const passwordHash = password ? await hash(password, SALT_ROUNDS) : undefined;
 
   await prisma.user.update({
     where: { id: userId },
     data: {
-      name: input.name,
-      email: input.email,
-      role: input.role,
-      status: input.status,
-      clientId,
+      name: data.name,
+      email: data.email,
+      role: data.role,
+      status: data.status,
+      clientId: client.clientId,
       updatedById: session.user.id,
       ...(passwordHash ? { passwordHash } : {}),
     },
   });
 
-  succeed("Usuario actualizado correctamente.");
+  await setFlash("success", "Usuario actualizado correctamente.");
+  redirect("/users");
 };
 
 export const setUserStatus = async (formData: FormData) => {
   const session = await requireAdmin();
 
-  const userId = getFormString(formData, "userId");
-  const status = parseStatus(getFormString(formData, "status"));
+  const userId = getString(formData, "userId");
+  const status = parseStatus(getString(formData, "status"));
 
   if (!userId || !status) {
-    fail("/users", "Datos no válidos para cambiar el estado.");
+    await setFlash("error", "Datos no válidos para cambiar el estado.");
+    redirect("/users");
   }
 
   await prisma.user.update({
     where: { id: userId },
-    data: { status: status!, updatedById: session.user.id },
+    data: { status, updatedById: session.user.id },
   });
 
-  succeed("Estado del usuario actualizado.");
+  await setFlash("success", "Estado del usuario actualizado.");
+  redirect("/users");
 };

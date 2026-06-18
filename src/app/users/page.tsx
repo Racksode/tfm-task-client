@@ -1,9 +1,9 @@
 import { UserRole, UserStatus } from "@prisma/client";
 import Link from "next/link";
 
+import { AlertBanner } from "@/components/feedback/alert-banner";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/layout/page-header";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -16,13 +16,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { requireAdmin } from "@/lib/auth-guards";
+import { appConfig } from "@/lib/config";
+import { readFlash } from "@/lib/flash";
+import { clearFlash } from "@/lib/flash-actions";
 import { prisma } from "@/lib/prisma";
 
 import { setUserStatus } from "./actions";
-
-type UsersPageProps = {
-  searchParams?: Promise<{ error?: string; success?: string }>;
-};
 
 const formatDate = (date: Date) =>
   new Intl.DateTimeFormat("es-ES", { dateStyle: "short" }).format(date);
@@ -41,10 +40,10 @@ const StatusBadge = ({ status }: { status: UserStatus }) =>
     <Badge variant="outline">Inactivo</Badge>
   );
 
-export default async function UsersPage({ searchParams }: UsersPageProps) {
+export default async function UsersPage() {
   await requireAdmin();
 
-  const params = await searchParams;
+  const flash = await readFlash();
 
   const users = await prisma.user.findMany({
     orderBy: { createdAt: "desc" },
@@ -73,15 +72,13 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
           }
         />
 
-        {params?.error ? (
-          <Alert variant="destructive">
-            <AlertDescription>{params.error}</AlertDescription>
-          </Alert>
-        ) : null}
-        {params?.success ? (
-          <Alert>
-            <AlertDescription>{params.success}</AlertDescription>
-          </Alert>
+        {flash ? (
+          <AlertBanner
+            type={flash.type}
+            message={flash.message}
+            dismissMs={appConfig.alertAutoDismissMs}
+            onShow={clearFlash}
+          />
         ) : null}
 
         <Card className="p-0">

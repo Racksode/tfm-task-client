@@ -2,7 +2,6 @@ import Link from "next/link";
 
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/layout/page-header";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { requireAdmin } from "@/lib/auth-guards";
 import { prisma } from "@/lib/prisma";
@@ -10,14 +9,9 @@ import { prisma } from "@/lib/prisma";
 import { createUser } from "../actions";
 import { UserForm } from "../user-form";
 
-type NewUserPageProps = {
-  searchParams?: Promise<{ error?: string }>;
-};
-
-export default async function NewUserPage({ searchParams }: NewUserPageProps) {
+export default async function NewUserPage() {
   await requireAdmin();
 
-  const params = await searchParams;
   const clients = await prisma.client.findMany({
     orderBy: { name: "asc" },
     select: { id: true, name: true },
@@ -35,12 +29,6 @@ export default async function NewUserPage({ searchParams }: NewUserPageProps) {
             </Button>
           }
         />
-
-        {params?.error ? (
-          <Alert variant="destructive">
-            <AlertDescription>{params.error}</AlertDescription>
-          </Alert>
-        ) : null}
 
         <UserForm
           action={createUser}
