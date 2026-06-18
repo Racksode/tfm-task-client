@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 
-import { Button } from "@/components/ui/button";
-import { logout } from "@/lib/auth-actions";
+import { auth } from "@/auth";
 
 import { Nav, type NavItem } from "./nav";
+import { UserMenu } from "./user-menu";
 
 type AppShellProps = {
   children: ReactNode;
@@ -11,37 +11,31 @@ type AppShellProps = {
 };
 
 const defaultNavItems: NavItem[] = [
-  {
-    href: "/dashboard",
-    label: "Inicio",
-  },
-  {
-    href: "/users",
-    label: "Usuarios",
-  },
+  { href: "/dashboard", label: "Inicio" },
+  { href: "/users", label: "Usuarios" },
 ];
 
-export function AppShell({ children, navItems = defaultNavItems }: AppShellProps) {
+export async function AppShell({ children, navItems = defaultNavItems }: AppShellProps) {
+  const session = await auth();
+
   return (
-    <div className="app-shell">
-      <aside className="app-shell-sidebar" aria-label="Navegacion interna">
-        <div className="app-shell-brand">
-          <span className="app-shell-brand-mark">TC</span>
+    <div className="flex min-h-svh">
+      <aside className="flex w-60 shrink-0 flex-col gap-6 bg-sidebar p-4 text-sidebar-foreground">
+        <div className="flex items-center gap-2 px-2 font-semibold">
+          <span className="flex size-8 items-center justify-center rounded-md bg-sidebar-primary text-sm text-sidebar-primary-foreground">
+            TC
+          </span>
           <span>TFM Task Client</span>
         </div>
         <Nav items={navItems} />
-        <form action={logout} className="app-shell-logout">
-          <Button
-            type="submit"
-            variant="ghost"
-            size="sm"
-            className="w-full justify-start"
-          >
-            Cerrar sesión
-          </Button>
-        </form>
       </aside>
-      <main className="app-shell-main">{children}</main>
+
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="flex h-14 items-center justify-end border-b px-6">
+          <UserMenu name={session?.user?.name} email={session?.user?.email} />
+        </header>
+        <main className="min-w-0 flex-1">{children}</main>
+      </div>
     </div>
   );
 }
