@@ -54,3 +54,7 @@ No se deben guardar conversaciones menores, propuestas descartadas sin impacto o
 ### Rework de login y usuarios
 
 - [Implementación: base de UI, login y usuarios](21-implementacion-login-users.md)
+
+### Estructura, patrones de UI y permisos
+
+- [Roadmap: estructura, patrones de UI y permisos (pre-Clients)](22-roadmap-estructura-ui-permisos.md)
