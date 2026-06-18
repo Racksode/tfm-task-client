@@ -195,6 +195,7 @@ Variables de entorno:
 | `BOOTSTRAP_USER_PASSWORD` | Solo bootstrap | Contraseña inicial del primer usuario. |
 | `BOOTSTRAP_USER_NAME` | Solo bootstrap | Nombre del primer usuario. |
 | `ALERT_AUTO_DISMISS_MS` | No | Milisegundos antes de auto-cerrar las alertas (por defecto 5000; 0 = no auto-cerrar). |
+| `APP_VERSION_MAJOR` / `APP_VERSION_MINOR` / `APP_VERSION_PATCH` | No | Versión mostrada en el footer (por defecto 1.0.0). |
 
 Las variables `BOOTSTRAP_USER_*` solo se utilizan al ejecutar el script de bootstrap del primer usuario y pueden retirarse después.
 

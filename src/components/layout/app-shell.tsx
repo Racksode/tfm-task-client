@@ -1,29 +1,18 @@
 import type { ReactNode } from "react";
 
 import { auth } from "@/auth";
-import { can, type Section } from "@/lib/permissions";
+import { appConfig } from "@/lib/config";
 
-import { Nav, type NavItem } from "./nav";
+import { Nav } from "./nav";
 import { UserMenu } from "./user-menu";
 
 type AppShellProps = {
   children: ReactNode;
 };
 
-const NAV: (NavItem & { section: Section })[] = [
-  { href: "/dashboard", label: "Inicio", section: "dashboard" },
-  { href: "/users", label: "Usuarios", section: "users" },
-];
-
 export async function AppShell({ children }: AppShellProps) {
   const session = await auth();
   const role = session?.user?.role;
-
-  const navItems: NavItem[] = role
-    ? NAV.filter((item) => can(role, "view", item.section)).map(
-        ({ href, label }) => ({ href, label }),
-      )
-    : [];
 
   return (
     <div className="flex min-h-svh flex-col md:flex-row">
@@ -34,7 +23,7 @@ export async function AppShell({ children }: AppShellProps) {
           </span>
           <span>TFM Task Client</span>
         </div>
-        <Nav items={navItems} />
+        {role ? <Nav role={role} /> : null}
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
@@ -42,6 +31,10 @@ export async function AppShell({ children }: AppShellProps) {
           <UserMenu name={session?.user?.name} email={session?.user?.email} />
         </header>
         <main className="min-w-0 flex-1">{children}</main>
+        <footer className="flex items-center justify-between border-t px-6 py-3 text-xs text-muted-foreground">
+          <span>© {new Date().getFullYear()} TFM Task Client</span>
+          <span>v{appConfig.version}</span>
+        </footer>
       </div>
     </div>
   );
