@@ -67,7 +67,15 @@ export default async function UsersPage() {
   return (
     <AppShell>
       <div className="grid gap-4 p-8">
-        <PageHeader title="Usuarios" />
+        <PageHeader
+          title="Usuarios"
+          actions={
+            <Link href="/users/new" className={actionButtonClass("create")}>
+              <Plus className="size-4" />
+              Nuevo usuario
+            </Link>
+          }
+        />
 
         {flash ? (
           <AlertBanner
@@ -78,13 +86,6 @@ export default async function UsersPage() {
             onShow={clearFlash}
           />
         ) : null}
-
-        <div className="flex justify-end">
-          <Link href="/users/new" className={actionButtonClass("create")}>
-            <Plus className="size-4" />
-            Nuevo usuario
-          </Link>
-        </div>
 
         <Card className="p-0">
           <Table>

@@ -17,6 +17,8 @@ import {
 import { requireAdmin } from "@/lib/auth-guards";
 import { canManageUser } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
+import { getSectionAccent } from "@/lib/section-config";
+import { cn } from "@/lib/utils";
 
 import { DeleteUserDialog } from "../delete-user-dialog";
 
@@ -72,7 +74,6 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
     <AppShell>
       <div className="grid gap-4 p-8">
         <PageHeader
-          eyebrow="Usuarios"
           title={user.name}
           actions={
             <>
@@ -102,7 +103,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
         />
 
         <div className="grid gap-4 md:grid-cols-2">
-          <Card>
+          <Card className={cn("border-l-4", getSectionAccent("users"))}>
             <CardHeader>
               <CardTitle>Información principal</CardTitle>
             </CardHeader>
@@ -129,7 +130,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className={cn("border-l-4", getSectionAccent("users"))}>
             <CardHeader>
               <CardTitle>Datos de grabación</CardTitle>
             </CardHeader>
