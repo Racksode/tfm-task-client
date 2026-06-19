@@ -4,6 +4,12 @@ Este documento define las normas que deben seguir los agentes IA que trabajen so
 
 El proyecto corresponde a un Trabajo Final de Máster, por lo que debe priorizarse un MVP funcional, defendible y limitado.
 
+## Estado y continuidad
+
+Al iniciar una sesión, para reconstruir el contexto (estado actual, decisiones en vigor y próximos pasos), consulta primero [docs/estado-proyecto.md](docs/estado-proyecto.md) y el bloque "Estado actual" del `README.md`. Es la fuente de verdad compartida entre equipos (la memoria del asistente es local y no se sincroniza).
+
+Al cerrar cada PR, sigue el **checklist de cierre** de `docs/estado-proyecto.md` (validar, bump de versión, actualizar README y ese documento, registrar en `docs/planes/` e `docs/historico-ia/`).
+
 ## Desarrollo por fases y control de alcance
 
 Los agentes IA deben respetar las siguientes normas:
