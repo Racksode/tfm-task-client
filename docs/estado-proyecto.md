@@ -2,7 +2,7 @@
 
 > **Documento vivo.** Punto único para retomar el trabajo desde cualquier equipo.
 > Se actualiza al cerrar cada sesión/PR (ver checklist al final).
-> Última actualización: 2026-06-21 (b).
+> Última actualización: 2026-06-21 (c).
 
 ## Cómo ponerse al día (equipo nuevo o nueva sesión)
 
@@ -17,15 +17,14 @@
 
 ## Estado actual
 
-- Versión: **1.2.1**.
+- Versión: **1.3.0**.
 - Documentación funcional/UX cerrada (`docs/10`–`docs/14`).
 - Base técnica: Next.js (App Router) + TypeScript + Prisma + PostgreSQL + Auth.js. UI con Tailwind + shadcn.
 - Acceso: login propio (`/login`), redirección por rol en `/`, `requireSession`/`requireStaff`/`requireAdmin` (`src/lib/auth-guards.ts`).
 - Módulo **Usuarios completo y pulido** (`/users`, `/users/[id]`, `/users/new`, `/users/[id]/edit`): listado con acciones por icono + doble-clic, detalle con pastillas, alta/edición con `useActionState` + flash, borrado con `AlertDialog` sin cascada, permisos.
-- Módulo **Client implementado** (`/clients`, `/clients/[id]`, `/clients/new`, `/clients/[id]/edit`): primer módulo de negocio, clonado de `users`. Permisos de sección de negocio con `can()` (`INTERNAL` opera, `ADMIN+` borra), auditoría `createdBy/updatedBy`, detalle con sub-listados 1→N (proyectos informativos y usuarios vinculados).
+- Módulo **Client implementado** (`/clients`, `/clients/[id]`, `/clients/new`, `/clients/[id]/edit`): primer módulo de negocio, clonado de `users`. Permisos de sección de negocio con `can()` (`INTERNAL` opera, `ADMIN+` borra), auditoría `createdBy/updatedBy`, detalle con sub-listados 1→N (proyectos —ya enlazables— y usuarios vinculados).
+- Módulo **Project implementado** (`/projects`, `/projects/[id]`, `/projects/new`, `/projects/[id]/edit`): segundo módulo de negocio. Relación con `Client` (selector obligatorio), estado de 4 valores (`ACTIVE/PAUSED/COMPLETED/CANCELLED`), fechas, `visibleToClient`, tarifa y auditoría. Detalle con sub-listado 1→N de tareas (informativo, aún sin `/tasks`).
 - `/dashboard` y `/portal` son placeholders ("en construcción").
-
-> Pendiente operativo: aplicar la migración `add_client_audit_fields` con `npm run prisma:migrate:dev` cuando Postgres (Docker) esté levantado (la sesión de implementación no tenía la BD arriba).
 
 ## Decisiones / convenciones en vigor
 
@@ -40,17 +39,15 @@
 - **Versionado** (`README` > "Convención de versionado"): fuente en `src/lib/config.ts` (`APP_VERSION`). Revisión=`fix`/ajustes, subversión=`feat`, versión=hitos.
 - **CI**: valida en PR (typecheck/lint/build/prisma); omite PRs solo-docs (`paths-ignore`).
 
-## Próximo paso: módulo Project
+## Próximo paso: módulo Task
 
-Clonar el patrón ya consolidado (`users` + `clients`) para `/projects`:
+Clonar el patrón ya consolidado (`users` + `clients` + `projects`) para `/tasks`:
 
-- Rutas: `/projects` (listado), `/projects/[id]` (detalle con pastillas), `/projects/new`, `/projects/[id]/edit`.
-- **Permisos**: sección de negocio → `requireStaff` + `can(role, action, "projects")` (INTERNAL opera; borrar solo `ADMIN+`), igual que en `clients`. Añadir `projects` al menú (`Nav`) y su acento en `src/lib/section-config.ts`.
-- `Project` pertenece a un `Client` (`clientId` obligatorio): el formulario necesita seleccionar cliente; en el detalle del cliente, los proyectos pasarán de informativos a enlazables.
-- Añadir auditoría `createdById/updatedById` a `Project` (migración), como en `Client`.
-- Bump de versión a **1.3.0** (feat).
-
-> Antes de cerrar `clients`: aplicar la migración `add_client_audit_fields` con Postgres levantado y validar manualmente el CRUD (ver checklist).
+- Rutas: `/tasks` (listado), `/tasks/[id]` (detalle con pastillas), `/tasks/new`, `/tasks/[id]/edit`.
+- **Permisos**: sección de negocio → `requireStaff` + `can(role, action, "tasks")` (INTERNAL opera; borrar solo `ADMIN+`). Añadir `tasks` al menú (`Nav`) y su acento en `src/lib/section-config.ts`.
+- `Task` pertenece a un `Project` (`projectId` obligatorio → selector) y tiene `responsible` (User opcional). Estados `TaskStatus`/`TaskPriority` (varios valores → sin toggle rápido, como en `projects`). En el detalle del proyecto, las tareas pasarán de informativas a enlazables.
+- Añadir auditoría `createdById/updatedById` a `Task` (migración), como en `Client`/`Project`.
+- Bump de versión a **1.4.0** (feat).
 
 ## Notas y dudas por resolver (del usuario)
 
