@@ -31,7 +31,8 @@ export async function setFlash(type: FlashType, message: string) {
 
 /**
  * Lee el mensaje flash actual (sin borrarlo). Apto para el render de una página.
- * El borrado se hace con `clearFlash` desde el cliente al mostrarlo.
+ * El borrado (lectura única) lo hace `AlertBanner` al mostrarse, vía el route
+ * handler `DELETE /api/flash` (fetch), para no provocar un refresh del servidor.
  */
 export async function readFlash(): Promise<Flash | null> {
   const raw = (await cookies()).get(FLASH_COOKIE)?.value;

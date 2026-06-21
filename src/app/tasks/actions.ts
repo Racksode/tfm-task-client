@@ -1,6 +1,6 @@
 "use server";
 
-import { TaskPriority, TaskStatus } from "@prisma/client";
+import { ClientStatus, TaskPriority, TaskStatus } from "@prisma/client";
 import { redirect } from "next/navigation";
 
 import { requireStaff } from "@/lib/auth-guards";
@@ -81,6 +81,7 @@ type ValidatedInput = {
 
 const validate = async (
   values: TaskFormValues,
+  { isCreate }: { isCreate: boolean },
 ): Promise<{ ok: true; data: ValidatedInput } | { ok: false; error: string }> => {
   if (!values.title) {
     return { ok: false, error: "El título es obligatorio." };
@@ -91,10 +92,18 @@ const validate = async (
   }
   const project = await prisma.project.findUnique({
     where: { id: values.projectId },
-    select: { id: true },
+    select: { id: true, client: { select: { status: true } } },
   });
   if (!project) {
     return { ok: false, error: "El proyecto seleccionado no existe." };
+  }
+  // RN-05 (docs/10-casos-de-uso.md): no se crea trabajo nuevo para clientes
+  // inactivos. En edición se permite (excepción para tareas ya existentes).
+  if (isCreate && project.client.status === ClientStatus.INACTIVE) {
+    return {
+      ok: false,
+      error: "No se pueden crear tareas para un cliente inactivo.",
+    };
   }
 
   let responsibleId: string | null = null;
@@ -169,7 +178,7 @@ export const createTask = async (
     return invalid(values, "No tienes permisos para crear tareas.");
   }
 
-  const validation = await validate(values);
+  const validation = await validate(values, { isCreate: true });
   if (!validation.ok) {
     return invalid(values, validation.error);
   }
@@ -203,7 +212,7 @@ export const updateTask = async (
     return invalid(values, "No se ha indicado la tarea a editar.");
   }
 
-  const validation = await validate(values);
+  const validation = await validate(values, { isCreate: false });
   if (!validation.ok) {
     return invalid(values, validation.error);
   }

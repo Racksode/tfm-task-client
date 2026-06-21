@@ -20,7 +20,6 @@ import {
 import { requireStaff } from "@/lib/auth-guards";
 import { appConfig } from "@/lib/config";
 import { readFlash } from "@/lib/flash";
-import { clearFlash } from "@/lib/flash-actions";
 import { can } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 
@@ -87,7 +86,7 @@ export default async function ProjectsPage() {
             type={flash.type}
             message={flash.message}
             dismissMs={appConfig.alertAutoDismissMs}
-            onDismiss={clearFlash}
+            clearFlashOnShow
           />
         ) : null}
 

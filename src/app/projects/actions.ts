@@ -194,10 +194,26 @@ export const updateProject = async (
 
   const current = await prisma.project.findUnique({
     where: { id: projectId },
-    select: { id: true },
+    select: {
+      id: true,
+      clientId: true,
+      _count: { select: { reports: true, rates: true } },
+    },
   });
   if (!current) {
     return invalid(values, "El proyecto indicado no existe.");
+  }
+
+  // Mover el proyecto a otro cliente dejaría reportes y tarifas con el cliente
+  // antiguo apuntando a un proyecto del nuevo cliente (datos incoherentes).
+  if (data.clientId !== current.clientId) {
+    const linked = current._count.reports + current._count.rates;
+    if (linked > 0) {
+      return invalid(
+        values,
+        "No se puede cambiar el cliente: el proyecto tiene reportes o tarifas vinculados.",
+      );
+    }
   }
 
   await prisma.project.update({
