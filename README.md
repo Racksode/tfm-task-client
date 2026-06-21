@@ -15,7 +15,7 @@ El proyecto tiene la documentación funcional/UX cerrada, el rework de acceso y 
 ```text
 Fase actual: Fase 4 - Implementación del MVP
 Punto actual: módulos Client, Project y Task implementados (CRUD, permisos de negocio con can(), auditoría, sub-listados)
-Versión: 1.4.0
+Versión: 1.4.1
 ```
 
 Último hito completado:

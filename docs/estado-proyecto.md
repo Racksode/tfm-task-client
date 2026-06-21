@@ -2,7 +2,7 @@
 
 > **Documento vivo.** Punto único para retomar el trabajo desde cualquier equipo.
 > Se actualiza al cerrar cada sesión/PR (ver checklist al final).
-> Última actualización: 2026-06-21 (e).
+> Última actualización: 2026-06-21 (f).
 
 ## Cómo ponerse al día (equipo nuevo o nueva sesión)
 
@@ -17,7 +17,7 @@
 
 ## Estado actual
 
-- Versión: **1.4.0**.
+- Versión: **1.4.1**.
 - Documentación funcional/UX cerrada (`docs/10`–`docs/14`).
 - Base técnica: Next.js (App Router) + TypeScript + Prisma + PostgreSQL + Auth.js. UI con Tailwind + shadcn.
 - Acceso: login propio (`/login`), redirección por rol en `/`, `requireSession`/`requireStaff`/`requireAdmin` (`src/lib/auth-guards.ts`).
@@ -31,9 +31,9 @@
 
 - **Roles** (`docs/adr/0010`): `SUPERADMIN > ADMIN > INTERNAL > CLIENT`. Modelo "Opera/Gestiona/Manda". Sección `users` = `ADMIN+`; secciones de negocio = `INTERNAL+`. Helpers en `src/lib/permissions.ts` (`can`, `canManageUser`, `isStaff`, `isAdmin`).
 - **Patrón de permisos de negocio** (referencia: módulo `clients`): rutas/acciones con `requireStaff()` + comprobación por acción `can(role, action, section)` (también dentro de cada server action). `INTERNAL` obtiene `view/create/update`; `delete` solo `ADMIN+`. Es la plantilla a replicar en los siguientes módulos de negocio.
-- **Borrado sin cascada**: bloquea si el registro tiene datos vinculados (se desactiva en su lugar).
+- **Borrado sin cascada**: bloquea si el registro tiene datos vinculados (se desactiva en su lugar). Incluye las **relaciones de auditoría inversas** (`deleteUser` cuenta `createdClients/updatedClients/createdProjects/updatedProjects/createdTasks/updatedTasks`; al añadir un módulo nuevo con auditoría hay que sumar sus relaciones inversas aquí). Reasignaciones que romperían la integridad también se bloquean (p. ej. cambiar el cliente de un proyecto con reportes/tarifas).
 - **Auditoría**: `createdById`/`updatedById` por entidad (empezado en `User`), capturando el actor en las server actions.
-- **Mensajes**: validación con `useActionState` (conserva datos en error, sin URL); éxito con flash en cookie httpOnly (`src/lib/flash.ts`); `AlertBanner` (`src/components/feedback/`) con colores semánticos, X y auto-cierre (configurable, `ALERT_AUTO_DISMISS_MS`). El flash se borra **al cerrar** el aviso (no al mostrarlo: hacerlo al montar disparaba un refresh que lo ocultaba antes de tiempo). Los avisos de tipo **`error` no se auto-cierran** (se cierran con la X) para poder leerlos.
+- **Mensajes**: validación con `useActionState` (conserva datos en error, sin URL); éxito con flash en cookie httpOnly (`src/lib/flash.ts`); `AlertBanner` (`src/components/feedback/`) con colores semánticos, X y auto-cierre (configurable, `ALERT_AUTO_DISMISS_MS`). Lectura única: la cookie del flash se borra **al mostrarse** vía route handler `DELETE /api/flash` (fetch, no server action, para no disparar un refresh que oculte el aviso ni dejar la cookie viva en otras páginas). Los avisos de tipo **`error` no se auto-cierran** (se cierran con la X) para poder leerlos.
 - **Títulos de cabecera** (`PageHeader`): el título indica siempre la sección y, si hay un registro, usa el formato **`Sección: valor`**. Listado en plural (`Usuarios`/`Clientes`); detalle y edición `Usuario: {nombre}` / `Cliente: {nombre}` (la edición se distingue por los botones de cabecera); alta `Nuevo usuario`/`Nuevo cliente`.
 - **UI / patrón**: el módulo `users` es la **referencia a clonar**. Botones: ver=cian, editar/nuevo=verde turquesa (teal), eliminar=rojo, volver=marengo (`src/components/data/icon-action.tsx`). Pastillas de detalle con acento izquierdo por sección (`src/lib/section-config.ts`). Cabeceras solo con título (`PageHeader`, `items-center`).
 - **Commits**: Conventional Commits (tipo en inglés, descripción en español). Cada cambio: rama propia + PR; descripción de PR en Markdown.

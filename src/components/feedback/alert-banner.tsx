@@ -1,7 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -12,8 +12,11 @@ type AlertBannerProps = {
   message: string;
   /** Milisegundos antes de auto-cerrar. 0 = no auto-cerrar. Los errores nunca se auto-cierran. */
   dismissMs?: number;
-  /** Acción a ejecutar una vez al cerrarse el aviso (p. ej. borrar el flash). */
-  onDismiss?: () => void;
+  /**
+   * Si es un aviso de tipo "flash" (cookie), bórrala al mostrarse para que sea
+   * de lectura única y no reaparezca en otras páginas que leen la misma cookie.
+   */
+  clearFlashOnShow?: boolean;
 };
 
 const STYLES: Record<AlertType, string> = {
@@ -27,33 +30,31 @@ export function AlertBanner({
   type,
   message,
   dismissMs = 5000,
-  onDismiss,
+  clearFlashOnShow = false,
 }: AlertBannerProps) {
   const [open, setOpen] = useState(true);
-  const dismissed = useRef(false);
 
   // Los errores permanecen hasta que el usuario los cierra (para poder leerlos);
   // el resto se auto-cierran según `dismissMs`.
   const autoDismissMs = type === "error" ? 0 : dismissMs;
 
-  // El borrado del flash se hace al CERRAR, no al mostrar: hacerlo al montar
-  // dispara un refresh del servidor que ocultaría el aviso antes de tiempo.
-  const close = () => {
-    if (dismissed.current) {
+  // Lectura única: se borra la cookie del flash al mostrarse, vía route handler
+  // (fetch), NO con una server action, porque una server action dispararía un
+  // refresh que ocultaría el aviso antes de tiempo. Así el aviso permanece y la
+  // cookie no reaparece al navegar a otra página.
+  useEffect(() => {
+    if (!clearFlashOnShow) {
       return;
     }
-    dismissed.current = true;
-    setOpen(false);
-    onDismiss?.();
-  };
+    void fetch("/api/flash", { method: "DELETE" });
+  }, [clearFlashOnShow]);
 
   useEffect(() => {
     if (autoDismissMs <= 0) {
       return;
     }
-    const timer = setTimeout(close, autoDismissMs);
+    const timer = setTimeout(() => setOpen(false), autoDismissMs);
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoDismissMs]);
 
   if (!open) {
@@ -71,7 +72,7 @@ export function AlertBanner({
       <span>{message}</span>
       <button
         type="button"
-        onClick={close}
+        onClick={() => setOpen(false)}
         aria-label="Cerrar mensaje"
         className="shrink-0 opacity-70 transition-opacity hover:opacity-100"
       >

@@ -12,7 +12,7 @@ Con `postinstall`, `npm install` regenera el cliente automáticamente, mantenié
 
 ## Conceptos e implicaciones
 
-- `prisma generate` solo lee el schema; **no** necesita conexión a la base de datos ni `DATABASE_URL`, por lo que es seguro en `postinstall` y en CI.
+- `prisma generate` solo lee el schema; **no** necesita conexión a la base de datos ni `DATABASE_URL`, por lo que es seguro en `postinstall` y en CI. **Aviso**: la config (`prisma.config.ts`) sí fallaba al cargar si `DATABASE_URL` no existía (instalación limpia: `npm install` antes del `.env`); se resolvió usando `process.env.DATABASE_URL` con un fallback de formato válido, de modo que `generate` no rompe el `install`.
 - No sustituye a las migraciones: los cambios de schema siguen requiriendo `prisma migrate dev` (local) / `prisma migrate deploy` (despliegue) para actualizar la base de datos.
 - Si el error de "cliente desactualizado" reaparece con el dev server en marcha, basta con regenerar (`npm run prisma:generate`) y **reiniciar** el servidor (Turbopack cachea el módulo en memoria).
 

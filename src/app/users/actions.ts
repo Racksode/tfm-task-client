@@ -304,6 +304,12 @@ export const deleteUser = async (formData: FormData) => {
           auditLogs: true,
           createdUsers: true,
           updatedUsers: true,
+          createdClients: true,
+          updatedClients: true,
+          createdProjects: true,
+          updatedProjects: true,
+          createdTasks: true,
+          updatedTasks: true,
         },
       },
     },
@@ -326,7 +332,13 @@ export const deleteUser = async (formData: FormData) => {
     target._count.aiUsages +
     target._count.auditLogs +
     target._count.createdUsers +
-    target._count.updatedUsers;
+    target._count.updatedUsers +
+    target._count.createdClients +
+    target._count.updatedClients +
+    target._count.createdProjects +
+    target._count.updatedProjects +
+    target._count.createdTasks +
+    target._count.updatedTasks;
 
   if (links > 0) {
     await setFlash(
