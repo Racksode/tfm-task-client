@@ -2,7 +2,7 @@
 
 > **Documento vivo.** Punto único para retomar el trabajo desde cualquier equipo.
 > Se actualiza al cerrar cada sesión/PR (ver checklist al final).
-> Última actualización: 2026-06-21.
+> Última actualización: 2026-06-21 (b).
 
 ## Cómo ponerse al día (equipo nuevo o nueva sesión)
 
@@ -17,7 +17,7 @@
 
 ## Estado actual
 
-- Versión: **1.2.0**.
+- Versión: **1.2.1**.
 - Documentación funcional/UX cerrada (`docs/10`–`docs/14`).
 - Base técnica: Next.js (App Router) + TypeScript + Prisma + PostgreSQL + Auth.js. UI con Tailwind + shadcn.
 - Acceso: login propio (`/login`), redirección por rol en `/`, `requireSession`/`requireStaff`/`requireAdmin` (`src/lib/auth-guards.ts`).
@@ -33,22 +33,12 @@
 - **Patrón de permisos de negocio** (referencia: módulo `clients`): rutas/acciones con `requireStaff()` + comprobación por acción `can(role, action, section)` (también dentro de cada server action). `INTERNAL` obtiene `view/create/update`; `delete` solo `ADMIN+`. Es la plantilla a replicar en los siguientes módulos de negocio.
 - **Borrado sin cascada**: bloquea si el registro tiene datos vinculados (se desactiva en su lugar).
 - **Auditoría**: `createdById`/`updatedById` por entidad (empezado en `User`), capturando el actor en las server actions.
-- **Mensajes**: validación con `useActionState` (conserva datos en error, sin URL); éxito con flash en cookie httpOnly (`src/lib/flash.ts`); `AlertBanner` (`src/components/feedback/`) con colores semánticos, X y auto-cierre (configurable, `ALERT_AUTO_DISMISS_MS`).
+- **Mensajes**: validación con `useActionState` (conserva datos en error, sin URL); éxito con flash en cookie httpOnly (`src/lib/flash.ts`); `AlertBanner` (`src/components/feedback/`) con colores semánticos, X y auto-cierre (configurable, `ALERT_AUTO_DISMISS_MS`). El flash se borra **al cerrar** el aviso (no al mostrarlo: hacerlo al montar disparaba un refresh que lo ocultaba antes de tiempo). Los avisos de tipo **`error` no se auto-cierran** (se cierran con la X) para poder leerlos.
+- **Títulos de cabecera** (`PageHeader`): el título indica siempre la sección y, si hay un registro, usa el formato **`Sección: valor`**. Listado en plural (`Usuarios`/`Clientes`); detalle y edición `Usuario: {nombre}` / `Cliente: {nombre}` (la edición se distingue por los botones de cabecera); alta `Nuevo usuario`/`Nuevo cliente`.
 - **UI / patrón**: el módulo `users` es la **referencia a clonar**. Botones: ver=cian, editar/nuevo=verde turquesa (teal), eliminar=rojo, volver=marengo (`src/components/data/icon-action.tsx`). Pastillas de detalle con acento izquierdo por sección (`src/lib/section-config.ts`). Cabeceras solo con título (`PageHeader`, `items-center`).
 - **Commits**: Conventional Commits (tipo en inglés, descripción en español). Cada cambio: rama propia + PR; descripción de PR en Markdown.
 - **Versionado** (`README` > "Convención de versionado"): fuente en `src/lib/config.ts` (`APP_VERSION`). Revisión=`fix`/ajustes, subversión=`feat`, versión=hitos.
 - **CI**: valida en PR (typecheck/lint/build/prisma); omite PRs solo-docs (`paths-ignore`).
-
-## Pendiente acordado: convención de títulos de cabecera (PR pequeño, antes de Project)
-
-Ajustar el título de `PageHeader` para que **siempre indique la sección** y, cuando se muestre un registro, use el formato **`Sección: valor`**. Afecta a `users` (referencia) y `clients`; fija el patrón antes de clonar Project.
-
-- **Listado**: nombre de sección en plural (`Usuarios`, `Clientes`) — ya correcto.
-- **Detalle**: `Usuario: {nombre}` / `Cliente: {nombre}`.
-- **Edición**: **mismo formato** que el detalle (`Usuario: {nombre}`), sin prefijo "Editar"; el modo edición se distingue por los botones de cabecera (Ver detalles, etc.).
-- **Alta**: `Nuevo usuario` / `Nuevo cliente` — ya correcto.
-
-Motivo: al navegar a un usuario desde el detalle de un cliente, la cabecera mostraba solo el nombre y se perdía en qué sección estabas.
 
 ## Próximo paso: módulo Project
 

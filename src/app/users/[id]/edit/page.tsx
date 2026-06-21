@@ -54,7 +54,7 @@ export default async function EditUserPage({ params }: EditUserPageProps) {
     <AppShell>
       <div className="grid gap-4 p-8">
         <PageHeader
-          title={`Editar: ${user.name}`}
+          title={`Usuario: ${user.name}`}
           actions={
             <>
               <Link href="/users" className={actionButtonClass("back")}>

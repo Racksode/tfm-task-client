@@ -54,7 +54,7 @@ export default async function EditClientPage({ params }: EditClientPageProps) {
     <AppShell>
       <div className="grid gap-4 p-8">
         <PageHeader
-          title={`Editar: ${client.name}`}
+          title={`Cliente: ${client.name}`}
           actions={
             <>
               <Link href="/clients" className={actionButtonClass("back")}>

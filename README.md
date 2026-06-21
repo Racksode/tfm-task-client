@@ -15,7 +15,7 @@ El proyecto tiene la documentación funcional/UX cerrada, el rework de acceso y 
 ```text
 Fase actual: Fase 4 - Implementación del MVP
 Punto actual: módulo Client (/clients) implementado (CRUD, permisos de negocio con can(), auditoría, sub-listados)
-Versión: 1.2.0
+Versión: 1.2.1
 ```
 
 Último hito completado:
@@ -208,7 +208,7 @@ Variables de entorno:
 | `BOOTSTRAP_USER_EMAIL` | Solo bootstrap | Email del primer usuario interno creado por `npm run bootstrap:first-user`. |
 | `BOOTSTRAP_USER_PASSWORD` | Solo bootstrap | Contraseña inicial del primer usuario. |
 | `BOOTSTRAP_USER_NAME` | Solo bootstrap | Nombre del primer usuario. |
-| `ALERT_AUTO_DISMISS_MS` | No | Milisegundos antes de auto-cerrar las alertas (por defecto 5000; 0 = no auto-cerrar). |
+| `ALERT_AUTO_DISMISS_MS` | No | Milisegundos antes de auto-cerrar las alertas (por defecto 5000; 0 = no auto-cerrar). Los avisos de error no se auto-cierran. |
 | `APP_VERSION` | No | Sobrescribe la versión mostrada en el footer (por defecto, la definida en código). |
 
 Las variables `BOOTSTRAP_USER_*` solo se utilizan al ejecutar el script de bootstrap del primer usuario y pueden retirarse después.

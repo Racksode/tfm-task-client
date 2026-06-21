@@ -1,7 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -10,10 +10,10 @@ type AlertType = "info" | "success" | "warning" | "error";
 type AlertBannerProps = {
   type: AlertType;
   message: string;
-  /** Milisegundos antes de auto-cerrar. 0 = no auto-cerrar. */
+  /** Milisegundos antes de auto-cerrar. 0 = no auto-cerrar. Los errores nunca se auto-cierran. */
   dismissMs?: number;
-  /** Acción a ejecutar una vez al mostrarse (p. ej. borrar el flash). */
-  onShow?: () => void;
+  /** Acción a ejecutar una vez al cerrarse el aviso (p. ej. borrar el flash). */
+  onDismiss?: () => void;
 };
 
 const STYLES: Record<AlertType, string> = {
@@ -27,23 +27,34 @@ export function AlertBanner({
   type,
   message,
   dismissMs = 5000,
-  onShow,
+  onDismiss,
 }: AlertBannerProps) {
   const [open, setOpen] = useState(true);
+  const dismissed = useRef(false);
 
-  useEffect(() => {
-    onShow?.();
-    // solo una vez al montar
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Los errores permanecen hasta que el usuario los cierra (para poder leerlos);
+  // el resto se auto-cierran según `dismissMs`.
+  const autoDismissMs = type === "error" ? 0 : dismissMs;
 
-  useEffect(() => {
-    if (dismissMs <= 0) {
+  // El borrado del flash se hace al CERRAR, no al mostrar: hacerlo al montar
+  // dispara un refresh del servidor que ocultaría el aviso antes de tiempo.
+  const close = () => {
+    if (dismissed.current) {
       return;
     }
-    const timer = setTimeout(() => setOpen(false), dismissMs);
+    dismissed.current = true;
+    setOpen(false);
+    onDismiss?.();
+  };
+
+  useEffect(() => {
+    if (autoDismissMs <= 0) {
+      return;
+    }
+    const timer = setTimeout(close, autoDismissMs);
     return () => clearTimeout(timer);
-  }, [dismissMs]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoDismissMs]);
 
   if (!open) {
     return null;
@@ -60,7 +71,7 @@ export function AlertBanner({
       <span>{message}</span>
       <button
         type="button"
-        onClick={() => setOpen(false)}
+        onClick={close}
         aria-label="Cerrar mensaje"
         className="shrink-0 opacity-70 transition-opacity hover:opacity-100"
       >
