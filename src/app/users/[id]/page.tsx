@@ -74,7 +74,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
     <AppShell>
       <div className="grid gap-4 p-8">
         <PageHeader
-          title={user.name}
+          title={`Usuario: ${user.name}`}
           actions={
             <>
               <Link href="/users" className={actionButtonClass("back")}>

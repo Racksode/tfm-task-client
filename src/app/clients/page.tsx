@@ -84,7 +84,7 @@ export default async function ClientsPage() {
             type={flash.type}
             message={flash.message}
             dismissMs={appConfig.alertAutoDismissMs}
-            onShow={clearFlash}
+            onDismiss={clearFlash}
           />
         ) : null}
 

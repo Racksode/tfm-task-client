@@ -83,7 +83,7 @@ export default async function UsersPage() {
             type={flash.type}
             message={flash.message}
             dismissMs={appConfig.alertAutoDismissMs}
-            onShow={clearFlash}
+            onDismiss={clearFlash}
           />
         ) : null}
 

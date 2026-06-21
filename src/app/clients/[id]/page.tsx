@@ -83,7 +83,7 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
     <AppShell>
       <div className="grid gap-4 p-8">
         <PageHeader
-          title={client.name}
+          title={`Cliente: ${client.name}`}
           actions={
             <>
               <Link href="/clients" className={actionButtonClass("back")}>
