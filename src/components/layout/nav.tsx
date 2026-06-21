@@ -5,6 +5,7 @@ import {
   Building2,
   FolderKanban,
   LayoutDashboard,
+  ListChecks,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -28,6 +29,7 @@ const BLOCKS: NavItem[][] = [
   [
     { href: "/clients", label: "Clientes", icon: Building2, section: "clients" },
     { href: "/projects", label: "Proyectos", icon: FolderKanban, section: "projects" },
+    { href: "/tasks", label: "Tareas", icon: ListChecks, section: "tasks" },
   ],
   [{ href: "/users", label: "Usuarios", icon: Users, section: "users" }],
 ];

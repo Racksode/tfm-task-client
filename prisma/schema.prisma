@@ -110,6 +110,8 @@ model User {
   updatedClients  Client[]    @relation("ClientUpdatedBy")
   createdProjects Project[]   @relation("ProjectCreatedBy")
   updatedProjects Project[]   @relation("ProjectUpdatedBy")
+  createdTasks    Task[]      @relation("TaskCreatedBy")
+  updatedTasks    Task[]      @relation("TaskUpdatedBy")
 }
 
 model Client {
@@ -170,6 +172,10 @@ model Task {
   responsible     User?        @relation("TaskResponsible", fields: [responsibleId], references: [id])
   functionalStart DateTime?
   functionalEnd   DateTime?
+  createdById     String?
+  createdBy       User?        @relation("TaskCreatedBy", fields: [createdById], references: [id])
+  updatedById     String?
+  updatedBy       User?        @relation("TaskUpdatedBy", fields: [updatedById], references: [id])
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
 

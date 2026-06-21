@@ -1,4 +1,3 @@
-import { ProjectStatus } from "@prisma/client";
 import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -20,10 +19,15 @@ import { prisma } from "@/lib/prisma";
 import { getSectionAccent } from "@/lib/section-config";
 import { cn } from "@/lib/utils";
 
-import { DeleteProjectDialog } from "../delete-project-dialog";
-import { PROJECT_STATUS_LABELS } from "../status";
+import { DeleteTaskDialog } from "../delete-task-dialog";
+import {
+  TASK_PRIORITY_BADGE,
+  TASK_PRIORITY_LABELS,
+  TASK_STATUS_BADGE,
+  TASK_STATUS_LABELS,
+} from "../status";
 
-type ProjectDetailPageProps = {
+type TaskDetailPageProps = {
   params: Promise<{ id: string }>;
 };
 
@@ -36,18 +40,6 @@ const formatDateTime = (date: Date) =>
 const formatDate = (date: Date) =>
   new Intl.DateTimeFormat("es-ES", { dateStyle: "short" }).format(date);
 
-const currency = new Intl.NumberFormat("es-ES", {
-  style: "currency",
-  currency: "EUR",
-});
-
-const STATUS_BADGE: Record<ProjectStatus, string> = {
-  [ProjectStatus.ACTIVE]: "border-transparent bg-green-600 text-white",
-  [ProjectStatus.PAUSED]: "border-transparent bg-amber-500 text-white",
-  [ProjectStatus.COMPLETED]: "border-transparent bg-slate-600 text-white",
-  [ProjectStatus.CANCELLED]: "border-transparent bg-rose-600 text-white",
-};
-
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="grid gap-1">
@@ -59,67 +51,68 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-export default async function ProjectDetailPage({ params }: ProjectDetailPageProps) {
+export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
   const session = await requireStaff();
   const role = session.user.role;
   const { id } = await params;
 
-  const project = await prisma.project.findUnique({
+  const task = await prisma.task.findUnique({
     where: { id },
     select: {
       id: true,
-      name: true,
+      title: true,
       description: true,
       status: true,
+      priority: true,
       visibleToClient: true,
-      startDate: true,
-      expectedEndDate: true,
-      baseRate: true,
+      functionalStart: true,
+      functionalEnd: true,
       createdAt: true,
       updatedAt: true,
-      client: { select: { id: true, name: true } },
+      project: { select: { id: true, name: true } },
+      responsible: { select: { id: true, name: true } },
       createdBy: { select: { name: true } },
       updatedBy: { select: { name: true } },
-      tasks: { select: { id: true, title: true }, orderBy: { createdAt: "desc" } },
+      timeEntries: {
+        select: { id: true, workDate: true, durationMinutes: true },
+        orderBy: { workDate: "desc" },
+      },
     },
   });
 
-  if (!project) {
+  if (!task) {
     notFound();
   }
 
-  const accent = cn("border-l-4", getSectionAccent("projects"));
+  const accent = cn("border-l-4", getSectionAccent("tasks"));
 
   return (
     <AppShell>
       <div className="grid gap-4 p-8">
         <PageHeader
-          title={`Proyecto: ${project.name}`}
+          title={`Tarea: ${task.title}`}
           actions={
             <>
-              <Link href="/projects" className={actionButtonClass("back")}>
+              <Link href="/tasks" className={actionButtonClass("back")}>
                 <ArrowLeft className="size-4" />
                 Volver al listado
               </Link>
-              {can(role, "update", "projects") ? (
+              {can(role, "update", "tasks") ? (
                 <Link
-                  href={`/projects/${project.id}/edit`}
+                  href={`/tasks/${task.id}/edit`}
                   className={actionButtonClass("edit")}
                 >
                   <Pencil className="size-4" />
                   Editar
                 </Link>
               ) : null}
-              {can(role, "delete", "projects") ? (
-                <DeleteProjectDialog
-                  projectId={project.id}
-                  projectName={project.name}
-                >
+              {can(role, "delete", "tasks") ? (
+                <DeleteTaskDialog taskId={task.id} taskTitle={task.title}>
                   <button type="button" className={actionButtonClass("delete")}>
                     <Trash2 className="size-4" />
                     Eliminar
                   </button>
-                </DeleteProjectDialog>
+                </DeleteTaskDialog>
               ) : null}
             </>
           }
@@ -131,36 +124,50 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
               <CardTitle>Información principal</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4 sm:grid-cols-2">
-              <Field label="Nombre">{project.name}</Field>
-              <Field label="Cliente">
+              <Field label="Título">{task.title}</Field>
+              <Field label="Proyecto">
                 <Link
-                  href={`/clients/${project.client.id}`}
+                  href={`/projects/${task.project.id}`}
                   className="text-primary hover:underline"
                 >
-                  {project.client.name}
+                  {task.project.name}
                 </Link>
               </Field>
               <Field label="Estado">
-                <Badge className={STATUS_BADGE[project.status]}>
-                  {PROJECT_STATUS_LABELS[project.status]}
+                <Badge className={TASK_STATUS_BADGE[task.status]}>
+                  {TASK_STATUS_LABELS[task.status]}
                 </Badge>
               </Field>
-              <Field label="Tarifa base">
-                {project.baseRate ? currency.format(Number(project.baseRate)) : "—"}
+              <Field label="Prioridad">
+                <Badge className={TASK_PRIORITY_BADGE[task.priority]}>
+                  {TASK_PRIORITY_LABELS[task.priority]}
+                </Badge>
               </Field>
-              <Field label="Inicio">
-                {project.startDate ? formatDate(project.startDate) : "—"}
-              </Field>
-              <Field label="Fin previsto">
-                {project.expectedEndDate ? formatDate(project.expectedEndDate) : "—"}
+              <Field label="Responsable">
+                {task.responsible ? (
+                  <Link
+                    href={`/users/${task.responsible.id}`}
+                    className="text-primary hover:underline"
+                  >
+                    {task.responsible.name}
+                  </Link>
+                ) : (
+                  "Sin asignar"
+                )}
               </Field>
               <Field label="Visible para el cliente">
-                {project.visibleToClient ? "Sí" : "No"}
+                {task.visibleToClient ? "Sí" : "No"}
+              </Field>
+              <Field label="Inicio">
+                {task.functionalStart ? formatDate(task.functionalStart) : "—"}
+              </Field>
+              <Field label="Fin">
+                {task.functionalEnd ? formatDate(task.functionalEnd) : "—"}
               </Field>
               <div className="sm:col-span-2">
                 <Field label="Descripción">
-                  {project.description ? (
-                    <span className="whitespace-pre-wrap">{project.description}</span>
+                  {task.description ? (
+                    <span className="whitespace-pre-wrap">{task.description}</span>
                   ) : (
                     "—"
                   )}
@@ -174,32 +181,27 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
               <CardTitle>Datos de grabación</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4 sm:grid-cols-2">
-              <Field label="Creado">{formatDateTime(project.createdAt)}</Field>
-              <Field label="Actualizado">{formatDateTime(project.updatedAt)}</Field>
-              <Field label="Creado por">{project.createdBy?.name ?? "—"}</Field>
-              <Field label="Actualizado por">{project.updatedBy?.name ?? "—"}</Field>
+              <Field label="Creada">{formatDateTime(task.createdAt)}</Field>
+              <Field label="Actualizada">{formatDateTime(task.updatedAt)}</Field>
+              <Field label="Creada por">{task.createdBy?.name ?? "—"}</Field>
+              <Field label="Actualizada por">{task.updatedBy?.name ?? "—"}</Field>
             </CardContent>
           </Card>
 
           <Card className={cn(accent, "md:col-span-2")}>
             <CardHeader>
-              <CardTitle>Tareas</CardTitle>
+              <CardTitle>Registros de tiempo</CardTitle>
             </CardHeader>
             <CardContent>
-              {project.tasks.length === 0 ? (
+              {task.timeEntries.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  Sin tareas vinculadas.
+                  Sin tiempos registrados.
                 </p>
               ) : (
                 <ul className="grid gap-1 text-sm">
-                  {project.tasks.map((task) => (
-                    <li key={task.id}>
-                      <Link
-                        href={`/tasks/${task.id}`}
-                        className="text-primary hover:underline"
-                      >
-                        {task.title}
-                      </Link>
+                  {task.timeEntries.map((entry) => (
+                    <li key={entry.id}>
+                      {formatDate(entry.workDate)} — {entry.durationMinutes} min
                     </li>
                   ))}
                 </ul>

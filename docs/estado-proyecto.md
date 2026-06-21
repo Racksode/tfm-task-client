@@ -2,7 +2,7 @@
 
 > **Documento vivo.** Punto único para retomar el trabajo desde cualquier equipo.
 > Se actualiza al cerrar cada sesión/PR (ver checklist al final).
-> Última actualización: 2026-06-21 (d).
+> Última actualización: 2026-06-21 (e).
 
 ## Cómo ponerse al día (equipo nuevo o nueva sesión)
 
@@ -17,13 +17,14 @@
 
 ## Estado actual
 
-- Versión: **1.3.1**.
+- Versión: **1.4.0**.
 - Documentación funcional/UX cerrada (`docs/10`–`docs/14`).
 - Base técnica: Next.js (App Router) + TypeScript + Prisma + PostgreSQL + Auth.js. UI con Tailwind + shadcn.
 - Acceso: login propio (`/login`), redirección por rol en `/`, `requireSession`/`requireStaff`/`requireAdmin` (`src/lib/auth-guards.ts`).
 - Módulo **Usuarios completo y pulido** (`/users`, `/users/[id]`, `/users/new`, `/users/[id]/edit`): listado con acciones por icono + doble-clic, detalle con pastillas, alta/edición con `useActionState` + flash, borrado con `AlertDialog` sin cascada, permisos.
 - Módulo **Client implementado** (`/clients`, `/clients/[id]`, `/clients/new`, `/clients/[id]/edit`): primer módulo de negocio, clonado de `users`. Permisos de sección de negocio con `can()` (`INTERNAL` opera, `ADMIN+` borra), auditoría `createdBy/updatedBy`, detalle con sub-listados 1→N (proyectos —ya enlazables— y usuarios vinculados).
-- Módulo **Project implementado** (`/projects`, `/projects/[id]`, `/projects/new`, `/projects/[id]/edit`): segundo módulo de negocio. Relación con `Client` (selector obligatorio), estado de 4 valores (`ACTIVE/PAUSED/COMPLETED/CANCELLED`), fechas, `visibleToClient`, tarifa y auditoría. Detalle con sub-listado 1→N de tareas (informativo, aún sin `/tasks`).
+- Módulo **Project implementado** (`/projects`, `/projects/[id]`, `/projects/new`, `/projects/[id]/edit`): segundo módulo de negocio. Relación con `Client` (selector obligatorio), estado de 4 valores (`ACTIVE/PAUSED/COMPLETED/CANCELLED`), fechas, `visibleToClient`, tarifa y auditoría. Detalle con sub-listado 1→N de tareas (ya enlazables).
+- Módulo **Task implementado** (`/tasks`, `/tasks/[id]`, `/tasks/new`, `/tasks/[id]/edit`): tercer módulo de negocio. Relación con `Project` (selector plano "Proyecto — Cliente") y `responsible` (usuario staff, opcional); `status` (5 valores) y `priority` (3), fechas, `visibleToClient` y auditoría. Detalle con sub-listado 1→N de registros de tiempo (informativo, aún sin `/times`).
 - `/dashboard` y `/portal` son placeholders ("en construcción").
 
 ## Decisiones / convenciones en vigor
@@ -40,15 +41,19 @@
 - **CI**: valida en PR (typecheck/lint/build/prisma); omite PRs solo-docs (`paths-ignore`).
 - **Prisma Client**: se regenera en `postinstall` (`prisma generate`). Evita el error "Unknown argument" por cliente desactualizado tras un cambio de schema. Si aun así aparece: regenerar y reiniciar el dev server.
 
-## Próximo paso: módulo Task
+## Próximo paso: registro de tiempos (TimeEntry)
 
-Clonar el patrón ya consolidado (`users` + `clients` + `projects`) para `/tasks`:
+Núcleo funcional del MVP: registrar tiempo de trabajo sobre **tareas**. A diferencia de los CRUD anteriores, introduce lógica propia (start/stop, cálculo de duración).
 
-- Rutas: `/tasks` (listado), `/tasks/[id]` (detalle con pastillas), `/tasks/new`, `/tasks/[id]/edit`.
-- **Permisos**: sección de negocio → `requireStaff` + `can(role, action, "tasks")` (INTERNAL opera; borrar solo `ADMIN+`). Añadir `tasks` al menú (`Nav`) y su acento en `src/lib/section-config.ts`.
-- `Task` pertenece a un `Project` (`projectId` obligatorio → selector) y tiene `responsible` (User opcional). Estados `TaskStatus`/`TaskPriority` (varios valores → sin toggle rápido, como en `projects`). En el detalle del proyecto, las tareas pasarán de informativas a enlazables.
-- Añadir auditoría `createdById/updatedById` a `Task` (migración), como en `Client`/`Project`.
-- Bump de versión a **1.4.0** (feat).
+- Modelo `TimeEntry` (ya existe): `taskId`, `userId`, `type` (`MANUAL`/`START_STOP`), `workDate`, `startedAt?`/`endedAt?`, `durationMinutes`, `description?`, tarifa/coste estimado.
+- **Registro manual**: formulario (tarea, fecha, duración o inicio/fin, descripción) → calcular `durationMinutes`.
+- **Start/stop**: iniciar un contador sobre una tarea y detenerlo (crea/cierra un `TimeEntry` tipo `START_STOP`).
+- **Permisos**: sección de negocio `times` → `requireStaff` + `can(role, action, "times")`. Cada usuario registra su propio tiempo; valorar si INTERNAL ve solo lo suyo.
+- Auditoría: el `userId` ya identifica al autor; valorar si hace falta `createdBy/updatedBy` adicional.
+- Decisiones a cerrar antes de implementar: alcance de start/stop (¿un timer activo por usuario?), cálculo de coste (usar tarifa de tarea/proyecto/cliente), y vista (¿bajo `/times` o integrado en la tarea?).
+- Bump de versión previsto a **1.5.0** (feat).
+
+> Nota de alcance (AGENTS.md): este punto cierra la cadena cliente→proyecto→tarea→**tiempo**. Conviene un plan específico por la lógica nueva (no es un CRUD-clon).
 
 ## Notas y dudas por resolver (del usuario)
 
