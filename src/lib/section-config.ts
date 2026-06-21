@@ -6,7 +6,7 @@
  */
 export const sectionAccentClass: Record<string, string> = {
   users: "border-l-primary",
-  // clients: "border-l-blue-500",
+  clients: "border-l-blue-500",
   // projects: "border-l-violet-500",
   // tasks: "border-l-amber-500",
 };

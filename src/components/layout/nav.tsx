@@ -1,7 +1,7 @@
 "use client";
 
 import { UserRole } from "@prisma/client";
-import { LayoutDashboard, Users, type LucideIcon } from "lucide-react";
+import { Building2, LayoutDashboard, Users, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -19,6 +19,9 @@ type NavItem = {
 // se añadirán a su bloque a medida que se implementen los módulos.
 const BLOCKS: NavItem[][] = [
   [{ href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, section: "dashboard" }],
+  [
+    { href: "/clients", label: "Clientes", icon: Building2, section: "clients" },
+  ],
   [{ href: "/users", label: "Usuarios", icon: Users, section: "users" }],
 ];
 
