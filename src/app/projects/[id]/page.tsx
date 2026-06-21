@@ -1,4 +1,4 @@
-import { ClientStatus } from "@prisma/client";
+import { ProjectStatus } from "@prisma/client";
 import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -20,9 +20,10 @@ import { prisma } from "@/lib/prisma";
 import { getSectionAccent } from "@/lib/section-config";
 import { cn } from "@/lib/utils";
 
-import { DeleteClientDialog } from "../delete-client-dialog";
+import { DeleteProjectDialog } from "../delete-project-dialog";
+import { PROJECT_STATUS_LABELS } from "../status";
 
-type ClientDetailPageProps = {
+type ProjectDetailPageProps = {
   params: Promise<{ id: string }>;
 };
 
@@ -32,10 +33,20 @@ const formatDateTime = (date: Date) =>
     timeStyle: "short",
   }).format(date);
 
+const formatDate = (date: Date) =>
+  new Intl.DateTimeFormat("es-ES", { dateStyle: "short" }).format(date);
+
 const currency = new Intl.NumberFormat("es-ES", {
   style: "currency",
   currency: "EUR",
 });
+
+const STATUS_BADGE: Record<ProjectStatus, string> = {
+  [ProjectStatus.ACTIVE]: "border-transparent bg-green-600 text-white",
+  [ProjectStatus.PAUSED]: "border-transparent bg-amber-500 text-white",
+  [ProjectStatus.COMPLETED]: "border-transparent bg-slate-600 text-white",
+  [ProjectStatus.CANCELLED]: "border-transparent bg-rose-600 text-white",
+};
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -48,64 +59,67 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-export default async function ClientDetailPage({ params }: ClientDetailPageProps) {
+export default async function ProjectDetailPage({ params }: ProjectDetailPageProps) {
   const session = await requireStaff();
   const role = session.user.role;
   const { id } = await params;
 
-  const client = await prisma.client.findUnique({
+  const project = await prisma.project.findUnique({
     where: { id },
     select: {
       id: true,
       name: true,
-      email: true,
-      phone: true,
-      company: true,
-      internalNotes: true,
+      description: true,
       status: true,
+      visibleToClient: true,
+      startDate: true,
+      expectedEndDate: true,
       baseRate: true,
       createdAt: true,
       updatedAt: true,
+      client: { select: { id: true, name: true } },
       createdBy: { select: { name: true } },
       updatedBy: { select: { name: true } },
-      projects: { select: { id: true, name: true }, orderBy: { name: "asc" } },
-      users: { select: { id: true, name: true }, orderBy: { name: "asc" } },
+      tasks: { select: { id: true, title: true }, orderBy: { createdAt: "desc" } },
     },
   });
 
-  if (!client) {
+  if (!project) {
     notFound();
   }
 
-  const accent = cn("border-l-4", getSectionAccent("clients"));
+  const accent = cn("border-l-4", getSectionAccent("projects"));
 
   return (
     <AppShell>
       <div className="grid gap-4 p-8">
         <PageHeader
-          title={`Cliente: ${client.name}`}
+          title={`Proyecto: ${project.name}`}
           actions={
             <>
-              <Link href="/clients" className={actionButtonClass("back")}>
+              <Link href="/projects" className={actionButtonClass("back")}>
                 <ArrowLeft className="size-4" />
                 Volver al listado
               </Link>
-              {can(role, "update", "clients") ? (
+              {can(role, "update", "projects") ? (
                 <Link
-                  href={`/clients/${client.id}/edit`}
+                  href={`/projects/${project.id}/edit`}
                   className={actionButtonClass("edit")}
                 >
                   <Pencil className="size-4" />
                   Editar
                 </Link>
               ) : null}
-              {can(role, "delete", "clients") ? (
-                <DeleteClientDialog clientId={client.id} clientName={client.name}>
+              {can(role, "delete", "projects") ? (
+                <DeleteProjectDialog
+                  projectId={project.id}
+                  projectName={project.name}
+                >
                   <button type="button" className={actionButtonClass("delete")}>
                     <Trash2 className="size-4" />
                     Eliminar
                   </button>
-                </DeleteClientDialog>
+                </DeleteProjectDialog>
               ) : null}
             </>
           }
@@ -117,26 +131,36 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
               <CardTitle>Información principal</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4 sm:grid-cols-2">
-              <Field label="Nombre">{client.name}</Field>
-              <Field label="Email">{client.email ?? "—"}</Field>
-              <Field label="Teléfono">{client.phone ?? "—"}</Field>
-              <Field label="Empresa">{client.company ?? "—"}</Field>
+              <Field label="Nombre">{project.name}</Field>
+              <Field label="Cliente">
+                <Link
+                  href={`/clients/${project.client.id}`}
+                  className="text-primary hover:underline"
+                >
+                  {project.client.name}
+                </Link>
+              </Field>
               <Field label="Estado">
-                {client.status === ClientStatus.ACTIVE ? (
-                  <Badge className="border-transparent bg-green-600 text-white">
-                    Activo
-                  </Badge>
-                ) : (
-                  <Badge variant="outline">Inactivo</Badge>
-                )}
+                <Badge className={STATUS_BADGE[project.status]}>
+                  {PROJECT_STATUS_LABELS[project.status]}
+                </Badge>
               </Field>
               <Field label="Tarifa base">
-                {client.baseRate ? currency.format(Number(client.baseRate)) : "—"}
+                {project.baseRate ? currency.format(Number(project.baseRate)) : "—"}
+              </Field>
+              <Field label="Inicio">
+                {project.startDate ? formatDate(project.startDate) : "—"}
+              </Field>
+              <Field label="Fin previsto">
+                {project.expectedEndDate ? formatDate(project.expectedEndDate) : "—"}
+              </Field>
+              <Field label="Visible para el cliente">
+                {project.visibleToClient ? "Sí" : "No"}
               </Field>
               <div className="sm:col-span-2">
-                <Field label="Notas internas">
-                  {client.internalNotes ? (
-                    <span className="whitespace-pre-wrap">{client.internalNotes}</span>
+                <Field label="Descripción">
+                  {project.description ? (
+                    <span className="whitespace-pre-wrap">{project.description}</span>
                   ) : (
                     "—"
                   )}
@@ -150,59 +174,26 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
               <CardTitle>Datos de grabación</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4 sm:grid-cols-2">
-              <Field label="Creado">{formatDateTime(client.createdAt)}</Field>
-              <Field label="Actualizado">{formatDateTime(client.updatedAt)}</Field>
-              <Field label="Creado por">{client.createdBy?.name ?? "—"}</Field>
-              <Field label="Actualizado por">{client.updatedBy?.name ?? "—"}</Field>
+              <Field label="Creado">{formatDateTime(project.createdAt)}</Field>
+              <Field label="Actualizado">{formatDateTime(project.updatedAt)}</Field>
+              <Field label="Creado por">{project.createdBy?.name ?? "—"}</Field>
+              <Field label="Actualizado por">{project.updatedBy?.name ?? "—"}</Field>
             </CardContent>
           </Card>
 
-          <Card className={accent}>
+          <Card className={cn(accent, "md:col-span-2")}>
             <CardHeader>
-              <CardTitle>Proyectos</CardTitle>
+              <CardTitle>Tareas</CardTitle>
             </CardHeader>
             <CardContent>
-              {client.projects.length === 0 ? (
+              {project.tasks.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  Sin proyectos vinculados.
+                  Sin tareas vinculadas.
                 </p>
               ) : (
                 <ul className="grid gap-1 text-sm">
-                  {client.projects.map((project) => (
-                    <li key={project.id}>
-                      <Link
-                        href={`/projects/${project.id}`}
-                        className="text-primary hover:underline"
-                      >
-                        {project.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card className={accent}>
-            <CardHeader>
-              <CardTitle>Usuarios</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {client.users.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  Sin usuarios vinculados.
-                </p>
-              ) : (
-                <ul className="grid gap-1 text-sm">
-                  {client.users.map((user) => (
-                    <li key={user.id}>
-                      <Link
-                        href={`/users/${user.id}`}
-                        className="text-primary hover:underline"
-                      >
-                        {user.name}
-                      </Link>
-                    </li>
+                  {project.tasks.map((task) => (
+                    <li key={task.id}>{task.title}</li>
                   ))}
                 </ul>
               )}

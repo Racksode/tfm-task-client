@@ -10,24 +10,24 @@ Desarrollar una aplicación web que permita gestionar clientes, proyectos y tare
 
 El estado vivo y el "handoff" para retomar desde cualquier equipo están en [docs/estado-proyecto.md](docs/estado-proyecto.md).
 
-El proyecto tiene la documentación funcional/UX cerrada, el rework de acceso y usuarios completado (login propio con redirección por rol, roles `SUPERADMIN/ADMIN/INTERNAL/CLIENT`, auditoría y mensajes) y el **primer módulo de negocio implementado**: Client (`/clients`), clonando el patrón CRUD de usuarios.
+El proyecto tiene la documentación funcional/UX cerrada, el rework de acceso y usuarios completado (login propio con redirección por rol, roles `SUPERADMIN/ADMIN/INTERNAL/CLIENT`, auditoría y mensajes) y **dos módulos de negocio implementados**: Client (`/clients`) y Project (`/projects`), clonando el patrón CRUD de usuarios.
 
 ```text
 Fase actual: Fase 4 - Implementación del MVP
-Punto actual: módulo Client (/clients) implementado (CRUD, permisos de negocio con can(), auditoría, sub-listados)
-Versión: 1.2.1
+Punto actual: módulos Client (/clients) y Project (/projects) implementados (CRUD, permisos de negocio con can(), auditoría, sub-listados)
+Versión: 1.3.0
 ```
 
 Último hito completado:
 
 ```text
-Módulo Client: CRUD completo clonando el patrón de usuarios, con permisos de sección de negocio (INTERNAL opera, ADMIN borra) y auditoría.
+Módulo Project: CRUD completo clonando el patrón, con relación a Client (selector), estado de 4 valores, fechas y auditoría.
 ```
 
 Próximo paso:
 
 ```text
-Implementar el siguiente módulo de negocio: Project (/projects), clonando el patrón.
+Implementar el siguiente módulo de negocio: Task (/tasks), clonando el patrón.
 ```
 
 Referencia de planificación:
