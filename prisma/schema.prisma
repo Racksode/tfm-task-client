@@ -99,13 +99,15 @@ model User {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
-  assignedTasks Task[]      @relation("TaskResponsible")
-  timeEntries   TimeEntry[]
-  reports       Report[]    @relation("ReportReviewer")
-  aiUsages      AiUsage[]
-  auditLogs     AuditLog[]
-  createdUsers  User[]      @relation("UserCreatedBy")
-  updatedUsers  User[]      @relation("UserUpdatedBy")
+  assignedTasks  Task[]      @relation("TaskResponsible")
+  timeEntries    TimeEntry[]
+  reports        Report[]    @relation("ReportReviewer")
+  aiUsages       AiUsage[]
+  auditLogs      AuditLog[]
+  createdUsers   User[]      @relation("UserCreatedBy")
+  updatedUsers   User[]      @relation("UserUpdatedBy")
+  createdClients Client[]    @relation("ClientCreatedBy")
+  updatedClients Client[]    @relation("ClientUpdatedBy")
 }
 
 model Client {
@@ -117,6 +119,10 @@ model Client {
   internalNotes String?
   status        ClientStatus @default(ACTIVE)
   baseRate      Decimal?     @db.Decimal(10, 2)
+  createdById   String?
+  createdBy     User?        @relation("ClientCreatedBy", fields: [createdById], references: [id])
+  updatedById   String?
+  updatedBy     User?        @relation("ClientUpdatedBy", fields: [updatedById], references: [id])
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 
