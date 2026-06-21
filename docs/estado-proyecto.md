@@ -2,7 +2,7 @@
 
 > **Documento vivo.** Punto único para retomar el trabajo desde cualquier equipo.
 > Se actualiza al cerrar cada sesión/PR (ver checklist al final).
-> Última actualización: 2026-06-21 (c).
+> Última actualización: 2026-06-21 (d).
 
 ## Cómo ponerse al día (equipo nuevo o nueva sesión)
 
@@ -17,7 +17,7 @@
 
 ## Estado actual
 
-- Versión: **1.3.0**.
+- Versión: **1.3.1**.
 - Documentación funcional/UX cerrada (`docs/10`–`docs/14`).
 - Base técnica: Next.js (App Router) + TypeScript + Prisma + PostgreSQL + Auth.js. UI con Tailwind + shadcn.
 - Acceso: login propio (`/login`), redirección por rol en `/`, `requireSession`/`requireStaff`/`requireAdmin` (`src/lib/auth-guards.ts`).
@@ -38,6 +38,7 @@
 - **Commits**: Conventional Commits (tipo en inglés, descripción en español). Cada cambio: rama propia + PR; descripción de PR en Markdown.
 - **Versionado** (`README` > "Convención de versionado"): fuente en `src/lib/config.ts` (`APP_VERSION`). Revisión=`fix`/ajustes, subversión=`feat`, versión=hitos.
 - **CI**: valida en PR (typecheck/lint/build/prisma); omite PRs solo-docs (`paths-ignore`).
+- **Prisma Client**: se regenera en `postinstall` (`prisma generate`). Evita el error "Unknown argument" por cliente desactualizado tras un cambio de schema. Si aun así aparece: regenerar y reiniciar el dev server.
 
 ## Próximo paso: módulo Task
 
