@@ -37,7 +37,6 @@ export default async function EditClientPage({ params }: EditClientPageProps) {
       company: true,
       internalNotes: true,
       status: true,
-      baseRate: true,
     },
   });
 
@@ -45,10 +44,7 @@ export default async function EditClientPage({ params }: EditClientPageProps) {
     notFound();
   }
 
-  const defaultValues = {
-    ...client,
-    baseRate: client.baseRate ? client.baseRate.toString() : null,
-  };
+  const defaultValues = { ...client };
 
   return (
     <AppShell>

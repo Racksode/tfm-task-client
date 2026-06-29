@@ -4,6 +4,7 @@ import { UserRole } from "@prisma/client";
 import {
   Building2,
   Clock,
+  Coins,
   FolderKanban,
   LayoutDashboard,
   ListChecks,
@@ -33,7 +34,10 @@ const BLOCKS: NavItem[][] = [
     { href: "/tasks", label: "Tareas", icon: ListChecks, section: "tasks" },
     { href: "/times", label: "Tiempos", icon: Clock, section: "times" },
   ],
-  [{ href: "/users", label: "Usuarios", icon: Users, section: "users" }],
+  [
+    { href: "/users", label: "Usuarios", icon: Users, section: "users" },
+    { href: "/rates", label: "Tarifas", icon: Coins, section: "rates" },
+  ],
 ];
 
 export function Nav({ role }: { role: UserRole }) {

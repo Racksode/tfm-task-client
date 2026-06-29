@@ -1,14 +1,17 @@
-import { ProjectStatus } from "@prisma/client";
 import { Eye, Pencil, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
+import { ClickableRow } from "@/components/data/clickable-row";
+import {
+  actionButtonClass,
+  iconActionClass,
+} from "@/components/data/icon-action";
 import { AlertBanner } from "@/components/feedback/alert-banner";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { ClickableRow } from "@/components/data/clickable-row";
-import { actionButtonClass, iconActionClass } from "@/components/data/icon-action";
 import {
   Table,
   TableBody,
@@ -23,39 +26,39 @@ import { readFlash } from "@/lib/flash";
 import { can } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 
-import { DeleteProjectDialog } from "./delete-project-dialog";
-import { PROJECT_STATUS_LABELS } from "./status";
+import { DeleteRateDialog } from "./delete-rate-dialog";
+import {
+  RATE_SCOPE_BADGE,
+  RATE_SCOPE_LABELS,
+  RATE_STATUS_BADGE,
+  RATE_STATUS_LABELS,
+  formatHourlyRate,
+} from "./status";
 
-const formatDate = (date: Date) =>
-  new Intl.DateTimeFormat("es-ES", { dateStyle: "short" }).format(date);
-
-const STATUS_BADGE: Record<ProjectStatus, string> = {
-  [ProjectStatus.ACTIVE]: "border-transparent bg-green-600 text-white",
-  [ProjectStatus.PAUSED]: "border-transparent bg-amber-500 text-white",
-  [ProjectStatus.COMPLETED]: "border-transparent bg-slate-600 text-white",
-  [ProjectStatus.CANCELLED]: "border-transparent bg-rose-600 text-white",
-};
-
-const StatusBadge = ({ status }: { status: ProjectStatus }) => (
-  <Badge className={STATUS_BADGE[status]}>{PROJECT_STATUS_LABELS[status]}</Badge>
-);
-
-export default async function ProjectsPage() {
+export default async function RatesPage() {
   const session = await requireStaff();
   const role = session.user.role;
-  const canUpdate = can(role, "update", "projects");
-  const canDelete = can(role, "delete", "projects");
 
+  // Las tarifas son configuración de negocio: solo ADMIN+.
+  if (!can(role, "view", "rates")) {
+    redirect("/dashboard");
+  }
+
+  const canUpdate = can(role, "update", "rates");
+  const canDelete = can(role, "delete", "rates");
   const flash = await readFlash();
 
-  const projects = await prisma.project.findMany({
-    orderBy: { createdAt: "desc" },
+  const rates = await prisma.rate.findMany({
+    orderBy: [{ status: "asc" }, { name: "asc" }],
     select: {
       id: true,
       name: true,
+      hourlyAmount: true,
+      currency: true,
+      scope: true,
       status: true,
-      createdAt: true,
       client: { select: { name: true } },
+      project: { select: { name: true } },
     },
   });
 
@@ -63,12 +66,12 @@ export default async function ProjectsPage() {
     <AppShell>
       <div className="grid gap-4 p-8">
         <PageHeader
-          title="Proyectos"
+          title="Tarifas"
           actions={
-            can(role, "create", "projects") ? (
-              <Link href="/projects/new" className={actionButtonClass("create")}>
+            can(role, "create", "rates") ? (
+              <Link href="/rates/new" className={actionButtonClass("create")}>
                 <Plus className="size-4" />
-                Nuevo proyecto
+                Nueva tarifa
               </Link>
             ) : null
           }
@@ -89,33 +92,38 @@ export default async function ProjectsPage() {
             <TableHeader>
               <TableRow className="bg-muted/50 hover:bg-muted/50">
                 <TableHead>Nombre</TableHead>
-                <TableHead>Cliente</TableHead>
+                <TableHead>Ámbito</TableHead>
+                <TableHead>Destino</TableHead>
+                <TableHead>Importe</TableHead>
                 <TableHead>Estado</TableHead>
-                <TableHead>Creado</TableHead>
                 <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {projects.length === 0 ? (
+              {rates.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center text-muted-foreground">
-                    No hay proyectos registrados. Crea el primero para empezar.
+                  <TableCell
+                    colSpan={6}
+                    className="text-center text-muted-foreground"
+                  >
+                    No hay tarifas. Crea la primera para empezar.
                   </TableCell>
                 </TableRow>
               ) : (
-                projects.map((project) => {
+                rates.map((rate) => {
                   const rowHref = canUpdate
-                    ? `/projects/${project.id}/edit`
-                    : `/projects/${project.id}`;
+                    ? `/rates/${rate.id}/edit`
+                    : `/rates/${rate.id}`;
+                  const target = rate.client?.name ?? rate.project?.name ?? "—";
 
                   return (
                     <ClickableRow
-                      key={project.id}
+                      key={rate.id}
                       href={rowHref}
                       actions={
                         <>
                           <Link
-                            href={`/projects/${project.id}`}
+                            href={`/rates/${rate.id}`}
                             className={iconActionClass("view")}
                             aria-label="Ver"
                             title="Ver detalles"
@@ -125,7 +133,7 @@ export default async function ProjectsPage() {
 
                           {canUpdate ? (
                             <Link
-                              href={`/projects/${project.id}/edit`}
+                              href={`/rates/${rate.id}/edit`}
                               className={iconActionClass("edit")}
                               aria-label="Editar"
                               title="Editar"
@@ -135,10 +143,7 @@ export default async function ProjectsPage() {
                           ) : null}
 
                           {canDelete ? (
-                            <DeleteProjectDialog
-                              projectId={project.id}
-                              projectName={project.name}
-                            >
+                            <DeleteRateDialog rateId={rate.id} label={rate.name}>
                               <button
                                 type="button"
                                 className={iconActionClass("delete")}
@@ -147,17 +152,26 @@ export default async function ProjectsPage() {
                               >
                                 <Trash2 className="size-4" />
                               </button>
-                            </DeleteProjectDialog>
+                            </DeleteRateDialog>
                           ) : null}
                         </>
                       }
                     >
-                      <TableCell className="font-medium">{project.name}</TableCell>
-                      <TableCell>{project.client.name}</TableCell>
+                      <TableCell className="font-medium">{rate.name}</TableCell>
                       <TableCell>
-                        <StatusBadge status={project.status} />
+                        <Badge className={RATE_SCOPE_BADGE[rate.scope]}>
+                          {RATE_SCOPE_LABELS[rate.scope]}
+                        </Badge>
                       </TableCell>
-                      <TableCell>{formatDate(project.createdAt)}</TableCell>
+                      <TableCell>{target}</TableCell>
+                      <TableCell>
+                        {formatHourlyRate(Number(rate.hourlyAmount), rate.currency)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={RATE_STATUS_BADGE[rate.status]}>
+                          {RATE_STATUS_LABELS[rate.status]}
+                        </Badge>
+                      </TableCell>
                     </ClickableRow>
                   );
                 })

@@ -16,7 +16,6 @@ export type ProjectFormValues = {
   visibleToClient: boolean;
   startDate: string;
   expectedEndDate: string;
-  baseRate: string;
 };
 
 export type ProjectFormState = {
@@ -38,7 +37,6 @@ const extractValues = (formData: FormData): ProjectFormValues => ({
   visibleToClient: formData.get("visibleToClient") != null,
   startDate: getString(formData, "startDate"),
   expectedEndDate: getString(formData, "expectedEndDate"),
-  baseRate: getString(formData, "baseRate"),
 });
 
 const invalid = (values: ProjectFormValues, error: string): ProjectFormState => ({
@@ -68,7 +66,6 @@ type ValidatedInput = {
   visibleToClient: boolean;
   startDate: Date | null;
   expectedEndDate: Date | null;
-  baseRate: number | null;
 };
 
 const validate = async (
@@ -117,15 +114,6 @@ const validate = async (
     };
   }
 
-  let baseRate: number | null = null;
-  if (values.baseRate) {
-    const parsed = Number(values.baseRate.replace(",", "."));
-    if (!Number.isFinite(parsed) || parsed < 0) {
-      return { ok: false, error: "La tarifa base debe ser un número positivo." };
-    }
-    baseRate = parsed;
-  }
-
   return {
     ok: true,
     data: {
@@ -136,7 +124,6 @@ const validate = async (
       visibleToClient: values.visibleToClient,
       startDate,
       expectedEndDate,
-      baseRate,
     },
   };
 };

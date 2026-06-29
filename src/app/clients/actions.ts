@@ -17,7 +17,6 @@ export type ClientFormValues = {
   company: string;
   internalNotes: string;
   status: string;
-  baseRate: string;
 };
 
 export type ClientFormState = {
@@ -38,7 +37,6 @@ const extractValues = (formData: FormData): ClientFormValues => ({
   company: getString(formData, "company"),
   internalNotes: getString(formData, "internalNotes"),
   status: getString(formData, "status"),
-  baseRate: getString(formData, "baseRate"),
 });
 
 const invalid = (values: ClientFormValues, error: string): ClientFormState => ({
@@ -57,7 +55,6 @@ type ValidatedInput = {
   company: string | null;
   internalNotes: string | null;
   status: ClientStatus;
-  baseRate: number | null;
 };
 
 const validate = (
@@ -80,15 +77,6 @@ const validate = (
     return { ok: false, error: "El estado seleccionado no es válido." };
   }
 
-  let baseRate: number | null = null;
-  if (values.baseRate) {
-    const parsed = Number(values.baseRate.replace(",", "."));
-    if (!Number.isFinite(parsed) || parsed < 0) {
-      return { ok: false, error: "La tarifa base debe ser un número positivo." };
-    }
-    baseRate = parsed;
-  }
-
   return {
     ok: true,
     data: {
@@ -98,7 +86,6 @@ const validate = (
       company: values.company || null,
       internalNotes: values.internalNotes || null,
       status,
-      baseRate,
     },
   };
 };

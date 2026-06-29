@@ -27,7 +27,6 @@ type ProjectFormProps = {
     visibleToClient?: boolean;
     startDate?: string | null;
     expectedEndDate?: string | null;
-    baseRate?: string | null;
   };
 };
 
@@ -118,18 +117,6 @@ export function ProjectForm({
                 </option>
               ))}
             </Select>
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="baseRate">Tarifa base (€/h)</Label>
-            <Input
-              id="baseRate"
-              name="baseRate"
-              type="number"
-              min="0"
-              step="0.01"
-              defaultValue={value("baseRate", base.baseRate ?? "")}
-            />
           </div>
 
           <div className="grid gap-2">
