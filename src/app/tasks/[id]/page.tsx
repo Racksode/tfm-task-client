@@ -15,7 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { requireStaff } from "@/lib/auth-guards";
-import { can } from "@/lib/permissions";
+import { can, isAdmin } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { getSectionAccent } from "@/lib/section-config";
 import { cn } from "@/lib/utils";
@@ -79,9 +79,14 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
       createdBy: { select: { name: true } },
       updatedBy: { select: { name: true } },
       timeEntries: {
-        // El cronómetro en curso (START_STOP sin cerrar) se ve en el indicador
-        // global, no en el listado de registros de la tarea.
-        where: { NOT: { type: TimeEntryType.START_STOP, endedAt: null } },
+        where: {
+          // El cronómetro en curso (START_STOP sin cerrar) se ve en el indicador
+          // global, no en el listado de registros de la tarea.
+          NOT: { type: TimeEntryType.START_STOP, endedAt: null },
+          // Un INTERNAL solo ve sus propios registros (coherente con /times y el
+          // detalle de tiempo); ADMIN+ ven los de cualquier usuario.
+          ...(isAdmin(role) ? {} : { userId: session.user.id }),
+        },
         select: { id: true, workDate: true, durationMinutes: true },
         orderBy: { workDate: "desc" },
       },
