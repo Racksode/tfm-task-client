@@ -312,19 +312,19 @@ const lockUserTimer = (tx: Prisma.TransactionClient, userId: string) =>
   // falla al deserializar esa columna; $executeRaw solo ejecuta, sin deserializar.
   tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${userId}))`;
 
-/** Detiene (cierra) el cronómetro en curso del usuario, si lo hay. */
-const stopActiveTimer = async (
+/** Cronómetro en curso del usuario dentro de la transacción (o null). */
+const findActiveTimer = (tx: Prisma.TransactionClient, userId: string) =>
+  tx.timeEntry.findFirst({
+    where: { userId, type: TimeEntryType.START_STOP, endedAt: null },
+    select: { id: true, taskId: true, startedAt: true },
+  });
+
+/** Cierra un cronómetro activo y devuelve los minutos registrados. */
+const closeTimer = async (
   tx: Prisma.TransactionClient,
-  userId: string,
+  active: { id: string; startedAt: Date },
   now: Date,
 ) => {
-  const active = await tx.timeEntry.findFirst({
-    where: { userId, type: TimeEntryType.START_STOP, endedAt: null },
-    select: { id: true, startedAt: true },
-  });
-  if (!active?.startedAt) {
-    return null;
-  }
   const minutes = elapsedMinutes(active.startedAt, now);
   await tx.timeEntry.update({
     where: { id: active.id },
@@ -333,7 +333,10 @@ const stopActiveTimer = async (
   return minutes;
 };
 
-/** Inicia un cronómetro sobre una tarea. Si ya había uno en curso, lo cierra antes. */
+/**
+ * Inicia un cronómetro sobre una tarea. Si ya hay uno en otra tarea, lo cierra
+ * antes; si ya hay uno en esta misma tarea, no hace nada (idempotente).
+ */
 export const startTimer = async (formData: FormData) => {
   const session = await requireStaff();
 
@@ -359,11 +362,24 @@ export const startTimer = async (formData: FormData) => {
 
   const now = new Date();
 
-  // Cerrar el anterior y crear el nuevo en una transacción con lock por usuario:
-  // así dos peticiones concurrentes no pueden dejar dos cronómetros activos.
+  // Todo dentro de una transacción con lock por usuario, para que dos peticiones
+  // concurrentes no dejen dos cronómetros activos.
   await prisma.$transaction(async (tx) => {
     await lockUserTimer(tx, session.user.id);
-    await stopActiveTimer(tx, session.user.id, now);
+
+    const active = await findActiveTimer(tx, session.user.id);
+
+    // Idempotente: si ya hay un cronómetro en ESTA tarea, no hacemos nada. Evita
+    // que un doble clic cierre el recién creado y deje un registro espurio de 1 min.
+    if (active?.taskId === task.id) {
+      return;
+    }
+
+    // Si había uno en OTRA tarea, lo cerramos antes de iniciar el nuevo.
+    if (active?.startedAt) {
+      await closeTimer(tx, { id: active.id, startedAt: active.startedAt }, now);
+    }
+
     await tx.timeEntry.create({
       data: {
         taskId: task.id,
@@ -385,9 +401,14 @@ export const startTimer = async (formData: FormData) => {
 export const stopTimer = async () => {
   const session = await requireStaff();
 
+  const now = new Date();
   const minutes = await prisma.$transaction(async (tx) => {
     await lockUserTimer(tx, session.user.id);
-    return stopActiveTimer(tx, session.user.id, new Date());
+    const active = await findActiveTimer(tx, session.user.id);
+    if (!active?.startedAt) {
+      return null;
+    }
+    return closeTimer(tx, { id: active.id, startedAt: active.startedAt }, now);
   });
   if (minutes === null) {
     await setFlash("error", "No tienes ningún cronómetro en curso.");
