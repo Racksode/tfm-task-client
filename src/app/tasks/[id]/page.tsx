@@ -1,4 +1,4 @@
-import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Clock, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
@@ -18,6 +18,8 @@ import { can } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { getSectionAccent } from "@/lib/section-config";
 import { cn } from "@/lib/utils";
+
+import { formatDuration } from "@/app/times/status";
 
 import { DeleteTaskDialog } from "../delete-task-dialog";
 import {
@@ -97,6 +99,15 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
                 <ArrowLeft className="size-4" />
                 Volver al listado
               </Link>
+              {can(role, "create", "times") ? (
+                <Link
+                  href={`/times/new?taskId=${task.id}`}
+                  className={actionButtonClass("create")}
+                >
+                  <Clock className="size-4" />
+                  Registrar tiempo
+                </Link>
+              ) : null}
               {can(role, "update", "tasks") ? (
                 <Link
                   href={`/tasks/${task.id}/edit`}
@@ -201,7 +212,13 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
                 <ul className="grid gap-1 text-sm">
                   {task.timeEntries.map((entry) => (
                     <li key={entry.id}>
-                      {formatDate(entry.workDate)} — {entry.durationMinutes} min
+                      <Link
+                        href={`/times/${entry.id}`}
+                        className="text-primary hover:underline"
+                      >
+                        {formatDate(entry.workDate)} —{" "}
+                        {formatDuration(entry.durationMinutes)}
+                      </Link>
                     </li>
                   ))}
                 </ul>

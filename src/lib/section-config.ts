@@ -9,6 +9,7 @@ export const sectionAccentClass: Record<string, string> = {
   clients: "border-l-blue-500",
   projects: "border-l-violet-500",
   tasks: "border-l-amber-500",
+  times: "border-l-emerald-500",
 };
 
 export function getSectionAccent(section: string): string {
