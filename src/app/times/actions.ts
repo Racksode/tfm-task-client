@@ -1,6 +1,6 @@
 "use server";
 
-import { TimeEntryType } from "@prisma/client";
+import { Prisma, TimeEntryType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -302,9 +302,23 @@ const startOfToday = () => {
 const elapsedMinutes = (from: Date, to: Date) =>
   Math.max(1, Math.round((to.getTime() - from.getTime()) / 60000));
 
+/**
+ * Lock por usuario dentro de la transacción: serializa inicios/paradas
+ * concurrentes (doble clic, dos pestañas) para que nunca queden dos cronómetros
+ * activos a la vez. Se libera al cerrar la transacción.
+ */
+const lockUserTimer = (tx: Prisma.TransactionClient, userId: string) =>
+  // $executeRaw, no $queryRaw: pg_advisory_xact_lock devuelve `void` y $queryRaw
+  // falla al deserializar esa columna; $executeRaw solo ejecuta, sin deserializar.
+  tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${userId}))`;
+
 /** Detiene (cierra) el cronómetro en curso del usuario, si lo hay. */
-const stopActiveTimer = async (userId: string, now: Date) => {
-  const active = await prisma.timeEntry.findFirst({
+const stopActiveTimer = async (
+  tx: Prisma.TransactionClient,
+  userId: string,
+  now: Date,
+) => {
+  const active = await tx.timeEntry.findFirst({
     where: { userId, type: TimeEntryType.START_STOP, endedAt: null },
     select: { id: true, startedAt: true },
   });
@@ -312,7 +326,7 @@ const stopActiveTimer = async (userId: string, now: Date) => {
     return null;
   }
   const minutes = elapsedMinutes(active.startedAt, now);
-  await prisma.timeEntry.update({
+  await tx.timeEntry.update({
     where: { id: active.id },
     data: { endedAt: now, durationMinutes: minutes },
   });
@@ -345,19 +359,22 @@ export const startTimer = async (formData: FormData) => {
 
   const now = new Date();
 
-  // Un solo cronómetro activo por usuario: cierra el anterior antes de empezar.
-  await stopActiveTimer(session.user.id, now);
-
-  await prisma.timeEntry.create({
-    data: {
-      taskId: task.id,
-      userId: session.user.id,
-      type: TimeEntryType.START_STOP,
-      workDate: startOfToday(),
-      startedAt: now,
-      endedAt: null,
-      durationMinutes: 0,
-    },
+  // Cerrar el anterior y crear el nuevo en una transacción con lock por usuario:
+  // así dos peticiones concurrentes no pueden dejar dos cronómetros activos.
+  await prisma.$transaction(async (tx) => {
+    await lockUserTimer(tx, session.user.id);
+    await stopActiveTimer(tx, session.user.id, now);
+    await tx.timeEntry.create({
+      data: {
+        taskId: task.id,
+        userId: session.user.id,
+        type: TimeEntryType.START_STOP,
+        workDate: startOfToday(),
+        startedAt: now,
+        endedAt: null,
+        durationMinutes: 0,
+      },
+    });
   });
 
   revalidatePath("/", "layout");
@@ -368,7 +385,10 @@ export const startTimer = async (formData: FormData) => {
 export const stopTimer = async () => {
   const session = await requireStaff();
 
-  const minutes = await stopActiveTimer(session.user.id, new Date());
+  const minutes = await prisma.$transaction(async (tx) => {
+    await lockUserTimer(tx, session.user.id);
+    return stopActiveTimer(tx, session.user.id, new Date());
+  });
   if (minutes === null) {
     await setFlash("error", "No tienes ningún cronómetro en curso.");
     redirect("/times");
