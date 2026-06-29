@@ -1,3 +1,4 @@
+import { TimeEntryType } from "@prisma/client";
 import { Eye, Pencil, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 
@@ -38,8 +39,13 @@ export default async function TimesPage() {
   const flash = await readFlash();
 
   // INTERNAL ve solo sus propios registros; ADMIN+ ven los de todos.
+  // Se excluye el cronómetro en curso (START_STOP sin cerrar): vive en el
+  // indicador global hasta que se detiene y pasa a ser un registro normal.
   const entries = await prisma.timeEntry.findMany({
-    where: seesAll ? undefined : { userId: session.user.id },
+    where: {
+      ...(seesAll ? {} : { userId: session.user.id }),
+      NOT: { type: TimeEntryType.START_STOP, endedAt: null },
+    },
     orderBy: [{ workDate: "desc" }, { createdAt: "desc" }],
     select: {
       id: true,

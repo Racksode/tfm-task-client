@@ -1,4 +1,5 @@
-import { ArrowLeft, Clock, Pencil, Trash2 } from "lucide-react";
+import { TimeEntryType } from "@prisma/client";
+import { ArrowLeft, Clock, Pencil, Play, Square, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
@@ -19,6 +20,8 @@ import { prisma } from "@/lib/prisma";
 import { getSectionAccent } from "@/lib/section-config";
 import { cn } from "@/lib/utils";
 
+import { startTimer, stopTimer } from "@/app/times/actions";
+import { getActiveTimer } from "@/app/times/active-timer";
 import { formatDuration } from "@/app/times/status";
 
 import { DeleteTaskDialog } from "../delete-task-dialog";
@@ -76,6 +79,9 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
       createdBy: { select: { name: true } },
       updatedBy: { select: { name: true } },
       timeEntries: {
+        // El cronómetro en curso (START_STOP sin cerrar) se ve en el indicador
+        // global, no en el listado de registros de la tarea.
+        where: { NOT: { type: TimeEntryType.START_STOP, endedAt: null } },
         select: { id: true, workDate: true, durationMinutes: true },
         orderBy: { workDate: "desc" },
       },
@@ -85,6 +91,9 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
   if (!task) {
     notFound();
   }
+
+  const activeTimer = await getActiveTimer(session.user.id);
+  const isRunningThisTask = activeTimer?.taskId === task.id;
 
   const accent = cn("border-l-4", getSectionAccent("tasks"));
 
@@ -99,6 +108,30 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
                 <ArrowLeft className="size-4" />
                 Volver al listado
               </Link>
+              {can(role, "create", "times") ? (
+                isRunningThisTask ? (
+                  <form action={stopTimer}>
+                    <button
+                      type="submit"
+                      className={actionButtonClass("deactivate")}
+                    >
+                      <Square className="size-4" />
+                      Detener cronómetro
+                    </button>
+                  </form>
+                ) : (
+                  <form action={startTimer}>
+                    <input type="hidden" name="taskId" value={task.id} />
+                    <button
+                      type="submit"
+                      className={actionButtonClass("activate")}
+                    >
+                      <Play className="size-4" />
+                      Iniciar cronómetro
+                    </button>
+                  </form>
+                )
+              ) : null}
               {can(role, "create", "times") ? (
                 <Link
                   href={`/times/new?taskId=${task.id}`}

@@ -1,12 +1,15 @@
 "use server";
 
 import { TimeEntryType } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireStaff } from "@/lib/auth-guards";
 import { setFlash } from "@/lib/flash";
 import { can, isAdmin } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
+
+import { formatDuration } from "./status";
 
 export type TimeFormValues = {
   taskId: string;
@@ -286,5 +289,95 @@ export const deleteTimeEntry = async (formData: FormData) => {
 
   await prisma.timeEntry.delete({ where: { id: timeEntryId } });
   await setFlash("success", "Registro de tiempo eliminado correctamente.");
+  redirect("/times");
+};
+
+/** Fecha local a medianoche (el «día de trabajo» del registro). */
+const startOfToday = () => {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+};
+
+/** Minutos transcurridos entre dos instantes (mínimo 1, para no guardar 0). */
+const elapsedMinutes = (from: Date, to: Date) =>
+  Math.max(1, Math.round((to.getTime() - from.getTime()) / 60000));
+
+/** Detiene (cierra) el cronómetro en curso del usuario, si lo hay. */
+const stopActiveTimer = async (userId: string, now: Date) => {
+  const active = await prisma.timeEntry.findFirst({
+    where: { userId, type: TimeEntryType.START_STOP, endedAt: null },
+    select: { id: true, startedAt: true },
+  });
+  if (!active?.startedAt) {
+    return null;
+  }
+  const minutes = elapsedMinutes(active.startedAt, now);
+  await prisma.timeEntry.update({
+    where: { id: active.id },
+    data: { endedAt: now, durationMinutes: minutes },
+  });
+  return minutes;
+};
+
+/** Inicia un cronómetro sobre una tarea. Si ya había uno en curso, lo cierra antes. */
+export const startTimer = async (formData: FormData) => {
+  const session = await requireStaff();
+
+  if (!can(session.user.role, "create", "times")) {
+    await setFlash("error", "No tienes permisos para registrar tiempo.");
+    redirect("/tasks");
+  }
+
+  const taskId = getString(formData, "taskId");
+  if (!taskId) {
+    await setFlash("error", "No se ha indicado la tarea.");
+    redirect("/tasks");
+  }
+
+  const task = await prisma.task.findUnique({
+    where: { id: taskId },
+    select: { id: true },
+  });
+  if (!task) {
+    await setFlash("error", "La tarea seleccionada no existe.");
+    redirect("/tasks");
+  }
+
+  const now = new Date();
+
+  // Un solo cronómetro activo por usuario: cierra el anterior antes de empezar.
+  await stopActiveTimer(session.user.id, now);
+
+  await prisma.timeEntry.create({
+    data: {
+      taskId: task.id,
+      userId: session.user.id,
+      type: TimeEntryType.START_STOP,
+      workDate: startOfToday(),
+      startedAt: now,
+      endedAt: null,
+      durationMinutes: 0,
+    },
+  });
+
+  revalidatePath("/", "layout");
+  redirect(`/tasks/${task.id}`);
+};
+
+/** Detiene el cronómetro en curso del usuario y guarda la duración. */
+export const stopTimer = async () => {
+  const session = await requireStaff();
+
+  const minutes = await stopActiveTimer(session.user.id, new Date());
+  if (minutes === null) {
+    await setFlash("error", "No tienes ningún cronómetro en curso.");
+    redirect("/times");
+  }
+
+  await setFlash(
+    "success",
+    `Cronómetro detenido: ${formatDuration(minutes)} registrados.`,
+  );
+  revalidatePath("/", "layout");
   redirect("/times");
 };

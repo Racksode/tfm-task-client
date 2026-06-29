@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
 
+import { getActiveTimer } from "@/app/times/active-timer";
 import { auth } from "@/auth";
 import { appConfig } from "@/lib/config";
 
+import { ActiveTimerIndicator } from "./active-timer-indicator";
 import { Nav } from "./nav";
 import { UserMenu } from "./user-menu";
 
@@ -13,6 +15,7 @@ type AppShellProps = {
 export async function AppShell({ children }: AppShellProps) {
   const session = await auth();
   const role = session?.user?.role;
+  const timer = session?.user?.id ? await getActiveTimer(session.user.id) : null;
 
   return (
     <div className="flex min-h-svh flex-col md:flex-row">
@@ -27,7 +30,16 @@ export async function AppShell({ children }: AppShellProps) {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-14 items-center justify-end border-b px-6">
+        <header className="flex h-14 items-center justify-between gap-4 border-b px-6">
+          {timer ? (
+            <ActiveTimerIndicator
+              taskId={timer.taskId}
+              taskTitle={timer.taskTitle}
+              startedAt={timer.startedAt.toISOString()}
+            />
+          ) : (
+            <span />
+          )}
           <UserMenu name={session?.user?.name} email={session?.user?.email} />
         </header>
         <main className="min-w-0 flex-1">{children}</main>
