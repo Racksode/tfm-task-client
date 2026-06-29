@@ -36,11 +36,6 @@ const formatDateTime = (date: Date) =>
 const formatDate = (date: Date) =>
   new Intl.DateTimeFormat("es-ES", { dateStyle: "short" }).format(date);
 
-const currency = new Intl.NumberFormat("es-ES", {
-  style: "currency",
-  currency: "EUR",
-});
-
 const STATUS_BADGE: Record<ProjectStatus, string> = {
   [ProjectStatus.ACTIVE]: "border-transparent bg-green-600 text-white",
   [ProjectStatus.PAUSED]: "border-transparent bg-amber-500 text-white",
@@ -74,7 +69,6 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
       visibleToClient: true,
       startDate: true,
       expectedEndDate: true,
-      baseRate: true,
       createdAt: true,
       updatedAt: true,
       client: { select: { id: true, name: true } },
@@ -144,9 +138,6 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
                 <Badge className={STATUS_BADGE[project.status]}>
                   {PROJECT_STATUS_LABELS[project.status]}
                 </Badge>
-              </Field>
-              <Field label="Tarifa base">
-                {project.baseRate ? currency.format(Number(project.baseRate)) : "—"}
               </Field>
               <Field label="Inicio">
                 {project.startDate ? formatDate(project.startDate) : "—"}

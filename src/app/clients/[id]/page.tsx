@@ -32,11 +32,6 @@ const formatDateTime = (date: Date) =>
     timeStyle: "short",
   }).format(date);
 
-const currency = new Intl.NumberFormat("es-ES", {
-  style: "currency",
-  currency: "EUR",
-});
-
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="grid gap-1">
@@ -63,7 +58,6 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
       company: true,
       internalNotes: true,
       status: true,
-      baseRate: true,
       createdAt: true,
       updatedAt: true,
       createdBy: { select: { name: true } },
@@ -129,9 +123,6 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
                 ) : (
                   <Badge variant="outline">Inactivo</Badge>
                 )}
-              </Field>
-              <Field label="Tarifa base">
-                {client.baseRate ? currency.format(Number(client.baseRate)) : "—"}
               </Field>
               <div className="sm:col-span-2">
                 <Field label="Notas internas">

@@ -24,7 +24,6 @@ type ClientFormProps = {
     company?: string | null;
     internalNotes?: string | null;
     status?: ClientStatus;
-    baseRate?: string | null;
   };
 };
 
@@ -116,18 +115,6 @@ export function ClientForm({
               <option value={ClientStatus.ACTIVE}>ACTIVE</option>
               <option value={ClientStatus.INACTIVE}>INACTIVE</option>
             </Select>
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="baseRate">Tarifa base (€/h)</Label>
-            <Input
-              id="baseRate"
-              name="baseRate"
-              type="number"
-              min="0"
-              step="0.01"
-              defaultValue={value("baseRate", base.baseRate ?? "")}
-            />
           </div>
 
           <div className="grid gap-2 sm:col-span-2">

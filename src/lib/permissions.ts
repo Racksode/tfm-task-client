@@ -11,7 +11,8 @@ export type Section =
   | "times"
   | "reports"
   | "assistant"
-  | "config";
+  | "config"
+  | "rates";
 
 export const STAFF_ROLES: UserRole[] = [
   UserRole.SUPERADMIN,
@@ -58,7 +59,8 @@ export function can(role: UserRole, action: Action, section: Section): boolean {
     if (section === "dashboard") {
       return action === "view";
     }
-    if (section === "users" || section === "config") {
+    // Tarifas = configuración de negocio sensible: solo ADMIN+.
+    if (section === "users" || section === "config" || section === "rates") {
       return false;
     }
     if (BUSINESS_SECTIONS.includes(section)) {

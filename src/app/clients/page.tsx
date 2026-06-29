@@ -29,11 +29,6 @@ import { DeleteClientDialog } from "./delete-client-dialog";
 const formatDate = (date: Date) =>
   new Intl.DateTimeFormat("es-ES", { dateStyle: "short" }).format(date);
 
-const currency = new Intl.NumberFormat("es-ES", {
-  style: "currency",
-  currency: "EUR",
-});
-
 const StatusBadge = ({ status }: { status: ClientStatus }) =>
   status === ClientStatus.ACTIVE ? (
     <Badge className="border-transparent bg-green-600 text-white">Activo</Badge>
@@ -57,7 +52,6 @@ export default async function ClientsPage() {
       email: true,
       company: true,
       status: true,
-      baseRate: true,
       createdAt: true,
     },
   });
@@ -95,7 +89,6 @@ export default async function ClientsPage() {
                 <TableHead>Email</TableHead>
                 <TableHead>Empresa</TableHead>
                 <TableHead>Estado</TableHead>
-                <TableHead>Tarifa</TableHead>
                 <TableHead>Creado</TableHead>
                 <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
@@ -103,7 +96,7 @@ export default async function ClientsPage() {
             <TableBody>
               {clients.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground">
+                  <TableCell colSpan={6} className="text-center text-muted-foreground">
                     No hay clientes registrados. Crea el primero para empezar.
                   </TableCell>
                 </TableRow>
@@ -183,9 +176,6 @@ export default async function ClientsPage() {
                       <TableCell>{client.company ?? "—"}</TableCell>
                       <TableCell>
                         <StatusBadge status={client.status} />
-                      </TableCell>
-                      <TableCell>
-                        {client.baseRate ? currency.format(Number(client.baseRate)) : "—"}
                       </TableCell>
                       <TableCell>{formatDate(client.createdAt)}</TableCell>
                     </ClickableRow>
