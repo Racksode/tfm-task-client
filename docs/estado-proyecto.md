@@ -2,7 +2,7 @@
 
 > **Documento vivo.** Punto único para retomar el trabajo desde cualquier equipo.
 > Se actualiza al cerrar cada sesión/PR (ver checklist al final).
-> Última actualización: 2026-06-30 (k).
+> Última actualización: 2026-07-01 (l).
 
 ## Cómo ponerse al día (equipo nuevo o nueva sesión)
 
@@ -17,7 +17,7 @@
 
 ## Estado actual
 
-- Versión: **1.9.0**.
+- Versión: **1.9.1**.
 - Documentación funcional/UX cerrada (`docs/10`–`docs/14`).
 - Base técnica: Next.js (App Router) + TypeScript + Prisma + PostgreSQL + Auth.js. UI con Tailwind + shadcn.
 - Acceso: login propio (`/login`), redirección por rol en `/`, `requireSession`/`requireStaff`/`requireAdmin` (`src/lib/auth-guards.ts`).
@@ -42,7 +42,7 @@
 - **Versionado** (`README` > "Convención de versionado"): fuente en `src/lib/config.ts` (`APP_VERSION`). Revisión=`fix`/ajustes, subversión=`feat`, versión=hitos.
 - **CI**: valida en PR (typecheck/lint/build/prisma); omite PRs solo-docs (`paths-ignore`).
 - **Prisma Client**: se regenera en `postinstall` (`prisma generate`). Evita el error "Unknown argument" por cliente desactualizado tras un cambio de schema. Si aun así aparece: regenerar y reiniciar el dev server.
-- **Tarifas y coste** (`docs/planes/28`): el modelo `Rate` (ámbito `SYSTEM`/`CLIENT`/`PROJECT`) es la **única fuente de tarifas**; se eliminó `baseRate` de Client/Project. Gestión de tarifas = **ADMIN+** (sección `rates`, fuera de `BUSINESS_SECTIONS`). El coste se **congela** como snapshot en el `TimeEntry` (`appliedHourlyRate` + `estimatedCost`; no se recalcula al cambiar una tarifa después, sí al editar el registro). El `TimeEntry` guarda además `rateId` (referencia, **`onDelete: SetNull`**) para preseleccionar la tarifa al editar y dar trazabilidad: borrar una tarifa anula el vínculo pero **no** altera el coste histórico. El defecto sugerido es la tarifa **predeterminada** (`isDefault`, una por ámbito; unicidad garantizada en la server action al guardar) del nivel más específico de la jerarquía; **no** hay fallback a "la más reciente": si ningún nivel aplicable tiene predeterminada, no se preselecciona ninguna y el usuario la elige a mano. (Desviación consciente del plan 28, que preveía "sin FK"; el objetivo "borrado siempre seguro" se mantiene con `SetNull`.)
+- **Tarifas y coste** (`docs/planes/28`): el modelo `Rate` (ámbito `SYSTEM`/`CLIENT`/`PROJECT`) es la **única fuente de tarifas**; se eliminó `baseRate` de Client/Project. Gestión de tarifas = **ADMIN+** (sección `rates`, fuera de `BUSINESS_SECTIONS`). El coste se **congela** como snapshot en el `TimeEntry` (`appliedHourlyRate` + `estimatedCost`; no se recalcula al cambiar una tarifa después, sí al editar el registro). El `TimeEntry` guarda además `rateId` (referencia, **`onDelete: SetNull`**) para preseleccionar la tarifa al editar y dar trazabilidad: borrar una tarifa anula el vínculo pero **no** altera el coste histórico. El defecto sugerido es la tarifa **predeterminada** (`isDefault`, una por ámbito; unicidad garantizada en la server action al guardar) del nivel más específico de la jerarquía; **no** hay fallback a "la más reciente": si ningún nivel aplicable tiene predeterminada, no se preselecciona ninguna y el usuario la elige a mano. Solo se aceptan tarifas **en ámbito** de la tarea (SYSTEM o del cliente/proyecto correspondiente): validado en servidor (`isRateInScope`) y filtrado en el selector, para no aplicar la tarifa de otro cliente; al editar se preserva la tarifa ya aplicada aunque haya quedado fuera de ámbito (v1.9.1). (Desviación consciente del plan 28, que preveía "sin FK"; el objetivo "borrado siempre seguro" se mantiene con `SetNull`.)
 - **Cronómetro start/stop**: un **único** cronómetro activo por usuario (auto-detención del anterior); en curso = `START_STOP` con `endedAt = null` (excluido de los listados). Inicio/parada **atómicos** (transacción + `pg_advisory_xact_lock` vía `$executeRaw`, no `$queryRaw`) e **idempotentes** por tarea.
 - **Inputs de hora**: se usan campos numéricos **HH/MM**, no `<input type="time">` nativo (devolvía valor vacío según el locale del navegador).
 

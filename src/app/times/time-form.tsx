@@ -12,7 +12,11 @@ import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
 import type { TimeFormState } from "./actions";
-import { type RateOption, resolveDefaultRateId } from "./rate-cost";
+import {
+  type RateOption,
+  isRateInScope,
+  resolveDefaultRateId,
+} from "./rate-cost";
 
 type Mode = "duration" | "interval";
 
@@ -101,10 +105,16 @@ export function TimeForm({
   );
   const [rateId, setRateId] = useState(initialRateId);
 
-  // Si la tarifa guardada ya no está activa, se muestra igualmente como opción
-  // para no perder la selección al editar.
+  // Solo se ofrecen tarifas en ámbito del proyecto/cliente elegido (las de otro
+  // cliente no deben poder aplicarse). El servidor revalida igualmente.
+  const visibleRates = rates.filter((rate) =>
+    isRateInScope(rate, projectId || null, clientIdOf(projectId) || null),
+  );
+
+  // Si la tarifa guardada ya no está activa o ha quedado fuera de ámbito (p. ej.
+  // tras cambiar de tarea), se muestra igualmente para no perder la selección.
   const selectedMissing =
-    rateId.length > 0 && !rates.some((rate) => rate.id === rateId);
+    rateId.length > 0 && !visibleRates.some((rate) => rate.id === rateId);
 
   const initialMode =
     (state.values?.mode as Mode | undefined) ?? base.mode ?? "duration";
@@ -208,7 +218,7 @@ export function TimeForm({
               {selectedMissing ? (
                 <option value={rateId}>Tarifa guardada (no disponible)</option>
               ) : null}
-              {rates.map((rate) => (
+              {visibleRates.map((rate) => (
                 <option key={rate.id} value={rate.id}>
                   {rateLabel(rate)}
                 </option>
