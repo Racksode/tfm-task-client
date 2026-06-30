@@ -2,7 +2,7 @@
 
 > **Documento vivo.** Punto único para retomar el trabajo desde cualquier equipo.
 > Se actualiza al cerrar cada sesión/PR (ver checklist al final).
-> Última actualización: 2026-07-01 (n).
+> Última actualización: 2026-07-01 (o).
 
 ## Cómo ponerse al día (equipo nuevo o nueva sesión)
 
@@ -47,13 +47,20 @@
 - **Cronómetro start/stop**: un **único** cronómetro activo por usuario (auto-detención del anterior); en curso = `START_STOP` con `endedAt = null` (excluido de los listados). Inicio/parada **atómicos** (transacción + `pg_advisory_xact_lock` vía `$executeRaw`, no `$queryRaw`) e **idempotentes** por tarea.
 - **Inputs de hora**: se usan campos numéricos **HH/MM**, no `<input type="time">` nativo (devolvía valor vacío según el locale del navegador).
 
-## Próximo paso: portal de cliente y dashboard
+## Siguientes pasos (hoja de ruta priorizada)
 
 Reportes **cerrados**: PR1 (módulo + agregación, v1.10.0) y PR2 (resumen con IA, v1.11.0). Plan en `docs/planes/29-reportes-con-ia.md`; detalle en `docs/historico-ia/fase-04-implementacion/39-modulo-reportes.md` y `40-reportes-ia.md`.
 
-**Siguiente**: convertir `/portal` (hoy placeholder) en el **área de cliente** (sus proyectos/tareas/tiempos visibles y reportes con `visibleToClient`) y el **dashboard** con KPIs.
+Pendiente, por prioridad sugerida para retomar (anotado el 2026-07-01; nada empezado):
 
-- Pendientes menores: total **por proyecto** en el detalle de proyecto; **prueba conceptual de lenguaje natural** (`docs/05-ia.md` §2.3); **Opción C** (tarifas por horario).
+1. **Portal de cliente** (`/portal`, hoy placeholder) — primer flujo del rol `CLIENT`, que aún no tiene área propia. Mostrar **solo lo marcado visible**: proyectos/tareas con `visibleToClient`, sus tiempos y, sobre todo, los **reportes** con `visibleToClient` (incluido el `aiSummary`). Es el complemento natural de lo ya hecho (coste + reportes con IA) y el siguiente bloque grande.
+2. **Dashboard** (`/dashboard`, hoy placeholder) — KPIs para staff: horas y coste por periodo/cliente/proyecto, reportes recientes, cronómetro en curso. Reutiliza la agregación de tiempos/coste ya existente.
+3. **Total por proyecto** — en el detalle de proyecto aún no se listan los tiempos; añadir el listado + total de coste (quedó pendiente del bloque de coste). PR pequeño.
+4. **Prueba conceptual de lenguaje natural** (`docs/05-ia.md` §2.3) — pantalla "Asistente IA": interpretar una instrucción en lenguaje natural y devolver una propuesta estructurada (p. ej. registrar tiempo) **con confirmación** antes de ejecutar. Demostración IA adicional; reutiliza `src/lib/ai.ts` y la traza `AiUsage` (`NATURAL_LANGUAGE_INTERPRETATION`).
+5. **Opción C — tarifas automáticas por horario** (mejora futura, ver nota más abajo).
+6. **Exportación a PDF** del reporte (fuera de alcance del plan 29; útil para entregar al cliente).
+
+> Cierre de sesión 2026-07-01: PR2 (reportes con IA, v1.11.0) mergeado y limpio. Estos pasos quedan **solo anotados**, sin empezar.
 
 > **Mejora futura (Opción C)**: tarifas automáticas por horario (estándar/extra/festivo) con reglas de día/franja/festivo, sugerencia + override y **partición** de registros que cruzan franjas (p. ej. 17:00–19:00 = 1 h estándar + 1 h extra). Anotada para después de que la Opción A funcione.
 
