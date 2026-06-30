@@ -10,6 +10,7 @@ export const sectionAccentClass: Record<string, string> = {
   projects: "border-l-violet-500",
   tasks: "border-l-amber-500",
   times: "border-l-emerald-500",
+  reports: "border-l-indigo-500",
   rates: "border-l-rose-500",
 };
 

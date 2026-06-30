@@ -5,6 +5,7 @@ import {
   Building2,
   Clock,
   Coins,
+  FileText,
   FolderKanban,
   LayoutDashboard,
   ListChecks,
@@ -33,6 +34,7 @@ const BLOCKS: NavItem[][] = [
     { href: "/projects", label: "Proyectos", icon: FolderKanban, section: "projects" },
     { href: "/tasks", label: "Tareas", icon: ListChecks, section: "tasks" },
     { href: "/times", label: "Tiempos", icon: Clock, section: "times" },
+    { href: "/reports", label: "Reportes", icon: FileText, section: "reports" },
   ],
   [
     { href: "/users", label: "Usuarios", icon: Users, section: "users" },

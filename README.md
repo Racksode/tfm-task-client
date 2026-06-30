@@ -10,24 +10,24 @@ Desarrollar una aplicación web que permita gestionar clientes, proyectos y tare
 
 El estado vivo y el "handoff" para retomar desde cualquier equipo están en [docs/estado-proyecto.md](docs/estado-proyecto.md).
 
-El proyecto tiene la documentación funcional/UX cerrada, el rework de acceso y usuarios completado (login propio con redirección por rol, roles `SUPERADMIN/ADMIN/INTERNAL/CLIENT`, auditoría y mensajes) y **cinco módulos de negocio implementados**: Client (`/clients`), Project (`/projects`), Task (`/tasks`), Tiempos (`/times`, registro manual + cronómetro start/stop) y Tarifas (`/rates`, solo ADMIN+), clonando el patrón CRUD de usuarios.
+El proyecto tiene la documentación funcional/UX cerrada, el rework de acceso y usuarios completado (login propio con redirección por rol, roles `SUPERADMIN/ADMIN/INTERNAL/CLIENT`, auditoría y mensajes) y **seis módulos de negocio implementados**: Client (`/clients`), Project (`/projects`), Task (`/tasks`), Tiempos (`/times`, registro manual + cronómetro start/stop), Tarifas (`/rates`, solo ADMIN+) y Reportes (`/reports`, agregación de horas/coste por periodo), clonando el patrón CRUD de usuarios.
 
 ```text
 Fase actual: Fase 4 - Implementación del MVP
-Punto actual: módulos Client, Project, Task, Tiempos (manual + cronómetro start/stop) y Tarifas implementados
-Versión: 1.9.1
+Punto actual: módulos Client, Project, Task, Tiempos (manual + cronómetro start/stop), Tarifas y Reportes implementados
+Versión: 1.10.0
 ```
 
 Último hito completado:
 
 ```text
-Coste de tiempos (PR2): selección de tarifa por registro con defecto por jerarquía proyecto→cliente→sistema (prefiriendo la tarifa predeterminada de cada ámbito), snapshot de appliedHourlyRate/estimatedCost y coste mostrado en /times (listado + total, detalle) y en el detalle de tarea.
+Módulo Reportes (/reports, PR1): alta por cliente/proyecto y periodo, agregación y snapshot de horas y coste a partir de los tiempos registrados, resumen interno, flujo de estado (borrador/revisado) y visibilidad para el cliente.
 ```
 
 Próximo paso:
 
 ```text
-Reportes (generación + resumen asistido por IA). Mejora futura anotada: tarifas automáticas por horario (Opción C).
+Reportes PR2: resumen para el cliente asistido por IA (API de Claude) + traza AiUsage. Mejora futura anotada: tarifas automáticas por horario (Opción C).
 ```
 
 Referencia de planificación:
