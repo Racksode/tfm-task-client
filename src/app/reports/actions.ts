@@ -1,8 +1,18 @@
 "use server";
 
-import { Prisma, ReportStatus, TimeEntryType } from "@prisma/client";
+import {
+  AiUsageStatus,
+  AiUsageType,
+  Prisma,
+  ReportStatus,
+  TimeEntryType,
+} from "@prisma/client";
 import { redirect } from "next/navigation";
 
+import {
+  type SummaryTask,
+  generateProfessionalSummary,
+} from "@/lib/ai";
 import { requireStaff } from "@/lib/auth-guards";
 import { setFlash } from "@/lib/flash";
 import { can } from "@/lib/permissions";
@@ -278,6 +288,124 @@ export const setReportReviewed = async (formData: FormData) => {
     "success",
     reviewed ? "Reporte marcado como revisado." : "Reporte reabierto como borrador.",
   );
+  redirect(`/reports/${report.id}`);
+};
+
+/**
+ * Genera (o regenera) el resumen para el cliente con IA a partir de las tareas y
+ * notas del periodo. Congela `aiSummary`, marca `GENERATED` y registra el uso de
+ * IA (`AiUsage`), también si falla (estado `ERROR`).
+ */
+export const generateReportSummary = async (formData: FormData) => {
+  const session = await requireStaff();
+  const reportId = getString(formData, "reportId");
+
+  if (!can(session.user.role, "update", "reports")) {
+    await setFlash("error", "No tienes permisos para generar resúmenes.");
+    redirect("/reports");
+  }
+
+  const report = await prisma.report.findUnique({
+    where: { id: reportId },
+    select: {
+      id: true,
+      clientId: true,
+      projectId: true,
+      periodStart: true,
+      periodEnd: true,
+      totalHours: true,
+      client: { select: { name: true } },
+      project: { select: { name: true } },
+    },
+  });
+  if (!report) {
+    await setFlash("error", "El reporte indicado no existe.");
+    redirect("/reports");
+  }
+
+  // Mismos registros que la agregación: tareas con tiempo en el periodo.
+  const entries = await prisma.timeEntry.findMany({
+    where: {
+      workDate: { gte: report.periodStart, lte: report.periodEnd },
+      NOT: { type: TimeEntryType.START_STOP, endedAt: null },
+      task: report.projectId
+        ? { projectId: report.projectId }
+        : { project: { clientId: report.clientId } },
+    },
+    select: {
+      durationMinutes: true,
+      description: true,
+      task: { select: { id: true, title: true } },
+    },
+    orderBy: { workDate: "asc" },
+  });
+
+  // Se agrupan por tarea, acumulando minutos y notas.
+  const byTask = new Map<string, SummaryTask>();
+  for (const entry of entries) {
+    const current = byTask.get(entry.task.id) ?? {
+      title: entry.task.title,
+      descriptions: [],
+      minutes: 0,
+    };
+    current.minutes += entry.durationMinutes;
+    if (entry.description) {
+      current.descriptions.push(entry.description);
+    }
+    byTask.set(entry.task.id, current);
+  }
+
+  try {
+    const result = await generateProfessionalSummary({
+      clientName: report.client.name,
+      projectName: report.project?.name ?? null,
+      periodStart: report.periodStart,
+      periodEnd: report.periodEnd,
+      totalHours: report.totalHours ? Number(report.totalHours) : 0,
+      tasks: [...byTask.values()],
+    });
+
+    await prisma.$transaction([
+      prisma.report.update({
+        where: { id: report.id },
+        data: {
+          aiSummary: result.text,
+          status: ReportStatus.GENERATED,
+          generatedAt: new Date(),
+        },
+      }),
+      prisma.aiUsage.create({
+        data: {
+          type: AiUsageType.REPORT_SUMMARY,
+          requesterId: session.user.id,
+          reportId: report.id,
+          inputSummary: `${result.inputSummary} · modelo: ${result.model}`,
+          outputSummary: result.text,
+          status: AiUsageStatus.GENERATED,
+        },
+      }),
+    ]);
+
+    await setFlash(
+      "success",
+      result.simulated
+        ? "Resumen generado (modo simulado, sin API key)."
+        : "Resumen generado con IA.",
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Error desconocido.";
+    await prisma.aiUsage.create({
+      data: {
+        type: AiUsageType.REPORT_SUMMARY,
+        requesterId: session.user.id,
+        reportId: report.id,
+        outputSummary: message.slice(0, 500),
+        status: AiUsageStatus.ERROR,
+      },
+    });
+    await setFlash("error", `No se pudo generar el resumen: ${message}`);
+  }
+
   redirect(`/reports/${report.id}`);
 };
 

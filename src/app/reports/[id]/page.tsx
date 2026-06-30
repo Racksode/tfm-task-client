@@ -1,5 +1,13 @@
 import { ReportStatus } from "@prisma/client";
-import { ArrowLeft, CheckCircle2, Pencil, RefreshCw, RotateCcw, Trash2 } from "lucide-react";
+import {
+  ArrowLeft,
+  CheckCircle2,
+  Pencil,
+  RefreshCw,
+  RotateCcw,
+  Sparkles,
+  Trash2,
+} from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
@@ -15,7 +23,11 @@ import { prisma } from "@/lib/prisma";
 import { getSectionAccent } from "@/lib/section-config";
 import { cn } from "@/lib/utils";
 
-import { recalcReport, setReportReviewed } from "../actions";
+import {
+  generateReportSummary,
+  recalcReport,
+  setReportReviewed,
+} from "../actions";
 import { DeleteReportDialog } from "../delete-report-dialog";
 import {
   REPORT_STATUS_BADGE,
@@ -214,13 +226,24 @@ export default async function ReportDetailPage({ params }: ReportDetailPageProps
                   "—"
                 )}
               </Field>
-              <Field label="Resumen para el cliente (IA)">
-                {report.aiSummary ? (
-                  <span className="whitespace-pre-wrap">{report.aiSummary}</span>
-                ) : (
-                  "Aún no generado."
-                )}
-              </Field>
+              <div className="grid gap-2">
+                <Field label="Resumen para el cliente (IA)">
+                  {report.aiSummary ? (
+                    <span className="whitespace-pre-wrap">{report.aiSummary}</span>
+                  ) : (
+                    "Aún no generado."
+                  )}
+                </Field>
+                {canUpdate ? (
+                  <form action={generateReportSummary}>
+                    <input type="hidden" name="reportId" value={report.id} />
+                    <button type="submit" className={actionButtonClass("create")}>
+                      <Sparkles className="size-4" />
+                      {report.aiSummary ? "Regenerar resumen (IA)" : "Generar resumen (IA)"}
+                    </button>
+                  </form>
+                ) : null}
+              </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Creado">{formatDateTime(report.createdAt)}</Field>
                 <Field label="Actualizado">
