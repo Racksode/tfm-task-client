@@ -15,7 +15,7 @@ El proyecto tiene la documentación funcional/UX cerrada, el rework de acceso y 
 ```text
 Fase actual: Fase 4 - Implementación del MVP
 Punto actual: módulos Client, Project, Task, Tiempos (manual + cronómetro start/stop) y Tarifas implementados
-Versión: 1.9.0
+Versión: 1.9.1
 ```
 
 Último hito completado:
