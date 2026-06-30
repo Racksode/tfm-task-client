@@ -78,6 +78,20 @@ export const resolveDefaultRateId = (
 };
 
 /**
+ * ¿La tarifa es aplicable a una tarea de este proyecto/cliente? Una tarifa
+ * `SYSTEM` vale para cualquiera; una `CLIENT`/`PROJECT` solo para su cliente o
+ * proyecto. Evita aplicar la tarifa de otro cliente a un registro.
+ */
+export const isRateInScope = (
+  rate: { scope: RateScope; clientId: string | null; projectId: string | null },
+  projectId: string | null,
+  clientId: string | null,
+): boolean =>
+  rate.scope === RateScope.SYSTEM ||
+  (rate.scope === RateScope.CLIENT && rate.clientId === clientId) ||
+  (rate.scope === RateScope.PROJECT && rate.projectId === projectId);
+
+/**
  * Coste estimado = (minutos / 60) × importe/hora, redondeado a 2 decimales.
  * Se devuelve como número; el servidor lo envuelve en `Prisma.Decimal` al
  * guardar el snapshot.

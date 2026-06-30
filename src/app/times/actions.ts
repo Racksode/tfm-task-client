@@ -1,6 +1,6 @@
 "use server";
 
-import { Prisma, RateStatus, TimeEntryType } from "@prisma/client";
+import { Prisma, RateScope, RateStatus, TimeEntryType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -9,7 +9,11 @@ import { setFlash } from "@/lib/flash";
 import { can, isAdmin } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 
-import { estimatedCostFromMinutes, resolveDefaultRateId } from "./rate-cost";
+import {
+  estimatedCostFromMinutes,
+  isRateInScope,
+  resolveDefaultRateId,
+} from "./rate-cost";
 import { formatDuration } from "./status";
 
 /** Snapshot de tarifa que se congela en el registro de tiempo. */
@@ -37,22 +41,47 @@ const snapshotFromRate = (
   ),
 });
 
+type SnapshotResult =
+  | { ok: true; snapshot: RateSnapshot }
+  | { ok: false; error: string };
+
 /**
- * Snapshot para la tarifa elegida a mano en el formulario. Devuelve `null` si se
- * indicó una tarifa inexistente (error de validación); sin tarifa → snapshot vacío.
+ * Snapshot para la tarifa elegida a mano en el formulario. Valida que exista y
+ * que su ámbito corresponda al cliente/proyecto de la tarea (una `CLIENT`/
+ * `PROJECT` de otro cliente se rechaza). Al editar se preserva la tarifa ya
+ * aplicada (`preserveRateId`) aunque haya quedado fuera de ámbito. Sin tarifa →
+ * snapshot vacío.
  */
 const resolveSelectedSnapshot = async (
   rateId: string,
   durationMinutes: number,
-): Promise<RateSnapshot | null> => {
+  context: { projectId: string; clientId: string },
+  preserveRateId: string | null,
+): Promise<SnapshotResult> => {
   if (!rateId) {
-    return EMPTY_SNAPSHOT;
+    return { ok: true, snapshot: EMPTY_SNAPSHOT };
   }
   const rate = await prisma.rate.findUnique({
     where: { id: rateId },
-    select: { id: true, hourlyAmount: true },
+    select: {
+      id: true,
+      hourlyAmount: true,
+      scope: true,
+      clientId: true,
+      projectId: true,
+    },
   });
-  return rate ? snapshotFromRate(rate, durationMinutes) : null;
+  if (!rate) {
+    return { ok: false, error: "La tarifa seleccionada no existe." };
+  }
+  const preserved = preserveRateId !== null && rate.id === preserveRateId;
+  if (!preserved && !isRateInScope(rate, context.projectId, context.clientId)) {
+    return {
+      ok: false,
+      error: "La tarifa seleccionada no es válida para el cliente o proyecto de la tarea.",
+    };
+  }
+  return { ok: true, snapshot: snapshotFromRate(rate, durationMinutes) };
 };
 
 /**
@@ -178,15 +207,20 @@ type ValidatedInput = {
   description: string | null;
 };
 
+type TaskContext = { projectId: string; clientId: string };
+
 const validate = async (
   values: TimeFormValues,
-): Promise<{ ok: true; data: ValidatedInput } | { ok: false; error: string }> => {
+): Promise<
+  | { ok: true; data: ValidatedInput; context: TaskContext }
+  | { ok: false; error: string }
+> => {
   if (!values.taskId) {
     return { ok: false, error: "La tarea es obligatoria." };
   }
   const task = await prisma.task.findUnique({
     where: { id: values.taskId },
-    select: { id: true },
+    select: { id: true, project: { select: { id: true, clientId: true } } },
   });
   if (!task) {
     return { ok: false, error: "La tarea seleccionada no existe." };
@@ -271,6 +305,7 @@ const validate = async (
       durationMinutes,
       description: values.description || null,
     },
+    context: { projectId: task.project.id, clientId: task.project.clientId },
   };
 };
 
@@ -289,18 +324,23 @@ export const createTimeEntry = async (
   if (!validation.ok) {
     return invalid(values, validation.error);
   }
-  const { data } = validation;
+  const { data, context } = validation;
 
-  const snapshot = await resolveSelectedSnapshot(values.rateId, data.durationMinutes);
-  if (!snapshot) {
-    return invalid(values, "La tarifa seleccionada no existe.");
+  const result = await resolveSelectedSnapshot(
+    values.rateId,
+    data.durationMinutes,
+    context,
+    null,
+  );
+  if (!result.ok) {
+    return invalid(values, result.error);
   }
 
   // Cada usuario registra su propio tiempo; el autor es siempre la sesión.
   await prisma.timeEntry.create({
     data: {
       ...data,
-      ...snapshot,
+      ...result.snapshot,
       userId: session.user.id,
       type: TimeEntryType.MANUAL,
     },
@@ -328,7 +368,7 @@ export const updateTimeEntry = async (
 
   const current = await prisma.timeEntry.findUnique({
     where: { id: timeEntryId },
-    select: { id: true, userId: true },
+    select: { id: true, userId: true, rateId: true },
   });
   if (!current) {
     return invalid(values, "El registro indicado no existe.");
@@ -343,18 +383,24 @@ export const updateTimeEntry = async (
   if (!validation.ok) {
     return invalid(values, validation.error);
   }
-  const { data } = validation;
+  const { data, context } = validation;
 
   // El coste se recalcula porque la duración o la tarifa pueden haber cambiado.
-  const snapshot = await resolveSelectedSnapshot(values.rateId, data.durationMinutes);
-  if (!snapshot) {
-    return invalid(values, "La tarifa seleccionada no existe.");
+  // Se preserva la tarifa ya aplicada aunque hubiese quedado fuera de ámbito.
+  const result = await resolveSelectedSnapshot(
+    values.rateId,
+    data.durationMinutes,
+    context,
+    current.rateId,
+  );
+  if (!result.ok) {
+    return invalid(values, result.error);
   }
 
   // El autor (userId) y el tipo no se reasignan al editar.
   await prisma.timeEntry.update({
     where: { id: timeEntryId },
-    data: { ...data, ...snapshot },
+    data: { ...data, ...result.snapshot },
   });
 
   await setFlash("success", "Registro de tiempo actualizado correctamente.");
