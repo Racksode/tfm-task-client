@@ -22,7 +22,7 @@ import { cn } from "@/lib/utils";
 
 import { startTimer, stopTimer } from "@/app/times/actions";
 import { getActiveTimer } from "@/app/times/active-timer";
-import { formatDuration } from "@/app/times/status";
+import { formatCurrency, formatDuration } from "@/app/times/status";
 
 import { DeleteTaskDialog } from "../delete-task-dialog";
 import {
@@ -87,7 +87,12 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
           // detalle de tiempo); ADMIN+ ven los de cualquier usuario.
           ...(isAdmin(role) ? {} : { userId: session.user.id }),
         },
-        select: { id: true, workDate: true, durationMinutes: true },
+        select: {
+          id: true,
+          workDate: true,
+          durationMinutes: true,
+          estimatedCost: true,
+        },
         orderBy: { workDate: "desc" },
       },
     },
@@ -247,19 +252,39 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
                   Sin tiempos registrados.
                 </p>
               ) : (
-                <ul className="grid gap-1 text-sm">
-                  {task.timeEntries.map((entry) => (
-                    <li key={entry.id}>
-                      <Link
-                        href={`/times/${entry.id}`}
-                        className="text-primary hover:underline"
-                      >
-                        {formatDate(entry.workDate)} —{" "}
-                        {formatDuration(entry.durationMinutes)}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+                <div className="grid gap-2 text-sm">
+                  <ul className="grid gap-1">
+                    {task.timeEntries.map((entry) => (
+                      <li key={entry.id} className="flex justify-between gap-4">
+                        <Link
+                          href={`/times/${entry.id}`}
+                          className="text-primary hover:underline"
+                        >
+                          {formatDate(entry.workDate)} —{" "}
+                          {formatDuration(entry.durationMinutes)}
+                        </Link>
+                        <span className="text-muted-foreground">
+                          {entry.estimatedCost
+                            ? formatCurrency(Number(entry.estimatedCost))
+                            : "—"}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="flex justify-between gap-4 border-t pt-2 font-medium">
+                    <span>Total estimado</span>
+                    <span>
+                      {formatCurrency(
+                        task.timeEntries.reduce(
+                          (sum, entry) =>
+                            sum +
+                            (entry.estimatedCost ? Number(entry.estimatedCost) : 0),
+                          0,
+                        ),
+                      )}
+                    </span>
+                  </div>
+                </div>
               )}
             </CardContent>
           </Card>

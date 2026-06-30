@@ -24,11 +24,12 @@ El schema ya traía dos mecanismos de tarifa en paralelo: `baseRate` (campo en `
 - Módulo CRUD `/rates` (ADMIN+) clonando el patrón de `users`: listado, alta, detalle, edición, borrado. Formulario con ámbito condicional (cliente/proyecto). Sección `rates` en `permissions.ts` (fuera de `BUSINESS_SECTIONS`), ítem "Tarifas" en el menú (acento rosa, solo ADMIN+).
 - Eliminado `baseRate` de Client/Project (schema, formularios, detalle, listados, acciones) + migración `remove_base_rate`.
 
-### PR2 — Coste de tiempos (pendiente, previsto **v1.9.0**)
+### PR2 — Coste de tiempos (hecho, **v1.9.0**)
 
-- Selector de tarifa en el formulario de tiempo + resolución del defecto.
-- Snapshot de `appliedHourlyRate` + cálculo de `estimatedCost` al crear/editar.
-- Mostrar coste en detalle y listado de `/times` + totales (por tarea/proyecto).
+- Selector de tarifa en el formulario de tiempo + resolución del defecto por jerarquía proyecto→cliente→sistema (helper puro `resolveDefaultRateId`): el defecto es la tarifa marcada como **predeterminada** (`Rate.isDefault`, una por ámbito; unicidad en la server action) del nivel más específico que la tenga. Sin fallback a "la más reciente": si no hay predeterminada aplicable, no se preselecciona ninguna.
+- Snapshot de `appliedHourlyRate` + cálculo de `estimatedCost` al crear/editar; el cronómetro aplica la tarifa por defecto al detenerse.
+- Coste en detalle y listado de `/times` (con total) y total por tarea. (Total por proyecto: pendiente, junto con reportes.)
+- **Desviación respecto a "sin FK"**: se añadió `TimeEntry.rateId` (`onDelete: SetNull`) para preseleccionar la tarifa al editar y dar trazabilidad. El objetivo "borrado de tarifa siempre seguro" se mantiene (SetNull anula el vínculo sin tocar el coste congelado). Migración `add_rate_to_time_entry`.
 
 ## Fuera de alcance / mejora futura
 

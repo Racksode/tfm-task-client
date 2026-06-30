@@ -192,6 +192,11 @@ model TimeEntry {
   endedAt            DateTime?
   durationMinutes    Int
   description        String?
+  // Tarifa elegida (referencia) + snapshot congelado del importe y el coste.
+  // onDelete: SetNull → borrar una tarifa nunca arrastra el registro ni altera
+  // su coste histórico; solo desvincula la referencia.
+  rateId             String?
+  rate               Rate?         @relation(fields: [rateId], references: [id], onDelete: SetNull)
   appliedHourlyRate  Decimal?      @db.Decimal(10, 2)
   estimatedCost      Decimal?      @db.Decimal(10, 2)
   createdAt          DateTime      @default(now())
@@ -205,10 +210,14 @@ model Rate {
   currency     String     @default("EUR")
   scope        RateScope
   status       RateStatus @default(ACTIVE)
+  // Tarifa predeterminada de su ámbito (una por sistema / por cliente / por
+  // proyecto). La unicidad se garantiza en la server action al guardar.
+  isDefault    Boolean    @default(false)
   clientId     String?
   client       Client?    @relation(fields: [clientId], references: [id])
   projectId    String?
   project      Project?   @relation(fields: [projectId], references: [id])
+  timeEntries  TimeEntry[]
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 }

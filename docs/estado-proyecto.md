@@ -2,7 +2,7 @@
 
 > **Documento vivo.** Punto único para retomar el trabajo desde cualquier equipo.
 > Se actualiza al cerrar cada sesión/PR (ver checklist al final).
-> Última actualización: 2026-06-30 (j).
+> Última actualización: 2026-06-30 (k).
 
 ## Cómo ponerse al día (equipo nuevo o nueva sesión)
 
@@ -17,7 +17,7 @@
 
 ## Estado actual
 
-- Versión: **1.8.2**.
+- Versión: **1.9.0**.
 - Documentación funcional/UX cerrada (`docs/10`–`docs/14`).
 - Base técnica: Next.js (App Router) + TypeScript + Prisma + PostgreSQL + Auth.js. UI con Tailwind + shadcn.
 - Acceso: login propio (`/login`), redirección por rol en `/`, `requireSession`/`requireStaff`/`requireAdmin` (`src/lib/auth-guards.ts`).
@@ -25,8 +25,8 @@
 - Módulo **Client implementado** (`/clients`, `/clients/[id]`, `/clients/new`, `/clients/[id]/edit`): primer módulo de negocio, clonado de `users`. Permisos de sección de negocio con `can()` (`INTERNAL` opera, `ADMIN+` borra), auditoría `createdBy/updatedBy`, detalle con sub-listados 1→N (proyectos —ya enlazables— y usuarios vinculados).
 - Módulo **Project implementado** (`/projects`, `/projects/[id]`, `/projects/new`, `/projects/[id]/edit`): segundo módulo de negocio. Relación con `Client` (selector obligatorio), estado de 4 valores (`ACTIVE/PAUSED/COMPLETED/CANCELLED`), fechas, `visibleToClient`, tarifa y auditoría. Detalle con sub-listado 1→N de tareas (ya enlazables).
 - Módulo **Task implementado** (`/tasks`, `/tasks/[id]`, `/tasks/new`, `/tasks/[id]/edit`): tercer módulo de negocio. Relación con `Project` (selector plano "Proyecto — Cliente") y `responsible` (usuario staff, opcional); `status` (5 valores) y `priority` (3), fechas, `visibleToClient` y auditoría. Detalle con sub-listado 1→N de registros de tiempo (ya enlazados a `/times`).
-- Módulo **Tiempos implementado** (`/times`, `/times/[id]`, `/times/new`, `/times/[id]/edit`): cuarto módulo de negocio. Registro **manual** (tiempo "por duración" o "por inicio y fin", con campos numéricos HH/MM) y **cronómetro start/stop** (`type` `MANUAL`/`START_STOP`); selector en cascada proyecto→tarea; `INTERNAL` ve/edita solo sus registros, `ADMIN+` todos. Indicador global del cronómetro en curso en la cabecera. Coste aún sin calcular (PR2).
-- Módulo **Tarifas implementado** (`/rates`, solo `ADMIN+`): gestión del modelo `Rate` (ámbito `SYSTEM`/`CLIENT`/`PROJECT`, importe €/h, estado activa/inactiva). Es la **única fuente de tarifas**; se eliminó `baseRate` de `Client`/`Project`.
+- Módulo **Tiempos implementado** (`/times`, `/times/[id]`, `/times/new`, `/times/[id]/edit`): cuarto módulo de negocio. Registro **manual** (tiempo "por duración" o "por inicio y fin", con campos numéricos HH/MM) y **cronómetro start/stop** (`type` `MANUAL`/`START_STOP`); selector en cascada proyecto→tarea; `INTERNAL` ve/edita solo sus registros, `ADMIN+` todos. Indicador global del cronómetro en curso en la cabecera. **Coste calculado (PR2)**: selección de tarifa por registro (defecto = la **predeterminada** `isDefault` del nivel más específico de la jerarquía proyecto→cliente→sistema; si ningún nivel la tiene, no se preselecciona ninguna), snapshot de `appliedHourlyRate`/`estimatedCost` y `rateId` (`onDelete: SetNull`); el cronómetro aplica la tarifa por defecto al detenerse. Coste mostrado en el listado (con total), el detalle y el total por tarea.
+- Módulo **Tarifas implementado** (`/rates`, solo `ADMIN+`): gestión del modelo `Rate` (ámbito `SYSTEM`/`CLIENT`/`PROJECT`, importe €/h, estado activa/inactiva, marca **predeterminada** `isDefault` —una por ámbito/propietario—). Es la **única fuente de tarifas**; se eliminó `baseRate` de `Client`/`Project`.
 - `/dashboard` y `/portal` son placeholders ("en construcción").
 
 ## Decisiones / convenciones en vigor
@@ -42,18 +42,17 @@
 - **Versionado** (`README` > "Convención de versionado"): fuente en `src/lib/config.ts` (`APP_VERSION`). Revisión=`fix`/ajustes, subversión=`feat`, versión=hitos.
 - **CI**: valida en PR (typecheck/lint/build/prisma); omite PRs solo-docs (`paths-ignore`).
 - **Prisma Client**: se regenera en `postinstall` (`prisma generate`). Evita el error "Unknown argument" por cliente desactualizado tras un cambio de schema. Si aun así aparece: regenerar y reiniciar el dev server.
-- **Tarifas y coste** (`docs/planes/28`): el modelo `Rate` (ámbito `SYSTEM`/`CLIENT`/`PROJECT`) es la **única fuente de tarifas**; se eliminó `baseRate` de Client/Project. Gestión de tarifas = **ADMIN+** (sección `rates`, fuera de `BUSINESS_SECTIONS`). El coste se **congela** como snapshot en el `TimeEntry` (no se recalcula al cambiar una tarifa después).
+- **Tarifas y coste** (`docs/planes/28`): el modelo `Rate` (ámbito `SYSTEM`/`CLIENT`/`PROJECT`) es la **única fuente de tarifas**; se eliminó `baseRate` de Client/Project. Gestión de tarifas = **ADMIN+** (sección `rates`, fuera de `BUSINESS_SECTIONS`). El coste se **congela** como snapshot en el `TimeEntry` (`appliedHourlyRate` + `estimatedCost`; no se recalcula al cambiar una tarifa después, sí al editar el registro). El `TimeEntry` guarda además `rateId` (referencia, **`onDelete: SetNull`**) para preseleccionar la tarifa al editar y dar trazabilidad: borrar una tarifa anula el vínculo pero **no** altera el coste histórico. El defecto sugerido es la tarifa **predeterminada** (`isDefault`, una por ámbito; unicidad garantizada en la server action al guardar) del nivel más específico de la jerarquía; **no** hay fallback a "la más reciente": si ningún nivel aplicable tiene predeterminada, no se preselecciona ninguna y el usuario la elige a mano. (Desviación consciente del plan 28, que preveía "sin FK"; el objetivo "borrado siempre seguro" se mantiene con `SetNull`.)
 - **Cronómetro start/stop**: un **único** cronómetro activo por usuario (auto-detención del anterior); en curso = `START_STOP` con `endedAt = null` (excluido de los listados). Inicio/parada **atómicos** (transacción + `pg_advisory_xact_lock` vía `$executeRaw`, no `$queryRaw`) e **idempotentes** por tarea.
 - **Inputs de hora**: se usan campos numéricos **HH/MM**, no `<input type="time">` nativo (devolvía valor vacío según el locale del navegador).
 
-## Próximo paso: PR2 — coste de tiempos (Opción A)
+## Próximo paso: reportes
 
-Aplicar una tarifa al registro de tiempo y calcular el coste estimado. Plan en `docs/planes/28-tarifas-y-coste.md`.
+Coste de tiempos (PR2, Opción A) **cerrado en v1.9.0**: selector de tarifa con defecto por jerarquía, snapshot de `appliedHourlyRate`/`estimatedCost` + `rateId`, cronómetro que aplica la tarifa por defecto al detenerse, y coste en listado (con total), detalle y total por tarea. Detalle en `docs/historico-ia/fase-04-implementacion/38-coste-de-tiempos.md`.
 
-- **Opción A (decidida)**: al crear/editar un `TimeEntry` se **elige la tarifa** (selector), con un defecto sugerido por jerarquía proyecto→cliente→sistema (tarifa `ACTIVE`; si hay varias en un nivel, la más reciente).
-- Se **congela** `appliedHourlyRate` y se calcula `estimatedCost = (durationMinutes/60) × tarifa`. Cambiar una tarifa después no altera el histórico.
-- Mostrar el coste en el detalle y listado de `/times` + totales (por tarea/proyecto). Caso "sin tarifa" → «—».
-- Cubre el *override* por tarea/registro (es la propia selección). Bump previsto a **1.9.0** (feat).
+Siguiente bloque grande del MVP: **reportes** (generación + resumen asistido por IA) y el **portal de cliente**.
+
+- Totales **por proyecto** quedan pendientes (el detalle de proyecto aún no lista tiempos); se abordan junto con reportes.
 
 > **Mejora futura (Opción C)**: tarifas automáticas por horario (estándar/extra/festivo) con reglas de día/franja/festivo, sugerencia + override y **partición** de registros que cruzan franjas (p. ej. 17:00–19:00 = 1 h estándar + 1 h extra). Anotada para después de que la Opción A funcione.
 

@@ -2,6 +2,7 @@
 
 import { useActionState, useMemo, useState } from "react";
 
+import { RATE_SCOPE_LABELS, formatHourlyRate } from "@/app/rates/status";
 import { AlertBanner } from "@/components/feedback/alert-banner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,13 +12,15 @@ import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
 import type { TimeFormState } from "./actions";
+import { type RateOption, resolveDefaultRateId } from "./rate-cost";
 
 type Mode = "duration" | "interval";
 
 type TimeFormProps = {
   action: (state: TimeFormState, formData: FormData) => Promise<TimeFormState>;
-  projects: { id: string; label: string }[];
+  projects: { id: string; clientId: string; label: string }[];
   tasks: { id: string; projectId: string; label: string }[];
+  rates: RateOption[];
   submitLabel: string;
   dismissMs?: number;
   defaultValues?: {
@@ -32,6 +35,7 @@ type TimeFormProps = {
     endHour?: string;
     endMinute?: string;
     description?: string | null;
+    rateId?: string | null;
   };
 };
 
@@ -43,10 +47,17 @@ const todayInput = () => new Date().toISOString().slice(0, 10);
 // eso ambos modos envuelven el input en `flex items-center gap-2`.
 const timeFieldClass = "w-16 text-center";
 
+const rateLabel = (rate: RateOption) =>
+  `${rate.name} — ${RATE_SCOPE_LABELS[rate.scope]} · ${formatHourlyRate(
+    rate.hourlyAmount,
+    rate.currency,
+  )}`;
+
 export function TimeForm({
   action,
   projects,
   tasks,
+  rates,
   submitLabel,
   dismissMs = 5000,
   defaultValues,
@@ -77,6 +88,23 @@ export function TimeForm({
     () => tasks.filter((task) => task.projectId === projectId),
     [tasks, projectId],
   );
+
+  const clientIdOf = (pid: string) =>
+    projects.find((project) => project.id === pid)?.clientId ?? "";
+
+  // Tarifa: en alta se sugiere por jerarquía proyecto→cliente→sistema; en
+  // edición se respeta la guardada (puede estar inactiva, ver más abajo).
+  const initialRateId = value(
+    "rateId",
+    base.rateId ??
+      resolveDefaultRateId(rates, initialProjectId || null, clientIdOf(initialProjectId) || null),
+  );
+  const [rateId, setRateId] = useState(initialRateId);
+
+  // Si la tarifa guardada ya no está activa, se muestra igualmente como opción
+  // para no perder la selección al editar.
+  const selectedMissing =
+    rateId.length > 0 && !rates.some((rate) => rate.id === rateId);
 
   const initialMode =
     (state.values?.mode as Mode | undefined) ?? base.mode ?? "duration";
@@ -114,8 +142,17 @@ export function TimeForm({
               id="projectId"
               value={projectId}
               onChange={(event) => {
-                setProjectId(event.target.value);
+                const nextProjectId = event.target.value;
+                setProjectId(nextProjectId);
                 setTaskId("");
+                // Resugerir la tarifa por jerarquía para el nuevo proyecto.
+                setRateId(
+                  resolveDefaultRateId(
+                    rates,
+                    nextProjectId || null,
+                    clientIdOf(nextProjectId) || null,
+                  ),
+                );
               }}
             >
               <option value="">Selecciona un proyecto</option>
@@ -159,7 +196,28 @@ export function TimeForm({
             />
           </div>
 
-          <div className="hidden sm:block" aria-hidden />
+          <div className="grid gap-2">
+            <Label htmlFor="rateId">Tarifa</Label>
+            <Select
+              id="rateId"
+              name="rateId"
+              value={rateId}
+              onChange={(event) => setRateId(event.target.value)}
+            >
+              <option value="">Sin tarifa (sin coste)</option>
+              {selectedMissing ? (
+                <option value={rateId}>Tarifa guardada (no disponible)</option>
+              ) : null}
+              {rates.map((rate) => (
+                <option key={rate.id} value={rate.id}>
+                  {rateLabel(rate)}
+                </option>
+              ))}
+            </Select>
+            <span className="text-xs text-muted-foreground">
+              Se sugiere por proyecto → cliente → sistema; puedes cambiarla.
+            </span>
+          </div>
 
           <div className="grid gap-2 sm:col-span-2">
             <span className="text-sm font-medium">¿Cómo indicas el tiempo?</span>

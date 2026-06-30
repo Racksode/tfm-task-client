@@ -11,6 +11,10 @@ export const TIME_TYPE_BADGE: Record<TimeEntryType, string> = {
   [TimeEntryType.START_STOP]: "border-transparent bg-sky-600 text-white",
 };
 
+/** Formatea un importe como moneda local, p. ej. «12,50 €». */
+export const formatCurrency = (amount: number, currency = "EUR") =>
+  new Intl.NumberFormat("es-ES", { style: "currency", currency }).format(amount);
+
 /** Formatea una duración en minutos como «Xh Ym» (o «Ym» si es menos de una hora). */
 export const formatDuration = (minutes: number) => {
   const hours = Math.floor(minutes / 60);

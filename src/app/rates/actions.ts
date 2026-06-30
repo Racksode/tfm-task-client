@@ -15,6 +15,7 @@ export type RateFormValues = {
   status: string;
   clientId: string;
   projectId: string;
+  isDefault: string;
 };
 
 export type RateFormState = {
@@ -35,6 +36,7 @@ const extractValues = (formData: FormData): RateFormValues => ({
   status: getString(formData, "status"),
   clientId: getString(formData, "clientId"),
   projectId: getString(formData, "projectId"),
+  isDefault: getString(formData, "isDefault"),
 });
 
 const invalid = (values: RateFormValues, error: string): RateFormState => ({
@@ -60,6 +62,21 @@ type ValidatedInput = {
   status: RateStatus;
   clientId: string | null;
   projectId: string | null;
+  isDefault: boolean;
+};
+
+/**
+ * Filtro de las tarifas "hermanas" (mismo ámbito y propietario) entre las que
+ * solo puede haber una predeterminada.
+ */
+const siblingDefaultWhere = (data: ValidatedInput) => {
+  if (data.scope === RateScope.CLIENT) {
+    return { scope: RateScope.CLIENT, clientId: data.clientId };
+  }
+  if (data.scope === RateScope.PROJECT) {
+    return { scope: RateScope.PROJECT, projectId: data.projectId };
+  }
+  return { scope: RateScope.SYSTEM };
 };
 
 const validate = async (
@@ -128,7 +145,15 @@ const validate = async (
 
   return {
     ok: true,
-    data: { name: values.name, hourlyAmount, scope, status, clientId, projectId },
+    data: {
+      name: values.name,
+      hourlyAmount,
+      scope,
+      status,
+      clientId,
+      projectId,
+      isDefault: values.isDefault === "true",
+    },
   };
 };
 
@@ -147,8 +172,18 @@ export const createRate = async (
   if (!validation.ok) {
     return invalid(values, validation.error);
   }
+  const { data } = validation;
 
-  await prisma.rate.create({ data: validation.data });
+  await prisma.$transaction(async (tx) => {
+    // Solo una predeterminada por ámbito: al marcar esta, se desmarcan las demás.
+    if (data.isDefault) {
+      await tx.rate.updateMany({
+        where: siblingDefaultWhere(data),
+        data: { isDefault: false },
+      });
+    }
+    await tx.rate.create({ data });
+  });
 
   await setFlash("success", "Tarifa creada correctamente.");
   redirect("/rates");
@@ -182,8 +217,18 @@ export const updateRate = async (
   if (!current) {
     return invalid(values, "La tarifa indicada no existe.");
   }
+  const { data } = validation;
 
-  await prisma.rate.update({ where: { id: rateId }, data: validation.data });
+  await prisma.$transaction(async (tx) => {
+    // Solo una predeterminada por ámbito: al marcar esta, se desmarcan las demás.
+    if (data.isDefault) {
+      await tx.rate.updateMany({
+        where: { ...siblingDefaultWhere(data), NOT: { id: rateId } },
+        data: { isDefault: false },
+      });
+    }
+    await tx.rate.update({ where: { id: rateId }, data });
+  });
 
   await setFlash("success", "Tarifa actualizada correctamente.");
   redirect("/rates");
@@ -212,8 +257,8 @@ export const deleteRate = async (formData: FormData) => {
     redirect("/rates");
   }
 
-  // Rate no tiene referencias entrantes (TimeEntry guarda la tarifa como snapshot),
-  // así que el borrado es siempre seguro.
+  // TimeEntry.rateId usa onDelete: SetNull (el coste vive como snapshot), así que
+  // borrar una tarifa solo desvincula los registros: el borrado es siempre seguro.
   await prisma.rate.delete({ where: { id: rateId } });
   await setFlash("success", "Tarifa eliminada correctamente.");
   redirect("/rates");

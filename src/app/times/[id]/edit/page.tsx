@@ -1,3 +1,4 @@
+import { RateStatus } from "@prisma/client";
 import { ArrowLeft, Eye, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -12,7 +13,20 @@ import { prisma } from "@/lib/prisma";
 
 import { updateTimeEntry } from "../../actions";
 import { DeleteTimeDialog } from "../../delete-time-dialog";
+import { type RateOption, toRateOptions } from "../../rate-cost";
 import { TimeForm } from "../../time-form";
+
+const rateSelect = {
+  id: true,
+  name: true,
+  hourlyAmount: true,
+  currency: true,
+  scope: true,
+  status: true,
+  isDefault: true,
+  clientId: true,
+  projectId: true,
+} as const;
 
 type EditTimePageProps = {
   params: Promise<{ id: string }>;
@@ -32,7 +46,7 @@ export default async function EditTimePage({ params }: EditTimePageProps) {
     redirect(`/times/${id}`);
   }
 
-  const [entry, tasks, projects] = await Promise.all([
+  const [entry, tasks, projects, activeRates] = await Promise.all([
     prisma.timeEntry.findUnique({
       where: { id },
       select: {
@@ -44,6 +58,8 @@ export default async function EditTimePage({ params }: EditTimePageProps) {
         endedAt: true,
         durationMinutes: true,
         description: true,
+        rateId: true,
+        rate: { select: rateSelect },
         task: { select: { title: true } },
       },
     }),
@@ -53,7 +69,17 @@ export default async function EditTimePage({ params }: EditTimePageProps) {
     }),
     prisma.project.findMany({
       orderBy: { name: "asc" },
-      select: { id: true, name: true, client: { select: { name: true } } },
+      select: {
+        id: true,
+        name: true,
+        clientId: true,
+        client: { select: { name: true } },
+      },
+    }),
+    prisma.rate.findMany({
+      where: { status: RateStatus.ACTIVE },
+      orderBy: { createdAt: "desc" },
+      select: rateSelect,
     }),
   ]);
 
@@ -66,8 +92,16 @@ export default async function EditTimePage({ params }: EditTimePageProps) {
     redirect(`/times/${entry.id}`);
   }
 
+  // La tarifa guardada puede estar inactiva (no aparece en activeRates); se añade
+  // a las opciones para que el selector la conserve al editar.
+  const rateOptions: RateOption[] = toRateOptions(activeRates);
+  if (entry.rate && !rateOptions.some((rate) => rate.id === entry.rate!.id)) {
+    rateOptions.push(...toRateOptions([entry.rate]));
+  }
+
   const projectOptions = projects.map((project) => ({
     id: project.id,
+    clientId: project.clientId,
     label: `${project.name} — ${project.client.name}`,
   }));
 
@@ -91,6 +125,7 @@ export default async function EditTimePage({ params }: EditTimePageProps) {
     endHour: entry.endedAt ? String(entry.endedAt.getHours()) : "",
     endMinute: entry.endedAt ? String(entry.endedAt.getMinutes()) : "",
     description: entry.description,
+    rateId: entry.rateId ?? "",
   };
 
   return (
@@ -130,6 +165,7 @@ export default async function EditTimePage({ params }: EditTimePageProps) {
           action={updateTimeEntry}
           projects={projectOptions}
           tasks={taskOptions}
+          rates={rateOptions}
           defaultValues={defaultValues}
           submitLabel="Actualizar tiempo"
           dismissMs={appConfig.alertAutoDismissMs}
