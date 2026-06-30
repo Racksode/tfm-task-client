@@ -67,6 +67,7 @@ export default async function RateDetailPage({ params }: RateDetailPageProps) {
       currency: true,
       scope: true,
       status: true,
+      isDefault: true,
       createdAt: true,
       updatedAt: true,
       client: { select: { id: true, name: true } },
@@ -152,6 +153,9 @@ export default async function RateDetailPage({ params }: RateDetailPageProps) {
                 <Badge className={RATE_STATUS_BADGE[rate.status]}>
                   {RATE_STATUS_LABELS[rate.status]}
                 </Badge>
+              </Field>
+              <Field label="Predeterminada">
+                {rate.isDefault ? "Sí (defecto de su ámbito)" : "No"}
               </Field>
               <div className="sm:col-span-2">
                 <Field label="Destino">{target}</Field>

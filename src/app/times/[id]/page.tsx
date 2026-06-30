@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 
+import { formatHourlyRate } from "@/app/rates/status";
 import { actionButtonClass } from "@/components/data/icon-action";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/layout/page-header";
@@ -15,7 +16,12 @@ import { getSectionAccent } from "@/lib/section-config";
 import { cn } from "@/lib/utils";
 
 import { DeleteTimeDialog } from "../delete-time-dialog";
-import { TIME_TYPE_BADGE, TIME_TYPE_LABELS, formatDuration } from "../status";
+import {
+  TIME_TYPE_BADGE,
+  TIME_TYPE_LABELS,
+  formatCurrency,
+  formatDuration,
+} from "../status";
 
 type TimeDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -60,8 +66,11 @@ export default async function TimeDetailPage({ params }: TimeDetailPageProps) {
       endedAt: true,
       durationMinutes: true,
       description: true,
+      appliedHourlyRate: true,
+      estimatedCost: true,
       createdAt: true,
       updatedAt: true,
+      rate: { select: { name: true, currency: true } },
       task: {
         select: { id: true, title: true, project: { select: { name: true } } },
       },
@@ -154,6 +163,24 @@ export default async function TimeDetailPage({ params }: TimeDetailPageProps) {
               </Field>
               <Field label="Fin">
                 {entry.endedAt ? formatTime(entry.endedAt) : "—"}
+              </Field>
+              <Field label="Tarifa aplicada">
+                {entry.appliedHourlyRate ? (
+                  <>
+                    {entry.rate ? `${entry.rate.name} · ` : ""}
+                    {formatHourlyRate(
+                      Number(entry.appliedHourlyRate),
+                      entry.rate?.currency,
+                    )}
+                  </>
+                ) : (
+                  "—"
+                )}
+              </Field>
+              <Field label="Coste estimado">
+                {entry.estimatedCost
+                  ? formatCurrency(Number(entry.estimatedCost))
+                  : "—"}
               </Field>
               <div className="sm:col-span-2">
                 <Field label="Descripción">

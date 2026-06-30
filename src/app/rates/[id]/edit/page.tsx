@@ -36,6 +36,7 @@ export default async function EditRatePage({ params }: EditRatePageProps) {
         hourlyAmount: true,
         scope: true,
         status: true,
+        isDefault: true,
         clientId: true,
         projectId: true,
       },
@@ -71,6 +72,7 @@ export default async function EditRatePage({ params }: EditRatePageProps) {
     status: rate.status,
     clientId: rate.clientId,
     projectId: rate.projectId,
+    isDefault: rate.isDefault,
   };
 
   return (

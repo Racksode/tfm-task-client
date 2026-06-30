@@ -1,3 +1,4 @@
+import { RateStatus } from "@prisma/client";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -11,6 +12,7 @@ import { can } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 
 import { createTimeEntry } from "../actions";
+import { toRateOptions } from "../rate-cost";
 import { TimeForm } from "../time-form";
 
 type NewTimePageProps = {
@@ -26,19 +28,40 @@ export default async function NewTimePage({ searchParams }: NewTimePageProps) {
 
   const { taskId } = await searchParams;
 
-  const [projects, tasks] = await Promise.all([
+  const [projects, tasks, rates] = await Promise.all([
     prisma.project.findMany({
       orderBy: { name: "asc" },
-      select: { id: true, name: true, client: { select: { name: true } } },
+      select: {
+        id: true,
+        name: true,
+        clientId: true,
+        client: { select: { name: true } },
+      },
     }),
     prisma.task.findMany({
       orderBy: { createdAt: "desc" },
       select: { id: true, title: true, projectId: true },
     }),
+    prisma.rate.findMany({
+      where: { status: RateStatus.ACTIVE },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        name: true,
+        hourlyAmount: true,
+        currency: true,
+        scope: true,
+        status: true,
+        isDefault: true,
+        clientId: true,
+        projectId: true,
+      },
+    }),
   ]);
 
   const projectOptions = projects.map((project) => ({
     id: project.id,
+    clientId: project.clientId,
     label: `${project.name} — ${project.client.name}`,
   }));
 
@@ -65,6 +88,7 @@ export default async function NewTimePage({ searchParams }: NewTimePageProps) {
           action={createTimeEntry}
           projects={projectOptions}
           tasks={taskOptions}
+          rates={toRateOptions(rates)}
           defaultValues={taskId ? { taskId } : undefined}
           submitLabel="Grabar tiempo"
           dismissMs={appConfig.alertAutoDismissMs}

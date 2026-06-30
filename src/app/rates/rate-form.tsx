@@ -28,6 +28,7 @@ type RateFormProps = {
     status?: RateStatus;
     clientId?: string | null;
     projectId?: string | null;
+    isDefault?: boolean;
   };
 };
 
@@ -55,6 +56,11 @@ export function RateForm({
     base.scope ??
     RateScope.CLIENT;
   const [scope, setScope] = useState<RateScope>(initialScope);
+
+  const isDefaultChecked =
+    state.values?.isDefault !== undefined
+      ? state.values.isDefault === "true"
+      : (base.isDefault ?? false);
 
   return (
     <Card>
@@ -165,6 +171,24 @@ export function RateForm({
               </Select>
             </div>
           ) : null}
+
+          <div className="grid gap-2 sm:col-span-2">
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                name="isDefault"
+                value="true"
+                defaultChecked={isDefaultChecked}
+                className="size-4"
+              />
+              Tarifa predeterminada de su ámbito
+            </label>
+            <span className="text-xs text-muted-foreground">
+              Se sugiere automáticamente al registrar tiempo. Solo puede haber una
+              por sistema, por cliente o por proyecto; al marcar esta se desmarca
+              la anterior.
+            </span>
+          </div>
 
           <div className="flex items-center gap-3 sm:col-span-2">
             <Button type="submit" disabled={pending}>

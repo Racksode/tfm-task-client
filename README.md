@@ -15,19 +15,19 @@ El proyecto tiene la documentación funcional/UX cerrada, el rework de acceso y 
 ```text
 Fase actual: Fase 4 - Implementación del MVP
 Punto actual: módulos Client, Project, Task, Tiempos (manual + cronómetro start/stop) y Tarifas implementados
-Versión: 1.8.2
+Versión: 1.9.0
 ```
 
 Último hito completado:
 
 ```text
-Módulo Tarifas (/rates) + eliminación de baseRate: infraestructura de tarifas (modelo Rate, gestión ADMIN+) como única fuente, primer PR del bloque "coste de tiempos".
+Coste de tiempos (PR2): selección de tarifa por registro con defecto por jerarquía proyecto→cliente→sistema (prefiriendo la tarifa predeterminada de cada ámbito), snapshot de appliedHourlyRate/estimatedCost y coste mostrado en /times (listado + total, detalle) y en el detalle de tarea.
 ```
 
 Próximo paso:
 
 ```text
-PR2 del coste: aplicar la tarifa al registro de tiempo (selección manual + snapshot de appliedHourlyRate y estimatedCost).
+Reportes (generación + resumen asistido por IA). Mejora futura anotada: tarifas automáticas por horario (Opción C).
 ```
 
 Referencia de planificación:

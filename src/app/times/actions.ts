@@ -1,6 +1,6 @@
 "use server";
 
-import { Prisma, TimeEntryType } from "@prisma/client";
+import { Prisma, RateStatus, TimeEntryType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -9,7 +9,91 @@ import { setFlash } from "@/lib/flash";
 import { can, isAdmin } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 
+import { estimatedCostFromMinutes, resolveDefaultRateId } from "./rate-cost";
 import { formatDuration } from "./status";
+
+/** Snapshot de tarifa que se congela en el registro de tiempo. */
+type RateSnapshot = {
+  rateId: string | null;
+  appliedHourlyRate: Prisma.Decimal | null;
+  estimatedCost: Prisma.Decimal | null;
+};
+
+const EMPTY_SNAPSHOT: RateSnapshot = {
+  rateId: null,
+  appliedHourlyRate: null,
+  estimatedCost: null,
+};
+
+/** Congela el importe y el coste a partir de la tarifa elegida (o vacío). */
+const snapshotFromRate = (
+  rate: { id: string; hourlyAmount: Prisma.Decimal },
+  durationMinutes: number,
+): RateSnapshot => ({
+  rateId: rate.id,
+  appliedHourlyRate: rate.hourlyAmount,
+  estimatedCost: new Prisma.Decimal(
+    estimatedCostFromMinutes(durationMinutes, Number(rate.hourlyAmount)),
+  ),
+});
+
+/**
+ * Snapshot para la tarifa elegida a mano en el formulario. Devuelve `null` si se
+ * indicó una tarifa inexistente (error de validación); sin tarifa → snapshot vacío.
+ */
+const resolveSelectedSnapshot = async (
+  rateId: string,
+  durationMinutes: number,
+): Promise<RateSnapshot | null> => {
+  if (!rateId) {
+    return EMPTY_SNAPSHOT;
+  }
+  const rate = await prisma.rate.findUnique({
+    where: { id: rateId },
+    select: { id: true, hourlyAmount: true },
+  });
+  return rate ? snapshotFromRate(rate, durationMinutes) : null;
+};
+
+/**
+ * Snapshot por defecto (cronómetro): tarifa sugerida por jerarquía
+ * proyecto→cliente→sistema para la tarea, dentro de la transacción.
+ */
+const resolveDefaultSnapshot = async (
+  tx: Prisma.TransactionClient,
+  taskId: string,
+  durationMinutes: number,
+): Promise<RateSnapshot> => {
+  const task = await tx.task.findUnique({
+    where: { id: taskId },
+    select: { project: { select: { id: true, clientId: true } } },
+  });
+  if (!task) {
+    return EMPTY_SNAPSHOT;
+  }
+  const rates = await tx.rate.findMany({
+    where: { status: RateStatus.ACTIVE },
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      name: true,
+      hourlyAmount: true,
+      currency: true,
+      scope: true,
+      status: true,
+      isDefault: true,
+      clientId: true,
+      projectId: true,
+    },
+  });
+  const rateId = resolveDefaultRateId(
+    rates.map((rate) => ({ ...rate, hourlyAmount: Number(rate.hourlyAmount) })),
+    task.project.id,
+    task.project.clientId,
+  );
+  const chosen = rateId ? rates.find((rate) => rate.id === rateId) : undefined;
+  return chosen ? snapshotFromRate(chosen, durationMinutes) : EMPTY_SNAPSHOT;
+};
 
 export type TimeFormValues = {
   taskId: string;
@@ -23,6 +107,7 @@ export type TimeFormValues = {
   endHour: string;
   endMinute: string;
   description: string;
+  rateId: string;
 };
 
 export type TimeFormState = {
@@ -47,6 +132,7 @@ const extractValues = (formData: FormData): TimeFormValues => ({
   endHour: getString(formData, "endHour"),
   endMinute: getString(formData, "endMinute"),
   description: getString(formData, "description"),
+  rateId: getString(formData, "rateId"),
 });
 
 const invalid = (values: TimeFormValues, error: string): TimeFormState => ({
@@ -205,10 +291,16 @@ export const createTimeEntry = async (
   }
   const { data } = validation;
 
+  const snapshot = await resolveSelectedSnapshot(values.rateId, data.durationMinutes);
+  if (!snapshot) {
+    return invalid(values, "La tarifa seleccionada no existe.");
+  }
+
   // Cada usuario registra su propio tiempo; el autor es siempre la sesión.
   await prisma.timeEntry.create({
     data: {
       ...data,
+      ...snapshot,
       userId: session.user.id,
       type: TimeEntryType.MANUAL,
     },
@@ -253,10 +345,16 @@ export const updateTimeEntry = async (
   }
   const { data } = validation;
 
+  // El coste se recalcula porque la duración o la tarifa pueden haber cambiado.
+  const snapshot = await resolveSelectedSnapshot(values.rateId, data.durationMinutes);
+  if (!snapshot) {
+    return invalid(values, "La tarifa seleccionada no existe.");
+  }
+
   // El autor (userId) y el tipo no se reasignan al editar.
   await prisma.timeEntry.update({
     where: { id: timeEntryId },
-    data,
+    data: { ...data, ...snapshot },
   });
 
   await setFlash("success", "Registro de tiempo actualizado correctamente.");
@@ -319,16 +417,20 @@ const findActiveTimer = (tx: Prisma.TransactionClient, userId: string) =>
     select: { id: true, taskId: true, startedAt: true },
   });
 
-/** Cierra un cronómetro activo y devuelve los minutos registrados. */
+/**
+ * Cierra un cronómetro activo, congela su coste con la tarifa por defecto de la
+ * tarea (jerarquía proyecto→cliente→sistema) y devuelve los minutos registrados.
+ */
 const closeTimer = async (
   tx: Prisma.TransactionClient,
-  active: { id: string; startedAt: Date },
+  active: { id: string; taskId: string; startedAt: Date },
   now: Date,
 ) => {
   const minutes = elapsedMinutes(active.startedAt, now);
+  const snapshot = await resolveDefaultSnapshot(tx, active.taskId, minutes);
   await tx.timeEntry.update({
     where: { id: active.id },
-    data: { endedAt: now, durationMinutes: minutes },
+    data: { endedAt: now, durationMinutes: minutes, ...snapshot },
   });
   return minutes;
 };
@@ -377,7 +479,11 @@ export const startTimer = async (formData: FormData) => {
 
     // Si había uno en OTRA tarea, lo cerramos antes de iniciar el nuevo.
     if (active?.startedAt) {
-      await closeTimer(tx, { id: active.id, startedAt: active.startedAt }, now);
+      await closeTimer(
+        tx,
+        { id: active.id, taskId: active.taskId, startedAt: active.startedAt },
+        now,
+      );
     }
 
     await tx.timeEntry.create({
@@ -408,7 +514,11 @@ export const stopTimer = async () => {
     if (!active?.startedAt) {
       return null;
     }
-    return closeTimer(tx, { id: active.id, startedAt: active.startedAt }, now);
+    return closeTimer(
+      tx,
+      { id: active.id, taskId: active.taskId, startedAt: active.startedAt },
+      now,
+    );
   });
   if (minutes === null) {
     await setFlash("error", "No tienes ningún cronómetro en curso.");

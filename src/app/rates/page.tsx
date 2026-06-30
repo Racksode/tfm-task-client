@@ -57,6 +57,7 @@ export default async function RatesPage() {
       currency: true,
       scope: true,
       status: true,
+      isDefault: true,
       client: { select: { name: true } },
       project: { select: { name: true } },
     },
@@ -157,7 +158,16 @@ export default async function RatesPage() {
                         </>
                       }
                     >
-                      <TableCell className="font-medium">{rate.name}</TableCell>
+                      <TableCell className="font-medium">
+                        <span className="flex items-center gap-2">
+                          {rate.name}
+                          {rate.isDefault ? (
+                            <Badge className="border-transparent bg-amber-500 text-white">
+                              Predeterminada
+                            </Badge>
+                          ) : null}
+                        </span>
+                      </TableCell>
                       <TableCell>
                         <Badge className={RATE_SCOPE_BADGE[rate.scope]}>
                           {RATE_SCOPE_LABELS[rate.scope]}
