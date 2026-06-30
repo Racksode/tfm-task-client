@@ -368,7 +368,7 @@ export const updateTimeEntry = async (
 
   const current = await prisma.timeEntry.findUnique({
     where: { id: timeEntryId },
-    select: { id: true, userId: true, rateId: true },
+    select: { id: true, userId: true, taskId: true, rateId: true },
   });
   if (!current) {
     return invalid(values, "El registro indicado no existe.");
@@ -386,12 +386,15 @@ export const updateTimeEntry = async (
   const { data, context } = validation;
 
   // El coste se recalcula porque la duración o la tarifa pueden haber cambiado.
-  // Se preserva la tarifa ya aplicada aunque hubiese quedado fuera de ámbito.
+  // Solo se preserva la tarifa ya aplicada (saltando el chequeo de ámbito) si la
+  // tarea NO ha cambiado; si se reasigna a otra tarea, se revalida el ámbito para
+  // no arrastrar la tarifa de otro cliente/proyecto.
+  const preserveRateId = current.taskId === data.taskId ? current.rateId : null;
   const result = await resolveSelectedSnapshot(
     values.rateId,
     data.durationMinutes,
     context,
-    current.rateId,
+    preserveRateId,
   );
   if (!result.ok) {
     return invalid(values, result.error);
