@@ -15,19 +15,19 @@ El proyecto tiene la documentación funcional/UX cerrada, el rework de acceso y 
 ```text
 Fase actual: Fase 4 - Implementación del MVP
 Punto actual: módulos Client, Project, Task, Tiempos (manual + cronómetro start/stop), Tarifas y Reportes implementados
-Versión: 1.10.0
+Versión: 1.11.0
 ```
 
 Último hito completado:
 
 ```text
-Módulo Reportes (/reports, PR1): alta por cliente/proyecto y periodo, agregación y snapshot de horas y coste a partir de los tiempos registrados, resumen interno, flujo de estado (borrador/revisado) y visibilidad para el cliente.
+Reportes con IA (PR2): resumen profesional para el cliente generado con la API de Claude (modelo Haiku por defecto) a partir de las tareas y notas del periodo, con integración enchufable (real con API key / simulada sin ella) y traza de uso (AiUsage). Revisión humana antes de hacerlo visible.
 ```
 
 Próximo paso:
 
 ```text
-Reportes PR2: resumen para el cliente asistido por IA (API de Claude) + traza AiUsage. Mejora futura anotada: tarifas automáticas por horario (Opción C).
+Portal de cliente (/portal) y dashboard. Mejoras futuras anotadas: total por proyecto, tarifas automáticas por horario (Opción C) y prueba conceptual de lenguaje natural.
 ```
 
 Referencia de planificación:
@@ -209,6 +209,8 @@ Variables de entorno:
 | `BOOTSTRAP_USER_PASSWORD` | Solo bootstrap | Contraseña inicial del primer usuario. |
 | `BOOTSTRAP_USER_NAME` | Solo bootstrap | Nombre del primer usuario. |
 | `ALERT_AUTO_DISMISS_MS` | No | Milisegundos antes de auto-cerrar las alertas (por defecto 5000; 0 = no auto-cerrar). Los avisos de error no se auto-cierran. |
+| `ANTHROPIC_API_KEY` | No | Clave de la API de Claude para los resúmenes de reporte con IA. Si no se define, los resúmenes se generan en **modo simulado** (plantilla, sin coste). |
+| `AI_MODEL` | No | Modelo de Claude para los resúmenes (por defecto `claude-haiku-4-5`). |
 | `APP_VERSION` | No | Sobrescribe la versión mostrada en el footer (por defecto, la definida en código). |
 
 Las variables `BOOTSTRAP_USER_*` solo se utilizan al ejecutar el script de bootstrap del primer usuario y pueden retirarse después.

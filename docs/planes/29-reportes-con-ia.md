@@ -26,9 +26,10 @@ El schema ya trae el modelo **`Report`** (cliente, proyecto opcional, periodo, `
 - **Flujo de estado**: `DRAFT` al crear; acción "Marcar como revisado" → `REVIEWED` (guarda `reviewedAt`/`reviewer`); "Reabrir" → `DRAFT`. `GENERATED` se reserva para el PR2.
 - Sección `reports` en el menú (ítem "Reportes") + acento de color. Permisos ya existentes.
 
-### PR2 — Resumen con IA (pendiente, previsto **v1.11.0**)
+### PR2 — Resumen con IA (hecho, **v1.11.0**)
 
-- Acción "Generar resumen" → llamada a la API de Claude con las tareas/descripciones del periodo; guarda `aiSummary`, marca `GENERATED` y registra `AiUsage`. Revisión humana antes de `visibleToClient`. Integración enchufable (real/simulada).
+- Acción `generateReportSummary` → resumen con las tareas/notas del periodo; guarda `aiSummary`, marca `GENERATED` y registra `AiUsage` (también `ERROR` si falla). Revisión humana antes de `visibleToClient`.
+- **Integración enchufable** (`src/lib/ai.ts`): con `ANTHROPIC_API_KEY` llama a la API de Claude (SDK `@anthropic-ai/sdk`, modelo `AI_MODEL`, por defecto **Haiku 4.5**); sin ella genera un resumen **simulado** por plantilla. Coste por reporte ínfimo (céntimos o menos). Sin migración.
 
 ## Fuera de alcance / mejora futura
 

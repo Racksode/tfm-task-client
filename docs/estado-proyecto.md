@@ -2,7 +2,7 @@
 
 > **Documento vivo.** Punto único para retomar el trabajo desde cualquier equipo.
 > Se actualiza al cerrar cada sesión/PR (ver checklist al final).
-> Última actualización: 2026-07-01 (m).
+> Última actualización: 2026-07-01 (n).
 
 ## Cómo ponerse al día (equipo nuevo o nueva sesión)
 
@@ -17,7 +17,7 @@
 
 ## Estado actual
 
-- Versión: **1.10.0**.
+- Versión: **1.11.0**.
 - Documentación funcional/UX cerrada (`docs/10`–`docs/14`).
 - Base técnica: Next.js (App Router) + TypeScript + Prisma + PostgreSQL + Auth.js. UI con Tailwind + shadcn.
 - Acceso: login propio (`/login`), redirección por rol en `/`, `requireSession`/`requireStaff`/`requireAdmin` (`src/lib/auth-guards.ts`).
@@ -27,7 +27,7 @@
 - Módulo **Task implementado** (`/tasks`, `/tasks/[id]`, `/tasks/new`, `/tasks/[id]/edit`): tercer módulo de negocio. Relación con `Project` (selector plano "Proyecto — Cliente") y `responsible` (usuario staff, opcional); `status` (5 valores) y `priority` (3), fechas, `visibleToClient` y auditoría. Detalle con sub-listado 1→N de registros de tiempo (ya enlazados a `/times`).
 - Módulo **Tiempos implementado** (`/times`, `/times/[id]`, `/times/new`, `/times/[id]/edit`): cuarto módulo de negocio. Registro **manual** (tiempo "por duración" o "por inicio y fin", con campos numéricos HH/MM) y **cronómetro start/stop** (`type` `MANUAL`/`START_STOP`); selector en cascada proyecto→tarea; `INTERNAL` ve/edita solo sus registros, `ADMIN+` todos. Indicador global del cronómetro en curso en la cabecera. **Coste calculado (PR2)**: selección de tarifa por registro (defecto = la **predeterminada** `isDefault` del nivel más específico de la jerarquía proyecto→cliente→sistema; si ningún nivel la tiene, no se preselecciona ninguna), snapshot de `appliedHourlyRate`/`estimatedCost` y `rateId` (`onDelete: SetNull`); el cronómetro aplica la tarifa por defecto al detenerse. Coste mostrado en el listado (con total), el detalle y el total por tarea.
 - Módulo **Tarifas implementado** (`/rates`, solo `ADMIN+`): gestión del modelo `Rate` (ámbito `SYSTEM`/`CLIENT`/`PROJECT`, importe €/h, estado activa/inactiva, marca **predeterminada** `isDefault` —una por ámbito/propietario—). Es la **única fuente de tarifas**; se eliminó `baseRate` de `Client`/`Project`.
-- Módulo **Reportes implementado** (`/reports`, sección de negocio `INTERNAL+`): sexto módulo. Alta por **cliente** (+ proyecto opcional, en cascada) y **periodo**; al guardar/recalcular **agrega y congela** horas (`totalHours`) y coste (`estimatedCost`) de los `TimeEntry` del ámbito cuyo `workDate` cae en el periodo (excluye el cronómetro en curso). `functionalSummary` interno, flujo `DRAFT`→`REVIEWED` (acción revisar/reabrir, con revisor) y `visibleToClient`. `aiSummary` se rellenará en el PR2. Borrado bloqueado si tiene `AiUsage`. Sin migración (modelo `Report`/`AiUsage` ya existía).
+- Módulo **Reportes implementado** (`/reports`, sección de negocio `INTERNAL+`): sexto módulo. Alta por **cliente** (+ proyecto opcional, en cascada) y **periodo**; al guardar/recalcular **agrega y congela** horas (`totalHours`) y coste (`estimatedCost`) de los `TimeEntry` del ámbito cuyo `workDate` cae en el periodo (excluye el cronómetro en curso). `functionalSummary` interno, flujo `DRAFT`→`GENERATED`→`REVIEWED` (acciones revisar/reabrir, con revisor) y `visibleToClient`. **Resumen para el cliente con IA (PR2)**: acción "Generar/Regenerar resumen" → `aiSummary` + estado `GENERATED` + traza `AiUsage`; integración **enchufable** (`src/lib/ai.ts`): con `ANTHROPIC_API_KEY` llama a la API de Claude (modelo `AI_MODEL`, por defecto Haiku 4.5), sin ella genera un resumen **simulado** por plantilla. Borrado bloqueado si tiene `AiUsage`. Sin migración (modelo `Report`/`AiUsage` ya existía).
 - `/dashboard` y `/portal` son placeholders ("en construcción").
 
 ## Decisiones / convenciones en vigor
@@ -47,13 +47,13 @@
 - **Cronómetro start/stop**: un **único** cronómetro activo por usuario (auto-detención del anterior); en curso = `START_STOP` con `endedAt = null` (excluido de los listados). Inicio/parada **atómicos** (transacción + `pg_advisory_xact_lock` vía `$executeRaw`, no `$queryRaw`) e **idempotentes** por tarea.
 - **Inputs de hora**: se usan campos numéricos **HH/MM**, no `<input type="time">` nativo (devolvía valor vacío según el locale del navegador).
 
-## Próximo paso: reportes con IA (PR2)
+## Próximo paso: portal de cliente y dashboard
 
-Reportes **PR1 cerrado en v1.10.0** (módulo `/reports` con agregación y snapshot de horas/coste, resumen interno, estado y visibilidad; sin IA). Plan en `docs/planes/29-reportes-con-ia.md`, detalle en `docs/historico-ia/fase-04-implementacion/39-modulo-reportes.md`.
+Reportes **cerrados**: PR1 (módulo + agregación, v1.10.0) y PR2 (resumen con IA, v1.11.0). Plan en `docs/planes/29-reportes-con-ia.md`; detalle en `docs/historico-ia/fase-04-implementacion/39-modulo-reportes.md` y `40-reportes-ia.md`.
 
-**Siguiente (PR2, previsto v1.11.0)**: resumen para el cliente **asistido por IA** (API de Claude) a partir de las tareas/descripciones del periodo → `aiSummary`, estado `GENERATED` y traza `AiUsage`. Integración **enchufable** (IA real con API key / simulada sin ella); revisión humana antes de marcar visible. La decisión "API real vs simulado" se cierra al empezar el PR2.
+**Siguiente**: convertir `/portal` (hoy placeholder) en el **área de cliente** (sus proyectos/tareas/tiempos visibles y reportes con `visibleToClient`) y el **dashboard** con KPIs.
 
-- Totales **por proyecto** (en el detalle de proyecto) y la **prueba conceptual de lenguaje natural** (`docs/05-ia.md` §2.3) quedan como pasos posteriores.
+- Pendientes menores: total **por proyecto** en el detalle de proyecto; **prueba conceptual de lenguaje natural** (`docs/05-ia.md` §2.3); **Opción C** (tarifas por horario).
 
 > **Mejora futura (Opción C)**: tarifas automáticas por horario (estándar/extra/festivo) con reglas de día/franja/festivo, sugerencia + override y **partición** de registros que cruzan franjas (p. ej. 17:00–19:00 = 1 h estándar + 1 h extra). Anotada para después de que la Opción A funcione.
 
