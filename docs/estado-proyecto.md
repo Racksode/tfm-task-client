@@ -2,7 +2,7 @@
 
 > **Documento vivo.** Punto único para retomar el trabajo desde cualquier equipo.
 > Se actualiza al cerrar cada sesión/PR (ver checklist al final).
-> Última actualización: 2026-06-30 (i).
+> Última actualización: 2026-06-30 (j).
 
 ## Cómo ponerse al día (equipo nuevo o nueva sesión)
 
@@ -17,7 +17,7 @@
 
 ## Estado actual
 
-- Versión: **1.8.1**.
+- Versión: **1.8.2**.
 - Documentación funcional/UX cerrada (`docs/10`–`docs/14`).
 - Base técnica: Next.js (App Router) + TypeScript + Prisma + PostgreSQL + Auth.js. UI con Tailwind + shadcn.
 - Acceso: login propio (`/login`), redirección por rol en `/`, `requireSession`/`requireStaff`/`requireAdmin` (`src/lib/auth-guards.ts`).
@@ -58,6 +58,8 @@ Aplicar una tarifa al registro de tiempo y calcular el coste estimado. Plan en `
 > **Mejora futura (Opción C)**: tarifas automáticas por horario (estándar/extra/festivo) con reglas de día/franja/festivo, sugerencia + override y **partición** de registros que cruzan franjas (p. ej. 17:00–19:00 = 1 h estándar + 1 h extra). Anotada para después de que la Opción A funcione.
 
 > **Deuda documental saldada (2026-06-30)**: se han escrito a posteriori los `docs/planes/26–28` y `docs/historico-ia/fase-04-implementacion/31–35` de los módulos Tiempos, cronómetro, sus fixes de revisión y Tarifas. A partir de aquí, documentar **en el mismo PR** (no acumular deuda).
+
+> **Migración `remove_base_rate` revertida a DROP-only (2026-06-30, v1.8.2)**: el fix 1.8.1 había editado una migración **ya aplicada** para añadir un backfill `baseRate → Rate` (y reconciliado el checksum a mano). Es un anti-patrón (rompe el historial de migraciones de cualquier BD que aplicó la versión previa) y el backfill no aportaba nada: en una BD que ya hizo el `DROP` las columnas no existen, y en una fresca/pruebas no hay filas. Se revierte la migración a su forma original `DROP COLUMN` y se re-reconcilia el checksum local. **Regla**: no editar migraciones ya aplicadas; si hace falta migrar datos, va en una migración **nueva** y previa al cambio destructivo. Detalle en `docs/historico-ia/fase-04-implementacion/37-fix-revert-migracion-baserate.md`.
 
 ## Notas y dudas por resolver (del usuario)
 

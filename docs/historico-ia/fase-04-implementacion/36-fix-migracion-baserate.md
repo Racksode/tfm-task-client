@@ -34,3 +34,11 @@ Forma del `INSERT` (columnas, tipos, enums `RateScope`/`RateStatus`, casts, `gen
 ```text
 fix: migrar baseRate a Rate antes de eliminar las columnas
 ```
+
+## Actualización (2026-06-30, v1.8.2) — revertido
+
+Este fix se **revirtió**. Editar una migración ya aplicada (y reconciliar el
+checksum a mano) rompe el historial de cualquier BD que aplicó la versión
+previa, y el backfill no aportaba nada real (ver
+[37-fix-revert-migracion-baserate.md](37-fix-revert-migracion-baserate.md)). La
+migración vuelve a su forma original `DROP COLUMN`.
