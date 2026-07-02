@@ -2,7 +2,7 @@
 
 > **Documento vivo.** Punto único para retomar el trabajo desde cualquier equipo.
 > Se actualiza al cerrar cada sesión/PR (ver checklist al final).
-> Última actualización: 2026-07-01 (o).
+> Última actualización: 2026-07-02 (o).
 
 ## Cómo ponerse al día (equipo nuevo o nueva sesión)
 
@@ -17,7 +17,7 @@
 
 ## Estado actual
 
-- Versión: **1.11.0**.
+- Versión: **1.11.1**.
 - Documentación funcional/UX cerrada (`docs/10`–`docs/14`).
 - Base técnica: Next.js (App Router) + TypeScript + Prisma + PostgreSQL + Auth.js. UI con Tailwind + shadcn.
 - Acceso: login propio (`/login`), redirección por rol en `/`, `requireSession`/`requireStaff`/`requireAdmin` (`src/lib/auth-guards.ts`).
@@ -27,7 +27,7 @@
 - Módulo **Task implementado** (`/tasks`, `/tasks/[id]`, `/tasks/new`, `/tasks/[id]/edit`): tercer módulo de negocio. Relación con `Project` (selector plano "Proyecto — Cliente") y `responsible` (usuario staff, opcional); `status` (5 valores) y `priority` (3), fechas, `visibleToClient` y auditoría. Detalle con sub-listado 1→N de registros de tiempo (ya enlazados a `/times`).
 - Módulo **Tiempos implementado** (`/times`, `/times/[id]`, `/times/new`, `/times/[id]/edit`): cuarto módulo de negocio. Registro **manual** (tiempo "por duración" o "por inicio y fin", con campos numéricos HH/MM) y **cronómetro start/stop** (`type` `MANUAL`/`START_STOP`); selector en cascada proyecto→tarea; `INTERNAL` ve/edita solo sus registros, `ADMIN+` todos. Indicador global del cronómetro en curso en la cabecera. **Coste calculado (PR2)**: selección de tarifa por registro (defecto = la **predeterminada** `isDefault` del nivel más específico de la jerarquía proyecto→cliente→sistema; si ningún nivel la tiene, no se preselecciona ninguna), snapshot de `appliedHourlyRate`/`estimatedCost` y `rateId` (`onDelete: SetNull`); el cronómetro aplica la tarifa por defecto al detenerse. Coste mostrado en el listado (con total), el detalle y el total por tarea.
 - Módulo **Tarifas implementado** (`/rates`, solo `ADMIN+`): gestión del modelo `Rate` (ámbito `SYSTEM`/`CLIENT`/`PROJECT`, importe €/h, estado activa/inactiva, marca **predeterminada** `isDefault` —una por ámbito/propietario—). Es la **única fuente de tarifas**; se eliminó `baseRate` de `Client`/`Project`.
-- Módulo **Reportes implementado** (`/reports`, sección de negocio `INTERNAL+`): sexto módulo. Alta por **cliente** (+ proyecto opcional, en cascada) y **periodo**; al guardar/recalcular **agrega y congela** horas (`totalHours`) y coste (`estimatedCost`) de los `TimeEntry` del ámbito cuyo `workDate` cae en el periodo (excluye el cronómetro en curso). `functionalSummary` interno, flujo `DRAFT`→`GENERATED`→`REVIEWED` (acciones revisar/reabrir, con revisor) y `visibleToClient`. **Resumen para el cliente con IA (PR2)**: acción "Generar/Regenerar resumen" → `aiSummary` + estado `GENERATED` + traza `AiUsage`; integración **enchufable** (`src/lib/ai.ts`): con `ANTHROPIC_API_KEY` llama a la API de Claude (modelo `AI_MODEL`, por defecto Haiku 4.5), sin ella genera un resumen **simulado** por plantilla. Borrado bloqueado si tiene `AiUsage`. Sin migración (modelo `Report`/`AiUsage` ya existía).
+- Módulo **Reportes implementado** (`/reports`, sección de negocio `INTERNAL+`): sexto módulo. Alta por **cliente** (+ proyecto opcional, en cascada) y **periodo**; al guardar/recalcular **agrega y congela** horas (`totalHours`) y coste (`estimatedCost`) de los `TimeEntry` del ámbito cuyo `workDate` cae en el periodo (excluye el cronómetro en curso). `functionalSummary` interno, flujo `DRAFT`→`GENERATED`→`REVIEWED` (acciones revisar/reabrir, con revisor) y `visibleToClient`. **Resumen para el cliente con IA (PR2)**: acción "Generar/Regenerar resumen" → `aiSummary` + estado `GENERATED` + traza `AiUsage` (regenerar un reporte ya `REVIEWED` descarta la revisión previa —`reviewedAt`/`reviewerId` a `null`— para no mostrar un revisor obsoleto; y si los tiempos del periodo han cambiado desde el último cálculo, la generación se **bloquea** y pide recalcular primero, para que el resumen cuadre con el snapshot congelado —no se re-congela en silencio—, v1.11.1); integración **enchufable** (`src/lib/ai.ts`): con `ANTHROPIC_API_KEY` llama a la API de Claude (modelo `AI_MODEL`, por defecto Haiku 4.5), sin ella genera un resumen **simulado** por plantilla. Borrado bloqueado si tiene `AiUsage`. Sin migración (modelo `Report`/`AiUsage` ya existía).
 - `/dashboard` y `/portal` son placeholders ("en construcción").
 
 ## Decisiones / convenciones en vigor
