@@ -314,6 +314,7 @@ export const generateReportSummary = async (formData: FormData) => {
       periodStart: true,
       periodEnd: true,
       totalHours: true,
+      estimatedCost: true,
       client: { select: { name: true } },
       project: { select: { name: true } },
     },
@@ -321,6 +322,28 @@ export const generateReportSummary = async (formData: FormData) => {
   if (!report) {
     await setFlash("error", "El reporte indicado no existe.");
     redirect("/reports");
+  }
+
+  // El resumen se genera sobre el snapshot congelado. Si los tiempos del periodo
+  // han cambiado desde el último cálculo, los totales mostrados ya no cuadran con
+  // los registros en vivo: se bloquea y se pide recalcular antes (no re-congelamos
+  // en silencio; recalcular es una acción explícita).
+  const live = await aggregatePeriod({
+    clientId: report.clientId,
+    projectId: report.projectId,
+    periodStart: report.periodStart,
+    periodEnd: report.periodEnd,
+    functionalSummary: null,
+    visibleToClient: false,
+  });
+  const frozenHours = report.totalHours ?? new Prisma.Decimal(0);
+  const frozenCost = report.estimatedCost ?? new Prisma.Decimal(0);
+  if (!live.totalHours.equals(frozenHours) || !live.estimatedCost.equals(frozenCost)) {
+    await setFlash(
+      "error",
+      "Los tiempos del periodo han cambiado desde el último cálculo. Recalcula el reporte antes de generar el resumen.",
+    );
+    redirect(`/reports/${report.id}`);
   }
 
   // Mismos registros que la agregación: tareas con tiempo en el periodo.
@@ -372,6 +395,10 @@ export const generateReportSummary = async (formData: FormData) => {
           aiSummary: result.text,
           status: ReportStatus.GENERATED,
           generatedAt: new Date(),
+          // Un reporte que ya estaba REVIEWED vuelve a GENERATED al regenerar:
+          // hay que descartar la revisión previa para no mostrar un revisor obsoleto.
+          reviewedAt: null,
+          reviewerId: null,
         },
       }),
       prisma.aiUsage.create({
