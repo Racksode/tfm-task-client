@@ -28,7 +28,11 @@ async function login(formData: FormData) {
     });
   } catch (error) {
     if (error instanceof AuthError) {
-      redirect("/login?error=credenciales");
+      // `CredentialsSignin` = credenciales inválidas (authorize devolvió null);
+      // cualquier otro AuthError (authorize lanzó, p. ej. sin conexión a BD) se
+      // trata como fallo de conexión para no decir "credenciales mal" cuando no lo son.
+      const code = error.type === "CredentialsSignin" ? "credenciales" : "conexion";
+      redirect(`/login?error=${code}`);
     }
 
     throw error;
@@ -43,7 +47,12 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   }
 
   const params = await searchParams;
-  const hasError = Boolean(params?.error);
+  const errorMessage =
+    params?.error === "conexion"
+      ? "No se puede conectar con el servidor. Inténtalo de nuevo más tarde."
+      : params?.error
+        ? "Credenciales no válidas."
+        : null;
 
   return (
     <main className="flex min-h-svh items-center justify-center p-6">
@@ -62,8 +71,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               <Label htmlFor="password">Contraseña</Label>
               <Input id="password" name="password" type="password" required />
             </div>
-            {hasError ? (
-              <p className="text-sm text-destructive">Credenciales no válidas.</p>
+            {errorMessage ? (
+              <p className="text-sm text-destructive">{errorMessage}</p>
             ) : null}
             <Button type="submit" className="w-full">
               Iniciar sesión
