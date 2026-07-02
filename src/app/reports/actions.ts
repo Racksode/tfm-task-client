@@ -125,20 +125,30 @@ const validate = async (
   };
 };
 
+/** Ámbito del periodo (mismo criterio en agregación, generación y detección de
+ * cambios): registros del cliente/proyecto cuyo `workDate` cae en el periodo,
+ * excluyendo el cronómetro en curso. */
+const periodScopeWhere = (data: {
+  clientId: string;
+  projectId: string | null;
+  periodStart: Date;
+  periodEnd: Date;
+}): Prisma.TimeEntryWhereInput => ({
+  workDate: { gte: data.periodStart, lte: data.periodEnd },
+  NOT: { type: TimeEntryType.START_STOP, endedAt: null },
+  task: data.projectId
+    ? { projectId: data.projectId }
+    : { project: { clientId: data.clientId } },
+});
+
 /**
- * Suma horas y coste de los registros de tiempo del cliente/proyecto cuyo
- * `workDate` cae en el periodo. Excluye el cronómetro en curso. El resultado se
- * congela en el reporte (snapshot), no se recalcula solo al añadir tiempos.
+ * Suma horas y coste de los registros de tiempo del ámbito del periodo. El
+ * resultado (con `snapshotAt`, el momento del cálculo) se congela en el reporte;
+ * no se recalcula solo al añadir o editar tiempos.
  */
 const aggregatePeriod = async (data: ValidatedInput) => {
   const aggregate = await prisma.timeEntry.aggregate({
-    where: {
-      workDate: { gte: data.periodStart, lte: data.periodEnd },
-      NOT: { type: TimeEntryType.START_STOP, endedAt: null },
-      task: data.projectId
-        ? { projectId: data.projectId }
-        : { project: { clientId: data.clientId } },
-    },
+    where: periodScopeWhere(data),
     _sum: { durationMinutes: true, estimatedCost: true },
   });
 
@@ -146,6 +156,7 @@ const aggregatePeriod = async (data: ValidatedInput) => {
   return {
     totalHours: new Prisma.Decimal(Math.round((minutes / 60) * 100) / 100),
     estimatedCost: aggregate._sum.estimatedCost ?? new Prisma.Decimal(0),
+    snapshotAt: new Date(),
   };
 };
 
@@ -315,6 +326,7 @@ export const generateReportSummary = async (formData: FormData) => {
       periodEnd: true,
       totalHours: true,
       estimatedCost: true,
+      snapshotAt: true,
       client: { select: { name: true } },
       project: { select: { name: true } },
     },
@@ -325,9 +337,11 @@ export const generateReportSummary = async (formData: FormData) => {
   }
 
   // El resumen se genera sobre el snapshot congelado. Si los tiempos del periodo
-  // han cambiado desde el último cálculo, los totales mostrados ya no cuadran con
-  // los registros en vivo: se bloquea y se pide recalcular antes (no re-congelamos
-  // en silencio; recalcular es una acción explícita).
+  // han cambiado desde el último cálculo, se bloquea y se pide recalcular antes
+  // (no re-congelamos en silencio; recalcular es una acción explícita). Se detectan
+  // dos derivas: (1) los totales ya no cuadran, y (2) el contenido cambió aunque los
+  // totales sigan iguales (p. ej. mover minutos/coste entre tareas), vía cualquier
+  // registro del ámbito modificado tras `snapshotAt`.
   const live = await aggregatePeriod({
     clientId: report.clientId,
     projectId: report.projectId,
@@ -338,7 +352,20 @@ export const generateReportSummary = async (formData: FormData) => {
   });
   const frozenHours = report.totalHours ?? new Prisma.Decimal(0);
   const frozenCost = report.estimatedCost ?? new Prisma.Decimal(0);
-  if (!live.totalHours.equals(frozenHours) || !live.estimatedCost.equals(frozenCost)) {
+  const totalsChanged =
+    !live.totalHours.equals(frozenHours) ||
+    !live.estimatedCost.equals(frozenCost);
+
+  const contentChanged = report.snapshotAt
+    ? (await prisma.timeEntry.count({
+        where: {
+          ...periodScopeWhere(report),
+          updatedAt: { gt: report.snapshotAt },
+        },
+      })) > 0
+    : false;
+
+  if (totalsChanged || contentChanged) {
     await setFlash(
       "error",
       "Los tiempos del periodo han cambiado desde el último cálculo. Recalcula el reporte antes de generar el resumen.",
@@ -348,13 +375,7 @@ export const generateReportSummary = async (formData: FormData) => {
 
   // Mismos registros que la agregación: tareas con tiempo en el periodo.
   const entries = await prisma.timeEntry.findMany({
-    where: {
-      workDate: { gte: report.periodStart, lte: report.periodEnd },
-      NOT: { type: TimeEntryType.START_STOP, endedAt: null },
-      task: report.projectId
-        ? { projectId: report.projectId }
-        : { project: { clientId: report.clientId } },
-    },
+    where: periodScopeWhere(report),
     select: {
       durationMinutes: true,
       description: true,

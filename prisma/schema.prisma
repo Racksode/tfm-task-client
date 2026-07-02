@@ -232,6 +232,9 @@ model Report {
   periodEnd       DateTime
   totalHours      Decimal?     @db.Decimal(10, 2)
   estimatedCost   Decimal?     @db.Decimal(10, 2)
+  // Momento del último cálculo (freeze). Permite detectar si algún registro del
+  // ámbito cambió después (aunque los totales cuadren) antes de generar el resumen.
+  snapshotAt      DateTime?
   functionalSummary String?
   aiSummary       String?
   visibleToClient Boolean      @default(false)
